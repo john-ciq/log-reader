@@ -32,9 +32,11 @@ A modern, browser-based log file analyzer with flexible parsing, filtering, sear
 - **Inline JSON Expansion**: Messages containing JSON display a ▶/▼ toggle to view formatted, nested JSON inline
 
 ### Filtering & Visibility
-- **Named Filters**: Create, save, and reload named filter configurations via `localStorage`
-- **Include Regex**: Show only entries whose message matches a pattern
-- **Exclude Regex**: Hide entries whose message matches a pattern
+- **Multiple Named Filters**: Create, name, reorder, duplicate, and enable/disable any number of filter configurations; all settings persist via `localStorage`
+- **Cascading Evaluation**: Enabled filters are evaluated in order; the first filter that has an opinion about an entry wins (include or exclude); if no filter claims the entry it is shown by default
+- **Include Regex**: If an include pattern matches an entry, the entry is immediately included and no further filters are checked
+- **Exclude Regex**: If an exclude pattern matches an entry, the entry is immediately excluded and no further filters are checked
+- **Filter Reordering**: Drag filter cards to reorder them, or use the ↑/↓ buttons
 - **Level Checkboxes**: Show/hide entries by log level (error, warn, info, log, debug, etc.)
 - **File Checkboxes**: Show/hide entries by source file; uncheck a file to hide all its entries
 - **Source Checkboxes**: Show/hide entries by logging source (component/module name), accessible in the Statistics panel
@@ -52,11 +54,14 @@ A modern, browser-based log file analyzer with flexible parsing, filtering, sear
 - **Logging Sources**: Entry count per source with a proportional bar; each row has a checkbox to show/hide that source
 
 ### Export
-- **JSON Export**: Download all currently filtered/visible entries as a JSON file
+- **Export Filtered**: Download all currently visible (filtered) entries as a JSON file
+- **Export All**: Download every loaded entry regardless of active filters as a JSON file
 
 ### Persistence
 All of the following are saved in browser `localStorage` and restored on reload:
-- Named filter configurations and the active filter selection
+- Named filter configurations including enabled/disabled state for each filter
+- Hidden levels and hidden sources (unchecked items are remembered)
+- Search query and regex toggle state
 - Sort column and direction
 - Column widths and order
 
@@ -95,18 +100,21 @@ npm run preview
 ## Usage
 
 1. **Upload Log Files**: Click the upload area or drag files onto it
-   - Accepts `.log`, `.txt`, and `.zip` files
+   - Accepts `.log`, `.txt`, `.json`, and `.zip` files
    - Multiple files can be uploaded at once; entries from all files are merged into one view
 2. **View Logs**: Entries appear in the table with timestamp, level, file, source, and message
 3. **Filter**:
-   - Use the Include/Exclude regex fields in the Filters & Search panel
+   - Create named filters in the Filters & Search panel; check a filter's checkbox to enable it
+   - Multiple filters can be active at once — they are evaluated in order, first match wins
+   - Each filter can have Include patterns (force include), Exclude patterns (force exclude), and level/file criteria
+   - Drag filter cards or use ↑/↓ buttons to change evaluation order
    - Toggle levels with the level checkboxes
    - Toggle files with the file checkboxes in the Log Files panel
    - Toggle sources with the checkboxes in the Statistics panel → Logging Sources
 4. **Search**: Type in the search bar to highlight matching text; enable `.*` for regex
 5. **Expand Messages**: Click "show more" on truncated messages; click ▶ to expand inline JSON
 6. **Resize/Reorder Columns**: Drag column edges to resize; drag column headers to reorder
-7. **Export**: Click "Export JSON" in the Statistics panel header to download filtered results
+7. **Export**: Click "Export Filtered" or "Export All" in the Statistics panel header to download entries as JSON
 
 ---
 
