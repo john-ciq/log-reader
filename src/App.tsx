@@ -223,6 +223,12 @@ function App() {
     });
   }, []);
 
+  const handleFileRemove = useCallback((file: string) => {
+    setEntries(prev => prev.filter(e => e.filename !== file));
+    setDisplayFiles(prev => { const next = new Set(prev); next.delete(file); return next; });
+    setAvailableFiles(prev => prev.filter(f => f !== file));
+  }, []);
+
   const handleSourceCheckbox = useCallback((source: string, checked: boolean) => {
     setDisplaySources(prev => {
       const next = new Set(prev);
@@ -277,6 +283,7 @@ function App() {
               files={availableFiles}
               selected={displayFiles}
               onChange={handleFileCheckbox}
+              onRemove={handleFileRemove}
               parsers={Object.fromEntries(
                 entries
                   .filter(e => e.filename && e.parser)

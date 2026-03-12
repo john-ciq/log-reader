@@ -2,6 +2,12 @@
 
 All notable changes to the Log Reader project will be documented in this file.
 
+## [1.0.30] - 2026-03-12
+
+### Added
+- Log Files panel: each file now has an × button to remove it
+  - Removes the file entry from the panel and all associated log entries from the table
+
 ## [1.0.29] - 2026-03-12
 
 ### Added
