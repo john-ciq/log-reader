@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { parseLogContent, LogEntry } from '../lib/parser';
+import { parseLogContent, parseLogLine, LogEntry } from '../lib/parser';
 import JSZip from 'jszip';
 
 interface FileUploaderProps {
@@ -24,26 +24,27 @@ async function processZipFile(file: File): Promise<LogEntry[]> {
       const fileContent = await fileObj.async('text');
       const jsonData = JSON.parse(fileContent);
 
-      // Expect an array of log entries from each JSON file
-      if (!Array.isArray(jsonData)) {
-        console.warn(`Warning: ${filename} does not contain a JSON array`);
+      // Accept a bare array or an object with a nested array (e.g. { partial_log: [...] })
+      let entries: unknown[];
+      if (Array.isArray(jsonData)) {
+        entries = jsonData;
+      } else if (typeof jsonData === 'object' && jsonData !== null) {
+        const nested = Object.values(jsonData).find(Array.isArray);
+        if (!nested) {
+          console.warn(`Warning: ${filename} contains no array to parse`);
+          continue;
+        }
+        entries = nested as unknown[];
+      } else {
+        console.warn(`Warning: ${filename} is not a JSON array or object`);
         continue;
       }
 
-      // Convert JSON entries to LogEntry format
-      jsonData.forEach((entry, idx) => {
+      entries.forEach((entry, idx) => {
         const id = `${timestamp}-${allEntries.length}-${idx}`;
-        const logEntry: LogEntry = {
-          id,
-          timestamp: entry.timestamp ? new Date(entry.timestamp) : new Date(),
-          level: (entry.level || entry.severity || 'info').toLowerCase(),
-          source: entry.source || entry.component || filename,
-          filename: filename,
-          message: entry.message || entry.msg || JSON.stringify(entry),
-          raw: JSON.stringify(entry),
-          metadata: entry,
-        };
-        allEntries.push(logEntry);
+        const jsonStr = JSON.stringify(entry);
+        const parsed = parseLogLine(jsonStr, id, filename);
+        if (parsed) allEntries.push(parsed);
       });
     } catch (err) {
       console.error(`Error processing ${filename}:`, err);

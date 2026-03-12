@@ -2,6 +2,17 @@
 
 All notable changes to the Log Reader project will be documented in this file.
 
+## [1.0.37] - 2026-03-12
+
+### Fixed
+- Finsemble JSON parser now matches log entries regardless of field order
+  - Previously required `logTimestamp`, `logType`, `logClientName`, and `parsedLogArgs` to appear in a specific order; real Finsemble logs have them in a different order
+  - Pattern now anchors on the distinctive `"logTimestamp": <number>` field; field presence is validated in the format function
+  - `logClientName` is now reliably used as the source field on the website
+
+### Changed
+- Moved `test-multiline.ts` from the project root into the `test/` directory
+
 ## [1.0.36] - 2026-03-12
 
 ### Added

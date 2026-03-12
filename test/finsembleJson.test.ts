@@ -25,7 +25,7 @@ describe('finsembleJson parser', () => {
     const line = JSON.stringify(BASE);
     const result = parse(line);
     expect(result).not.toBeNull();
-    expect(result!.level).toBe('info');
+    expect(result!.level).toBe('log');
     expect(result!.source).toBe('adapter');
     expect(result!.message).toBe('Hello from adapter');
     expect(result!.timestamp).toEqual(new Date(1773241647260));
@@ -37,10 +37,10 @@ describe('finsembleJson parser', () => {
     expect(result!.level).toBe('error');
   });
 
-  it('maps logType "Warning" to warn level', () => {
+  it('maps logType "Warning" to warning level', () => {
     const line = JSON.stringify({ ...BASE, logType: 'Warning', parsedLogArgs: ['Low memory'] });
     const result = parse(line);
-    expect(result!.level).toBe('warn');
+    expect(result!.level).toBe('warning');
   });
 
   it('maps logType "Debug" to debug level', () => {

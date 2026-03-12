@@ -10,11 +10,12 @@ export const finsembleJson: ParserConfig = {
   name: 'Finsemble JSON Format',
   description: 'Finsemble combined.json logs with timestamp, type, client, and args',
   patterns: [
-    /^(\{.+"logTimestamp".+"logType".+"logClientName".+"parsedLogArgs".*\})$/,
+    /^(\{.+"logTimestamp"\s*:\s*\d.+\})$/,
   ],
   format: (match) => {
     try {
       const data = JSON.parse(match[1]);
+      if (!data.logClientName && !data.logType) return {};
 
       let message = '';
       if (Array.isArray(data.parsedLogArgs) && data.parsedLogArgs.length > 0) {
@@ -25,17 +26,9 @@ export const finsembleJson: ParserConfig = {
         message = 'No message';
       }
 
-      const logTypeMap: Record<string, string> = {
-        'Log': 'info',
-        'Error': 'error',
-        'Warning': 'warn',
-        'Info': 'info',
-        'Debug': 'debug',
-      };
-
       return {
         timestamp: new Date(data.logTimestamp || Date.now()),
-        level: logTypeMap[data.logType] || data.logType?.toLowerCase() || 'info',
+        level: data.logType?.toLowerCase() || 'info',
         source: data.logClientName || data.category || 'unknown',
         message,
         metadata: {
