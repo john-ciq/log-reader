@@ -151,7 +151,7 @@ export default function FileUploader({ onUpload }: FileUploaderProps) {
           onChange={handleFileSelect}
           disabled={loading}
           className="file-input"
-          accept=".log,.txt,.zip"
+          accept=".log,.txt,.zip,.json"
           multiple
         />
 

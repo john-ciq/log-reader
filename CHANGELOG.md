@@ -2,6 +2,16 @@
 
 All notable changes to the Log Reader project will be documented in this file.
 
+## [1.0.38] - 2026-03-12
+
+### Added
+- "Export All" button in the Statistics panel exports every loaded entry regardless of active filters
+  - Existing "Export Filtered" button behavior is unchanged
+  - "Export All" is only shown when at least one entry is loaded; downloads as `logs-all-<date>.json`
+- Entry count per file is now shown in the Log Files panel, on its own line between the filename and parser name
+- "Export Filtered" renamed from "Export JSON" to better reflect its behavior
+- File browser dialog now accepts `.json` files in addition to `.log`, `.txt`, and `.zip`
+
 ## [1.0.37] - 2026-03-12
 
 ### Fixed

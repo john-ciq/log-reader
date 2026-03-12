@@ -1,4 +1,3 @@
-import React from 'react';
 
 interface FileSelectorProps {
   files: string[];
@@ -6,9 +5,10 @@ interface FileSelectorProps {
   onChange: (file: string, checked: boolean) => void;
   onRemove?: (file: string) => void;
   parsers?: Record<string, string>;
+  counts?: Record<string, number>;
 }
 
-export default function FileSelector({ files, selected, onChange, onRemove, parsers = {} }: FileSelectorProps) {
+export default function FileSelector({ files, selected, onChange, onRemove, parsers = {}, counts = {} }: FileSelectorProps) {
   return (
     <div className="file-selector">
       <h3>Log Files</h3>
@@ -23,6 +23,9 @@ export default function FileSelector({ files, selected, onChange, onRemove, pars
             />
             <span className="file-checkbox-label">
               <span title={file}>{file}</span>
+              {counts[file] != null && (
+                <span className="parser-name">{counts[file].toLocaleString()} entries</span>
+              )}
               <span className="parser-name">{parsers[file] ?? 'no parser found'}</span>
             </span>
           </label>

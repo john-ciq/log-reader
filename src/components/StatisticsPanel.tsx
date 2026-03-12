@@ -6,6 +6,7 @@ interface StatisticsPanelProps {
   entries: LogEntry[];
   totalEntries: number;
   onExport: () => void;
+  onExportAll: () => void;
   availableSources: string[];
   displaySources: Set<string>;
   onSourceChange: (source: string, checked: boolean) => void;
@@ -15,6 +16,7 @@ export default function StatisticsPanel({
   entries,
   totalEntries,
   onExport,
+  onExportAll,
   availableSources,
   displaySources,
   onSourceChange,
@@ -50,7 +52,12 @@ export default function StatisticsPanel({
           </span>
           {entries.length > 0 && (
             <button onClick={onExport} className="export-btn">
-              📥 Export JSON
+              📥 Export Filtered
+            </button>
+          )}
+          {totalEntries > 0 && (
+            <button onClick={onExportAll} className="export-btn">
+              📥 Export All
             </button>
           )}
         </div>

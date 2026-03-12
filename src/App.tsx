@@ -251,6 +251,17 @@ function App() {
     URL.revokeObjectURL(url);
   }, [filteredEntries]);
 
+  const handleExportAllJSON = useCallback(() => {
+    const dataStr = JSON.stringify(entries, null, 2);
+    const dataBlob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(dataBlob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `logs-all-${new Date().toISOString().split('T')[0]}.json`;
+    link.click();
+    URL.revokeObjectURL(url);
+  }, [entries]);
+
   return (
     <div className="app">
       <header className="app-header">
@@ -280,6 +291,10 @@ function App() {
                   .filter(e => e.filename && e.parser)
                   .map(e => [e.filename!, e.parser!])
               )}
+              counts={entries.reduce<Record<string, number>>((acc, e) => {
+                if (e.filename) acc[e.filename] = (acc[e.filename] ?? 0) + 1;
+                return acc;
+              }, {})}
             />
           </div>
           <div className="sidebar-section">
@@ -307,6 +322,7 @@ function App() {
             entries={filteredEntries}
             totalEntries={entries.length}
             onExport={handleExportJSON}
+            onExportAll={handleExportAllJSON}
             availableSources={availableSources}
             displaySources={displaySources}
             onSourceChange={handleSourceCheckbox}
