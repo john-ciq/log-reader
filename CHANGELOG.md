@@ -2,6 +2,21 @@
 
 All notable changes to the Log Reader project will be documented in this file.
 
+## [1.0.49] - 2026-03-12
+
+### Added
+- Collapsible sidebar — a `‹`/`›` toggle button collapses all left panels to a narrow 40px strip; collapsed state persists via localStorage
+
+### Changed
+- Search highlighting in raw file tabs is now debounced by 250ms — highlights do not update until typing pauses, preventing expensive re-renders on every keystroke
+
+### Fixed
+- Raw file tabs now auto-format valid JSON content (pretty-print with 2-space indentation)
+  - Minified single-line JSON files (e.g. 1.6 MB on one line) previously caused the browser to silently fail to paint any content because the `<pre>` element needed to be millions of pixels wide
+  - Pretty-printing produces thousands of short lines, which renders correctly in all cases
+- Wrap toggle now correctly wraps lines when content is pretty-printed
+  - `width: max-content` is now only applied when wrap is off; when wrap is on, the `<pre>` fills the container so `white-space: pre-wrap` can wrap at the boundary
+
 ## [1.0.48] - 2026-03-12
 
 ### Added
