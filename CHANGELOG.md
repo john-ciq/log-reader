@@ -2,6 +2,13 @@
 
 All notable changes to the Log Reader project will be documented in this file.
 
+## [1.0.46] - 2026-03-12
+
+### Fixed
+- Virtual scroll feedback loop when scrolled to the bottom of the table
+  - Variable-height rows (e.g. wrapped messages) could cause `scrollTop` to exceed `scrollHeight`, triggering repeated re-renders that appeared as the table "trying to load more rows"
+  - When the last row is in view, `startIdx` is now clamped to a stable minimum window rather than being recomputed from `scrollTop`
+
 ## [1.0.45] - 2026-03-12
 
 ### Added

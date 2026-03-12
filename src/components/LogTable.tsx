@@ -191,11 +191,17 @@ export default function LogTable({ entries, searchQuery = '', useRegex = false }
     sortColumn !== column ? ' ⇅' : sortDirection === 'asc' ? ' ▲' : ' ▼';
 
   // ── Virtual window ───────────────────────────────────────────────────────────
-  const startIdx = Math.max(0, Math.floor(scrollTop / ROW_HEIGHT) - OVERSCAN);
-  const endIdx = Math.min(sortedEntries.length, Math.ceil((scrollTop + containerHeight) / ROW_HEIGHT) + OVERSCAN);
+  const totalRows = sortedEntries.length;
+  const rawStart = Math.max(0, Math.floor(scrollTop / ROW_HEIGHT) - OVERSCAN);
+  const endIdx = Math.min(totalRows, Math.ceil((scrollTop + containerHeight) / ROW_HEIGHT) + OVERSCAN);
+  // When we've reached the last row, clamp startIdx to a stable minimum window.
+  // Without this, variable-height rows (taller than ROW_HEIGHT) cause scrollTop to
+  // exceed scrollHeight at the bottom, triggering a feedback loop of re-renders.
+  const minWindow = Math.ceil(containerHeight / ROW_HEIGHT) + 2 * OVERSCAN;
+  const startIdx = endIdx >= totalRows ? Math.max(0, totalRows - minWindow) : rawStart;
   const visibleEntries = sortedEntries.slice(startIdx, endIdx);
   const paddingTop = startIdx * ROW_HEIGHT;
-  const paddingBottom = (sortedEntries.length - endIdx) * ROW_HEIGHT;
+  const paddingBottom = (totalRows - endIdx) * ROW_HEIGHT;
 
   // ── Cell renderer ────────────────────────────────────────────────────────────
   const renderCell = (entry: LogEntry, col: SortColumn) => {
