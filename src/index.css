@@ -821,6 +821,13 @@ html, body {
   margin-bottom: 0.75rem;
 }
 
+.stat-filtered {
+  font-size: 0.85rem;
+  font-weight: 400;
+  color: var(--text-muted);
+  margin-left: 0.4rem;
+}
+
 .stat-value {
   font-weight: 700;
   font-size: 1.75rem;

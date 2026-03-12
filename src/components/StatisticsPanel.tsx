@@ -65,6 +65,16 @@ export default function StatisticsPanel({
         </div>
         {expanded.summary && (
           <div className="stats-grid">
+            <div className="stat-item">
+              <div className="stat-label">Total Entries</div>
+              <div className="stat-value">
+                {totalEntries.toLocaleString()}
+                {entries.length < totalEntries && (
+                  <span className="stat-filtered"> ({(totalEntries - entries.length).toLocaleString()} filtered)</span>
+                )}
+              </div>
+            </div>
+
             {stats.dateRange && (
               <div className="stat-item">
                 <div className="stat-label">Date Range</div>

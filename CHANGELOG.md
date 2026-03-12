@@ -2,6 +2,13 @@
 
 All notable changes to the Log Reader project will be documented in this file.
 
+## [1.0.36] - 2026-03-12
+
+### Added
+- Statistics panel Summary section now shows total entry count
+  - Displays the number of entries currently filtered out inline next to the total (e.g. `1,243 (87 filtered)`)
+  - The filtered count is only shown when at least one entry is hidden
+
 ## [1.0.35] - 2026-03-12
 
 ### Fixed
