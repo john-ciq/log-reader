@@ -2,6 +2,12 @@
 
 All notable changes to the Log Reader project will be documented in this file.
 
+## [1.0.29] - 2026-03-12
+
+### Added
+- New parser "ISO Timestamp with Level and Process" for logs with the format `[ISO] [LEVEL] [PROCESS_ID] [SOURCE] - message`
+  - Covers files like `GssDesktopManager.log` which include a bracketed process/thread ID between the level and source
+
 ## [1.0.28] - 2026-03-12
 
 ### Added

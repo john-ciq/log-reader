@@ -1,6 +1,6 @@
 {
   "name": "log-reader",
-  "version": "1.0.28",
+  "version": "1.0.29",
   "description": "A web-based log file analyzer with flexible parsing, filtering, and export capabilities",
   "type": "module",
   "scripts": {

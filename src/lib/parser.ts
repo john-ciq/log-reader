@@ -1,4 +1,5 @@
 import { isoWithLevel } from './parsers/isoWithLevel.ts';
+import { isoWithLevelAndProcess } from './parsers/isoWithLevelAndProcess.ts';
 import { fea } from './parsers/fea.ts';
 import { bracketedWithId } from './parsers/bracketedWithId.ts';
 import { ncsa } from './parsers/ncsa.ts';
@@ -35,6 +36,7 @@ export interface ParserConfig {
  * Collection of all built-in parsers
  */
 export const PARSER_CONFIGS: ParserConfig[] = [
+  isoWithLevelAndProcess,
   isoWithLevel,
   bracketedWithId,
   fea,
