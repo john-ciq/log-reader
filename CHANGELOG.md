@@ -2,6 +2,23 @@
 
 All notable changes to the Log Reader project will be documented in this file.
 
+## [1.0.48] - 2026-03-12
+
+### Added
+- Raw file tabs for uploaded files
+  - A "Log Viewer" tab is always present; each uploaded file gets a dedicated raw content tab
+  - ZIP files open as a single tab with sub-tabs for each JSON file inside the archive
+  - File contents are displayed in a monospace font with horizontal scrolling
+- `↗` open button on each file in the Log Files panel to open its raw tab on demand
+  - Clicking an already-open tab's `↗` focuses that tab instead of opening a duplicate
+  - Closed tabs can be reopened via `↗`
+- `×` close button on each raw file tab (the Log Viewer tab cannot be closed)
+- Wrap toggle checkbox in each raw file tab's toolbar
+- Find toolbar in each raw file tab: text input, Find button (cycles to next match on each press), `.*` regex toggle, and a match counter showing current position and total matches
+  - All matches are highlighted; the current match is highlighted distinctly
+  - Pressing Enter in the search field advances to the next match
+- Drag-to-reorder raw file tabs (main tabs and ZIP sub-tabs)
+
 ## [1.0.47] - 2026-03-12
 
 ### Changed

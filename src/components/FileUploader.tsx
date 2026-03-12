@@ -3,29 +3,38 @@ import { parseLogContent, parseLogLine, LogEntry } from '../lib/parser';
 import JSZip from 'jszip';
 import { savePanelCollapsed, loadPanelCollapsed } from '../lib/statistics';
 
-interface FileUploaderProps {
-  onUpload: (entries: LogEntry[]) => void;
+export interface RawFile {
+  id: string;
+  name: string;
+  content: string;
+  children?: Array<{ name: string; content: string }>;
 }
 
-async function processZipFile(file: File): Promise<LogEntry[]> {
+interface FileUploaderProps {
+  onUpload: (entries: LogEntry[]) => void;
+  onRawFiles: (files: RawFile[]) => void;
+}
+
+async function processZipFile(file: File): Promise<{ entries: LogEntry[]; rawChildren: Array<{ name: string; content: string }> }> {
   const zip = new JSZip();
   const zipData = await file.arrayBuffer();
   const extractedZip = await zip.loadAsync(zipData);
 
   let allEntries: LogEntry[] = [];
+  const rawChildren: Array<{ name: string; content: string }> = [];
   const timestamp = Date.now();
 
   for (const [filename, fileObj] of Object.entries(extractedZip.files)) {
-    // Skip directories, the log_state.json file, and non-JSON files
     if (fileObj.dir || filename === 'log_state.json' || !filename.endsWith('.json')) {
       continue;
     }
 
     try {
       const fileContent = await fileObj.async('text');
+      rawChildren.push({ name: filename, content: fileContent });
+
       const jsonData = JSON.parse(fileContent);
 
-      // Accept a bare array or an object with a nested array (e.g. { partial_log: [...] })
       let entries: unknown[];
       if (Array.isArray(jsonData)) {
         entries = jsonData;
@@ -52,10 +61,10 @@ async function processZipFile(file: File): Promise<LogEntry[]> {
     }
   }
 
-  return allEntries;
+  return { entries: allEntries, rawChildren };
 }
 
-export default function FileUploader({ onUpload }: FileUploaderProps) {
+export default function FileUploader({ onUpload, onRawFiles }: FileUploaderProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [collapsed, setCollapsed] = useState(() => loadPanelCollapsed('uploader'));
@@ -70,21 +79,26 @@ export default function FileUploader({ onUpload }: FileUploaderProps) {
 
     try {
       let allEntries: LogEntry[] = [];
+      const rawFilesToAdd: RawFile[] = [];
 
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
-        let entries: LogEntry[] = [];
+        const fileId = `${Date.now()}-${i}`;
 
         if (file.name.endsWith('.zip')) {
-          // Handle ZIP files
-          entries = await processZipFile(file);
+          const { entries, rawChildren } = await processZipFile(file);
+          allEntries = allEntries.concat(entries);
+          rawFilesToAdd.push({ id: fileId, name: file.name, content: '', children: rawChildren });
         } else {
-          // Handle regular text log files
           const content = await file.text();
-          entries = parseLogContent(content, file.name);
+          const entries = parseLogContent(content, file.name);
+          allEntries = allEntries.concat(entries);
+          rawFilesToAdd.push({ id: fileId, name: file.name, content });
         }
+      }
 
-        allEntries = allEntries.concat(entries);
+      if (rawFilesToAdd.length > 0) {
+        onRawFiles(rawFilesToAdd);
       }
 
       if (allEntries.length === 0) {
@@ -142,7 +156,6 @@ export default function FileUploader({ onUpload }: FileUploaderProps) {
         <span className="collapse-arrow">{collapsed ? '▶' : '▼'}</span>
         📁 Upload Log File(s)
       </h3>
-
 
       {!collapsed && (
         <>

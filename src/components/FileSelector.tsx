@@ -6,11 +6,12 @@ interface FileSelectorProps {
   selected: Set<string>;
   onChange: (file: string, checked: boolean) => void;
   onRemove?: (file: string) => void;
+  onOpenRaw?: (file: string) => void;
   parsers?: Record<string, string>;
   counts?: Record<string, number>;
 }
 
-export default function FileSelector({ files, selected, onChange, onRemove, parsers = {}, counts = {} }: FileSelectorProps) {
+export default function FileSelector({ files, selected, onChange, onRemove, onOpenRaw, parsers = {}, counts = {} }: FileSelectorProps) {
   const [collapsed, setCollapsed] = useState(() => loadPanelCollapsed('files'));
 
   return (
@@ -36,6 +37,16 @@ export default function FileSelector({ files, selected, onChange, onRemove, pars
               <span className="parser-name">{parsers[file] ?? 'no parser found'}</span>
             </span>
           </label>
+          {onOpenRaw && (
+            <button
+              className="file-open-btn"
+              onClick={() => onOpenRaw(file)}
+              title={`View raw content of ${file}`}
+              aria-label={`Open raw view of ${file}`}
+            >
+              ↗
+            </button>
+          )}
           {onRemove && (
             <button
               className="file-remove-btn"

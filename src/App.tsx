@@ -1,14 +1,15 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { LogEntry } from './lib/parser';
 import { FilterConfig, getFilterDecision } from './lib/filters';
 import { loadFilterConfigs, saveFilterConfigs, saveHiddenLevels, loadHiddenLevels, saveHiddenSources, loadHiddenSources, saveSearchState, loadSearchState, savePanelCollapsed, loadPanelCollapsed } from './lib/statistics';
-import FileUploader from './components/FileUploader';
+import FileUploader, { RawFile } from './components/FileUploader';
 import FilterPanel from './components/FilterPanel';
 import SearchBar from './components/SearchBar';
 import LogTable from './components/LogTable';
 import StatisticsPanel from './components/StatisticsPanel';
 import LevelSelector from './components/LevelSelector';
 import FileSelector from './components/FileSelector';
+import RawFileViewer from './components/RawFileViewer';
 
 // import version from package.json (Vite allows direct import)
 import pkg from '../package.json';
@@ -32,6 +33,16 @@ function App() {
   const [displayFiles, setDisplayFiles] = useState<Set<string>>(new Set());
 
   const [filtersCollapsed, setFiltersCollapsed] = useState(() => loadPanelCollapsed('filters'));
+
+  // raw file tabs
+  const [rawFiles, setRawFiles] = useState<RawFile[]>([]);
+  const [openTabIds, setOpenTabIds] = useState<Set<string>>(new Set());
+  const [tabOrder, setTabOrder] = useState<string[]>([]);
+  const [activeTab, setActiveTab] = useState<string>('viewer');
+  const [activeSubTabs, setActiveSubTabs] = useState<Record<string, string>>({});
+  const [subTabOrders, setSubTabOrders] = useState<Record<string, string[]>>({});
+  const dragTabId = useRef<string | null>(null);
+  const dragSubTabId = useRef<string | null>(null);
 
   // source visibility controls
   const [availableSources, setAvailableSources] = useState<string[]>([]);
@@ -78,6 +89,44 @@ function App() {
 
   const handleFileUpload = useCallback((uploadedEntries: LogEntry[]) => {
     setEntries(prev => [...prev, ...uploadedEntries]);
+  }, []);
+
+  const handleRawFiles = useCallback((files: RawFile[]) => {
+    setRawFiles(prev => [...prev, ...files]);
+  }, []);
+
+  const handleOpenRawFile = useCallback((filename: string) => {
+    for (const rf of rawFiles) {
+      if (rf.name === filename) {
+        setOpenTabIds(ids => new Set([...ids, rf.id]));
+        setTabOrder(prev => prev.includes(rf.id) ? prev : [...prev, rf.id]);
+        setActiveTab(rf.id);
+        return;
+      }
+      if (rf.children?.some(c => c.name === filename)) {
+        setOpenTabIds(ids => new Set([...ids, rf.id]));
+        setTabOrder(prev => prev.includes(rf.id) ? prev : [...prev, rf.id]);
+        setActiveTab(rf.id);
+        setActiveSubTabs(st => ({ ...st, [rf.id]: filename }));
+        return;
+      }
+    }
+  }, [rawFiles]);
+
+  const handleCloseTab = useCallback((tabId: string) => {
+    setTabOrder(prev => {
+      const newOrder = prev.filter(id => id !== tabId);
+      setOpenTabIds(ids => { const next = new Set(ids); next.delete(tabId); return next; });
+      setActiveTab(active => {
+        if (active !== tabId) return active;
+        if (newOrder.length > 0) {
+          const closedIdx = prev.indexOf(tabId);
+          return newOrder[Math.min(closedIdx, newOrder.length - 1)] ?? 'viewer';
+        }
+        return 'viewer';
+      });
+      return newOrder;
+    });
   }, []);
 
   const handleAddFilter = useCallback(() => {
@@ -268,7 +317,7 @@ function App() {
 
       <div className="app-container">
         <aside className="sidebar">
-          <FileUploader onUpload={handleFileUpload} />
+          <FileUploader onUpload={handleFileUpload} onRawFiles={handleRawFiles} />
           <div className="sidebar-section">
             <LevelSelector
               levels={availableLevels}
@@ -280,6 +329,7 @@ function App() {
               selected={displayFiles}
               onChange={handleFileCheckbox}
               onRemove={handleFileRemove}
+              onOpenRaw={handleOpenRawFile}
               parsers={Object.fromEntries(
                 entries
                   .filter(e => e.filename && e.parser)
@@ -320,16 +370,110 @@ function App() {
         </aside>
 
         <main className="main-content">
-          <StatisticsPanel
-            entries={filteredEntries}
-            totalEntries={entries.length}
-            onExport={handleExportJSON}
-            onExportAll={handleExportAllJSON}
-            availableSources={availableSources}
-            displaySources={displaySources}
-            onSourceChange={handleSourceCheckbox}
-          />
-          <LogTable entries={filteredEntries} searchQuery={searchQuery} useRegex={useRegexSearch} />
+          <div className="tab-bar">
+            <button
+              className={`tab-btn${activeTab === 'viewer' ? ' active' : ''}`}
+              onClick={() => setActiveTab('viewer')}
+            >
+              Log Viewer
+            </button>
+            {tabOrder.map(id => rawFiles.find(rf => rf.id === id)).filter((rf): rf is RawFile => !!rf && openTabIds.has(rf.id)).map(rf => (
+              <button
+                key={rf.id}
+                className={`tab-btn${activeTab === rf.id ? ' active' : ''}`}
+                onClick={() => setActiveTab(rf.id)}
+                title={rf.name}
+                draggable
+                onDragStart={() => { dragTabId.current = rf.id; }}
+                onDragOver={e => e.preventDefault()}
+                onDrop={e => {
+                  e.preventDefault();
+                  const fromId = dragTabId.current;
+                  dragTabId.current = null;
+                  if (!fromId || fromId === rf.id) return;
+                  setTabOrder(prev => {
+                    const next = prev.filter(id => id !== fromId);
+                    const toIdx = next.indexOf(rf.id);
+                    next.splice(toIdx, 0, fromId);
+                    return next;
+                  });
+                }}
+              >
+                {rf.name.length > 24 ? `${rf.name.slice(0, 21)}…` : rf.name}
+                <span
+                  className="tab-close"
+                  onClick={e => { e.stopPropagation(); handleCloseTab(rf.id); }}
+                  aria-label={`Close ${rf.name}`}
+                >
+                  ×
+                </span>
+              </button>
+            ))}
+          </div>
+
+          {activeTab === 'viewer' ? (
+            <div className="tab-content">
+              <StatisticsPanel
+                entries={filteredEntries}
+                totalEntries={entries.length}
+                onExport={handleExportJSON}
+                onExportAll={handleExportAllJSON}
+                availableSources={availableSources}
+                displaySources={displaySources}
+                onSourceChange={handleSourceCheckbox}
+              />
+              <LogTable entries={filteredEntries} searchQuery={searchQuery} useRegex={useRegexSearch} />
+            </div>
+          ) : (() => {
+            const rf = rawFiles.find(f => f.id === activeTab && openTabIds.has(f.id));
+            if (!rf) return null;
+            if (rf.children && rf.children.length > 0) {
+              const children = rf.children;
+              const activeChild = activeSubTabs[rf.id] ?? children[0].name;
+              const childContent = children.find(c => c.name === activeChild)?.content ?? '';
+              return (
+                <div className="tab-content">
+                  <div className="sub-tab-bar">
+                    {(subTabOrders[rf.id] ?? children.map(c => c.name))
+                      .map(name => children.find(c => c.name === name))
+                      .filter((c): c is { name: string; content: string } => !!c)
+                      .map(child => (
+                        <button
+                          key={child.name}
+                          className={`sub-tab-btn${activeChild === child.name ? ' active' : ''}`}
+                          onClick={() => setActiveSubTabs(prev => ({ ...prev, [rf.id]: child.name }))}
+                          title={child.name}
+                          draggable
+                          onDragStart={() => { dragSubTabId.current = child.name; }}
+                          onDragOver={e => e.preventDefault()}
+                          onDrop={e => {
+                            e.preventDefault();
+                            const fromName = dragSubTabId.current;
+                            dragSubTabId.current = null;
+                            if (!fromName || fromName === child.name) return;
+                            setSubTabOrders(prev => {
+                              const current = prev[rf.id] ?? children.map(c => c.name);
+                              const next = current.filter(n => n !== fromName);
+                              const toIdx = next.indexOf(child.name);
+                              next.splice(toIdx, 0, fromName);
+                              return { ...prev, [rf.id]: next };
+                            });
+                          }}
+                        >
+                          {child.name.length > 28 ? `${child.name.slice(0, 25)}…` : child.name}
+                        </button>
+                      ))}
+                  </div>
+                  <RawFileViewer content={childContent} />
+                </div>
+              );
+            }
+            return (
+              <div className="tab-content">
+                <RawFileViewer content={rf.content} />
+              </div>
+            );
+          })()}
         </main>
       </div>
     </div>
