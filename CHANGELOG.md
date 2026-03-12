@@ -2,6 +2,12 @@
 
 All notable changes to the Log Reader project will be documented in this file.
 
+## [1.0.33] - 2026-03-12
+
+### Fixed
+- Unchecking all file, level, or source checkboxes now correctly shows zero entries
+  - Previously an empty visibility set was treated as "no filter" and showed all entries
+
 ## [1.0.32] - 2026-03-12
 
 ### Fixed

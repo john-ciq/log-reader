@@ -120,22 +120,13 @@ function App() {
     }
 
     // Apply global level visibility
-    if (displayLevels.size > 0) {
-      result = result.filter(entry => displayLevels.has(entry.level.toLowerCase()));
-    }
+    result = result.filter(entry => displayLevels.has(entry.level.toLowerCase()));
 
     // Apply global file visibility
-    if (displayFiles.size > 0) {
-      result = result.filter(entry => {
-        const filename = entry.filename || '';
-        return displayFiles.has(filename);
-      });
-    }
+    result = result.filter(entry => displayFiles.has(entry.filename || ''));
 
     // Apply global source visibility
-    if (displaySources.size > 0) {
-      result = result.filter(entry => displaySources.has(entry.source));
-    }
+    result = result.filter(entry => displaySources.has(entry.source));
 
     setFilteredEntries(result);
   }, [entries, activeFilter, displayLevels, displayFiles, displaySources]);
