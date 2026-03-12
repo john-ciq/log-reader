@@ -2,6 +2,16 @@
 
 All notable changes to the Log Reader project will be documented in this file.
 
+## [1.0.41] - 2026-03-12
+
+### Documentation
+- Updated README to reflect current feature set
+  - Filtering section rewritten to describe multiple simultaneous filters and cascading evaluation
+  - Export section updated to reflect "Export Filtered" / "Export All" buttons
+  - Persistence section expanded to include hidden levels/sources and search state
+  - File upload accept list updated to include `.json`
+  - Usage steps updated to match current filter workflow and export button names
+
 ## [1.0.40] - 2026-03-12
 
 ### Changed
