@@ -1,0 +1,180 @@
+import { calculateStatistics } from '../lib/statistics';
+import { LogEntry } from '../lib/parser';
+import { useState, useMemo } from 'react';
+
+interface StatisticsPanelProps {
+  entries: LogEntry[];
+  totalEntries: number;
+  onExport: () => void;
+  availableSources: string[];
+  displaySources: Set<string>;
+  onSourceChange: (source: string, checked: boolean) => void;
+}
+
+export default function StatisticsPanel({
+  entries,
+  totalEntries,
+  onExport,
+  availableSources,
+  displaySources,
+  onSourceChange,
+}: StatisticsPanelProps) {
+  const [expanded, setExpanded] = useState({
+    summary: true,
+    levels: true,
+    sources: false,
+  });
+
+  const stats = useMemo(() => calculateStatistics(entries), [entries]);
+
+  const getLevelColor = (level: string): string => {
+    const colors: Record<string, string> = {
+      debug: '#888',
+      info: '#0066cc',
+      log: '#0066cc',
+      warn: '#ff9900',
+      warning: '#ff9900',
+      error: '#cc0000',
+      critical: '#990000',
+    };
+    return colors[level.toLowerCase()] || '#666';
+  };
+
+  return (
+    <div className="statistics-panel">
+      <div className="stats-header">
+        <h3>📊 Statistics</h3>
+        <div className="stats-actions">
+          <span className="total-count">
+            Total: {totalEntries} | Filtered: {entries.length}
+          </span>
+          {entries.length > 0 && (
+            <button onClick={onExport} className="export-btn">
+              📥 Export JSON
+            </button>
+          )}
+        </div>
+      </div>
+
+      <div className="stats-section">
+        <div
+          className="stats-section-header"
+          onClick={() => setExpanded({ ...expanded, summary: !expanded.summary })}
+        >
+          <h4>Summary {!expanded.summary && '▼'} {expanded.summary && '▲'}</h4>
+        </div>
+        {expanded.summary && (
+          <div className="stats-grid">
+            {stats.dateRange && (
+              <div className="stat-item">
+                <div className="stat-label">Date Range</div>
+                <div className="stat-value">
+                  {stats.dateRange.min.toLocaleDateString()} → {stats.dateRange.max.toLocaleDateString()}
+                </div>
+              </div>
+            )}
+
+            <div className="stat-item">
+              <div className="stat-label">Message Length</div>
+              <div className="stat-value">
+                <div>Min: {Math.round(stats.messageLength.min)}</div>
+                <div>Avg: {Math.round(stats.messageLength.average)}</div>
+                <div>Max: {Math.round(stats.messageLength.max)}</div>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      <div className="stats-section">
+        <div
+          className="stats-section-header"
+          onClick={() => setExpanded({ ...expanded, levels: !expanded.levels })}
+        >
+          <h4>Log Levels {!expanded.levels && '▼'} {expanded.levels && '▲'}</h4>
+        </div>
+        {expanded.levels && (
+          <div className="stats-breakdown">
+            {Object.entries(stats.levelCounts)
+              .sort(([levelA], [levelB]) => {
+                const severityOrder: { [key: string]: number } = {
+                  'error': 0,
+                  'warn': 1,
+                  'warning': 1,
+                  'info': 2,
+                  'log': 3,
+                  'debug': 4,
+                };
+                const severityA = severityOrder[levelA.toLowerCase()] ?? 999;
+                const severityB = severityOrder[levelB.toLowerCase()] ?? 999;
+                return severityA - severityB;
+              })
+              .map(([level, count]) => (
+                <div key={level} className="stats-row">
+                  <span className="stats-label">
+                    <span
+                      className="color-indicator"
+                      style={{ backgroundColor: getLevelColor(level) }}
+                    />
+                    {level.toUpperCase()}
+                  </span>
+                  <span className="stats-bar-container">
+                    <span
+                      className="stats-bar"
+                      style={{
+                        width: `${(count / stats.totalEntries) * 100}%`,
+                        backgroundColor: getLevelColor(level),
+                      }}
+                    />
+                  </span>
+                  <span className="stats-count">{count}</span>
+                </div>
+              ))}
+          </div>
+        )}
+      </div>
+
+      <div className="stats-section">
+        <div
+          className="stats-section-header"
+          onClick={() => setExpanded({ ...expanded, sources: !expanded.sources })}
+        >
+          <h4>Logging Sources {!expanded.sources && '▼'} {expanded.sources && '▲'}</h4>
+        </div>
+        {expanded.sources && (
+          <div className="stats-breakdown">
+            {availableSources
+              .slice()
+              .sort((a, b) => (stats.sourceCounts[b] ?? 0) - (stats.sourceCounts[a] ?? 0))
+              .map(source => {
+                const count = stats.sourceCounts[source] ?? 0;
+                return (
+                  <label key={source} className="stats-row">
+                    <span className="stats-label truncate">
+                      <input
+                        type="checkbox"
+                        checked={displaySources.has(source)}
+                        onChange={e => onSourceChange(source, e.target.checked)}
+                        style={{ accentColor: 'var(--primary)', width: 14, height: 14, flexShrink: 0 }}
+                      />
+                      {source}
+                    </span>
+                    <span className="stats-bar-container">
+                      <span
+                        className="stats-bar"
+                        style={{
+                          width: `${stats.totalEntries > 0 ? (count / stats.totalEntries) * 100 : 0}%`,
+                          backgroundColor: '#4CAF50',
+                        }}
+                      />
+                    </span>
+                    <span className="stats-count">{count}</span>
+                  </label>
+                );
+              })}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}

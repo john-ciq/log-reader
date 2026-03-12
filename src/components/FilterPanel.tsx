@@ -1,0 +1,281 @@
+import { useState } from 'react';
+import { FilterConfig } from '../lib/filters';
+
+interface FilterPanelProps {
+  filters: FilterConfig[];
+  activeFilterId: string | null;
+  onActiveFilterChange: (filterId: string | null) => void;
+  onAddFilter: () => void;
+  onUpdateFilter: (filterId: string, updates: Partial<FilterConfig>) => void;
+  onDeleteFilter: (filterId: string) => void;
+  availableFiles: string[];
+}
+
+export default function FilterPanel({
+  filters,
+  activeFilterId,
+  onActiveFilterChange,
+  onAddFilter,
+  onUpdateFilter,
+  onDeleteFilter,
+  availableFiles,
+}: FilterPanelProps) {
+  const [expandedFilter, setExpandedFilter] = useState<string | null>(null);
+  const [patternErrors, setPatternErrors] = useState<Record<string, string>>({});
+
+  const validatePattern = (pattern: string): boolean => {
+    try {
+      new RegExp(pattern);
+      return true;
+    } catch {
+      return false;
+    }
+  };
+
+  const handleAddPattern = (
+    filterId: string,
+    type: 'include' | 'exclude',
+    pattern: string
+  ) => {
+    if (!pattern.trim()) return;
+
+    if (!validatePattern(pattern)) {
+      setPatternErrors({
+        ...patternErrors,
+        [`${filterId}-${type}`]: 'Invalid regex pattern',
+      });
+      return;
+    }
+
+    setPatternErrors({
+      ...patternErrors,
+      [`${filterId}-${type}`]: '',
+    });
+
+    const filter = filters.find(f => f.id === filterId);
+    if (!filter) return;
+
+    if (type === 'include') {
+      onUpdateFilter(filterId, {
+        includePatterns: [...filter.includePatterns, pattern],
+      });
+    } else {
+      onUpdateFilter(filterId, {
+        excludePatterns: [...filter.excludePatterns, pattern],
+      });
+    }
+  };
+
+  const handleRemovePattern = (
+    filterId: string,
+    type: 'include' | 'exclude',
+    index: number
+  ) => {
+    const filter = filters.find(f => f.id === filterId);
+    if (!filter) return;
+
+    if (type === 'include') {
+      const newPatterns = filter.includePatterns.filter((_, i) => i !== index);
+      onUpdateFilter(filterId, { includePatterns: newPatterns });
+    } else {
+      const newPatterns = filter.excludePatterns.filter((_, i) => i !== index);
+      onUpdateFilter(filterId, { excludePatterns: newPatterns });
+    }
+  };
+
+  const commonLevels = ['error', 'warn', 'info', 'log', 'debug'];
+
+  return (
+    <div className="filter-panel">
+      <div className="filter-header">
+        <h4>🔍 Filters</h4>
+        <button onClick={onAddFilter} className="add-filter-btn">
+          + New
+        </button>
+      </div>
+
+      {filters.length === 0 ? (
+        <p className="empty-message">No filters yet. Create one to get started!</p>
+      ) : (
+        <div className="filters-list">
+          {filters.map(filter => (
+            <div key={filter.id} className="filter-item">
+              <div className="filter-header-bar">
+                <div className="filter-radio">
+                  <input
+                    type="radio"
+                    id={`filter-${filter.id}`}
+                    name="active-filter"
+                    checked={activeFilterId === filter.id}
+                    onChange={() => onActiveFilterChange(filter.id)}
+                  />
+                  <label htmlFor={`filter-${filter.id}`}>
+                    {filter.name || 'Unnamed Filter'}
+                  </label>
+                </div>
+                <button
+                  onClick={() => setExpandedFilter(expandedFilter === filter.id ? null : filter.id)}
+                  className="expand-btn"
+                >
+                  {expandedFilter === filter.id ? '▼' : '▶'}
+                </button>
+                <button
+                  onClick={() => onDeleteFilter(filter.id)}
+                  className="delete-btn"
+                  title="Delete filter"
+                >
+                  ✕
+                </button>
+              </div>
+
+              {expandedFilter === filter.id && (
+                <div className="filter-content">
+                  <div className="filter-name-group">
+                    <label>Filter Name:</label>
+                    <input
+                      type="text"
+                      value={filter.name}
+                      onChange={e => onUpdateFilter(filter.id, { name: e.target.value })}
+                      className="filter-name-input"
+                      placeholder="My Filter"
+                    />
+                  </div>
+
+                  <div className="filter-patterns">
+                    <h5>Include Patterns</h5>
+                    <div className="patterns-list">
+                      {filter.includePatterns.map((pattern, i) => (
+                        <div key={i} className="pattern-tag">
+                          <span>{pattern}</span>
+                          <button
+                            onClick={() => handleRemovePattern(filter.id, 'include', i)}
+                            className="remove-pattern"
+                          >
+                            ×
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                    <PatternInput
+                      onAdd={pattern => handleAddPattern(filter.id, 'include', pattern)}
+                      error={patternErrors[`${filter.id}-include`]}
+                      placeholder="Pattern to include..."
+                    />
+                  </div>
+
+                  <div className="filter-patterns">
+                    <h5>Exclude Patterns</h5>
+                    <div className="patterns-list">
+                      {filter.excludePatterns.map((pattern, i) => (
+                        <div key={i} className="pattern-tag">
+                          <span>{pattern}</span>
+                          <button
+                            onClick={() => handleRemovePattern(filter.id, 'exclude', i)}
+                            className="remove-pattern"
+                          >
+                            ×
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                    <PatternInput
+                      onAdd={pattern => handleAddPattern(filter.id, 'exclude', pattern)}
+                      error={patternErrors[`${filter.id}-exclude`]}
+                      placeholder="Pattern to exclude..."
+                    />
+                  </div>
+
+                  <div className="filter-levels">
+                    <h5>Log Levels</h5>
+                    <div className="level-buttons">
+                      {commonLevels.map(level => (
+                        <button
+                          key={level}
+                          onClick={() => {
+                            const newLevels = filter.levelFilters.includes(level)
+                              ? filter.levelFilters.filter(l => l !== level)
+                              : [...filter.levelFilters, level];
+                            onUpdateFilter(filter.id, { levelFilters: newLevels });
+                          }}
+                          className={`level-btn ${filter.levelFilters.includes(level) ? 'active' : ''}`}
+                        >
+                          {level}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {availableFiles.length > 0 && (
+                    <div className="filter-files">
+                      <h5>Log Files</h5>
+                      <div className="file-buttons">
+                        {availableFiles.map(file => (
+                          <button
+                            key={file}
+                            onClick={() => {
+                              const newFiles = filter.fileFilters.includes(file)
+                                ? filter.fileFilters.filter(f => f !== file)
+                                : [...filter.fileFilters, file];
+                              onUpdateFilter(filter.id, { fileFilters: newFiles });
+                            }}
+                            className={`file-btn ${filter.fileFilters.includes(file) ? 'active' : ''}`}
+                            title={file}
+                          >
+                            {file.length > 30 ? `${file.substring(0, 27)}...` : file}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+interface PatternInputProps {
+  onAdd: (pattern: string) => void;
+  error?: string;
+  placeholder?: string;
+}
+
+function PatternInput({ onAdd, error, placeholder }: PatternInputProps) {
+  const [pattern, setPattern] = useState('');
+  const [localError, setLocalError] = useState<string | null>(null);
+
+  const handleAdd = () => {
+    if (!pattern.trim()) return;
+
+    try {
+      new RegExp(pattern);
+      setLocalError(null);
+      onAdd(pattern);
+      setPattern('');
+    } catch (err) {
+      setLocalError(`Invalid regex: ${(err as Error).message}`);
+    }
+  };
+
+  return (
+    <div className="pattern-input-group">
+      <input
+        type="text"
+        value={pattern}
+        onChange={e => setPattern(e.target.value)}
+        onKeyPress={e => e.key === 'Enter' && handleAdd()}
+        placeholder={placeholder}
+        className={`pattern-input ${error || localError ? 'error' : ''}`}
+      />
+      <button onClick={handleAdd} className="add-pattern-btn">
+        Add
+      </button>
+      {(error || localError) && (
+        <div className="error-message">{error || localError}</div>
+      )}
+    </div>
+  );
+}
