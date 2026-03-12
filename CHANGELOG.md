@@ -2,6 +2,13 @@
 
 All notable changes to the Log Reader project will be documented in this file.
 
+## [1.0.32] - 2026-03-12
+
+### Fixed
+- `bloombergBridgeService.log` and similar files now parse correctly
+  - Added a second pattern to the "ISO Timestamp with Level and Process" parser for the unbracketed-source variant: `[ISO] [LEVEL] [PROCESS_ID] source - message`
+  - Previously only the bracketed-source form `[ISO] [LEVEL] [PROCESS_ID] [SOURCE] - message` was handled
+
 ## [1.0.31] - 2026-03-12
 
 ### Changed
