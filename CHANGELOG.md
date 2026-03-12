@@ -2,6 +2,14 @@
 
 All notable changes to the Log Reader project will be documented in this file.
 
+## [1.0.45] - 2026-03-12
+
+### Added
+- New parser for ICG Desktop Native Bridge log files (`ICG_DESKTOP_NATIVE_BRIDGE_*.log`)
+  - Supports timestamp with timezone offset, log levels (`INF`, `ERR`, `WRN`, `DBG`), thread ID, source, and message
+  - Lines without a source separator (e.g. `pAPI` and `** ... **` entries) are handled gracefully
+  - Thread ID is stored in entry metadata
+
 ## [1.0.44] - 2026-03-12
 
 ### Added
