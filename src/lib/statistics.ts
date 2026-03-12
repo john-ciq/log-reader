@@ -242,6 +242,51 @@ export function loadSearchState(): { query: string; useRegex: boolean } {
 }
 
 /**
+ * Save/load expanded filter IDs
+ */
+export function saveExpandedFilters(ids: string[]): void {
+  try {
+    localStorage.setItem(`${STORAGE_PREFIX}expanded-filters`, JSON.stringify(ids));
+  } catch (error) {
+    console.error('Failed to save expanded filters:', error);
+  }
+}
+
+export function loadExpandedFilters(): string[] {
+  try {
+    const stored = localStorage.getItem(`${STORAGE_PREFIX}expanded-filters`);
+    return stored ? JSON.parse(stored) : [];
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * Save/load sidebar panel collapsed states
+ */
+export function savePanelCollapsed(panelId: string, collapsed: boolean): void {
+  try {
+    const stored = localStorage.getItem(`${STORAGE_PREFIX}panel-collapsed`);
+    const panels: Record<string, boolean> = stored ? JSON.parse(stored) : {};
+    panels[panelId] = collapsed;
+    localStorage.setItem(`${STORAGE_PREFIX}panel-collapsed`, JSON.stringify(panels));
+  } catch (error) {
+    console.error('Failed to save panel state:', error);
+  }
+}
+
+export function loadPanelCollapsed(panelId: string): boolean {
+  try {
+    const stored = localStorage.getItem(`${STORAGE_PREFIX}panel-collapsed`);
+    if (!stored) return false;
+    const panels: Record<string, boolean> = JSON.parse(stored);
+    return panels[panelId] ?? false;
+  } catch {
+    return false;
+  }
+}
+
+/**
  * Clear all stored data
  */
 export function clearAllStoredData(): void {

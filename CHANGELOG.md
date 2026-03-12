@@ -2,6 +2,18 @@
 
 All notable changes to the Log Reader project will be documented in this file.
 
+## [1.0.43] - 2026-03-12
+
+### Added
+- Virtual scrolling in the log table — only visible rows are rendered as DOM elements, keeping the UI fast with large log files
+  - Rows above and below the viewport are represented by spacer elements; the scrollbar reflects the full entry count
+  - Layout changed to viewport-height (`100vh`) so the table wrapper is the scroll container rather than the page
+- Collapsible sidebar panels — each panel can be expanded or collapsed by clicking its heading
+  - Panels: Upload Log File(s), Log Levels, Log Files, Filters & Search
+  - Collapsed state of each panel persists across reloads via `localStorage`
+- Individual filter cards can now each be independently expanded or collapsed (previously accordion-style, now independent)
+  - Expanded/collapsed state of each filter persists across reloads via `localStorage`
+
 ## [1.0.42] - 2026-03-12
 
 ### Added

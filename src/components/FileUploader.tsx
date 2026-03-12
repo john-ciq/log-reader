@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react';
 import { parseLogContent, parseLogLine, LogEntry } from '../lib/parser';
 import JSZip from 'jszip';
+import { savePanelCollapsed, loadPanelCollapsed } from '../lib/statistics';
 
 interface FileUploaderProps {
   onUpload: (entries: LogEntry[]) => void;
@@ -57,6 +58,7 @@ async function processZipFile(file: File): Promise<LogEntry[]> {
 export default function FileUploader({ onUpload }: FileUploaderProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [collapsed, setCollapsed] = useState(() => loadPanelCollapsed('uploader'));
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -136,36 +138,44 @@ export default function FileUploader({ onUpload }: FileUploaderProps) {
 
   return (
     <div className="file-uploader">
-      <h3>📁 Upload Log File(s)</h3>
+      <h3 className="collapsible-heading" onClick={() => setCollapsed(c => { savePanelCollapsed('uploader', !c); return !c; })}>
+        <span className="collapse-arrow">{collapsed ? '▶' : '▼'}</span>
+        📁 Upload Log File(s)
+      </h3>
 
-      <div
-        className="upload-area"
-        onClick={handleClick}
-        onDragOver={handleDragOver}
-        onDragLeave={handleDragLeave}
-        onDrop={handleDrop}
-      >
-        <input
-          ref={fileInputRef}
-          type="file"
-          onChange={handleFileSelect}
-          disabled={loading}
-          className="file-input"
-          accept=".log,.txt,.zip,.json"
-          multiple
-        />
 
-        {loading ? (
-          <p className="upload-text">Loading...</p>
-        ) : (
-          <>
-            <p className="upload-text">📤 Drag & drop log file(s) here</p>
-            <p className="upload-hint">or click to browse</p>
-          </>
-        )}
-      </div>
+      {!collapsed && (
+        <>
+          <div
+            className="upload-area"
+            onClick={handleClick}
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
+          >
+            <input
+              ref={fileInputRef}
+              type="file"
+              onChange={handleFileSelect}
+              disabled={loading}
+              className="file-input"
+              accept=".log,.txt,.zip,.json"
+              multiple
+            />
 
-      {error && <div className="error-message">{error}</div>}
+            {loading ? (
+              <p className="upload-text">Loading...</p>
+            ) : (
+              <>
+                <p className="upload-text">📤 Drag & drop log file(s) here</p>
+                <p className="upload-hint">or click to browse</p>
+              </>
+            )}
+          </div>
+
+          {error && <div className="error-message">{error}</div>}
+        </>
+      )}
     </div>
   );
 }

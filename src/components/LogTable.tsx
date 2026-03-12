@@ -77,6 +77,26 @@ export default function LogTable({ entries, searchQuery = '', useRegex = false }
   const resizing = useRef<{ col: SortColumn; startX: number; startWidth: number } | null>(null);
   const draggingCol = useRef<SortColumn | null>(null);
 
+  // ── Virtual scroll ───────────────────────────────────────────────────────────
+  const ROW_HEIGHT = 36; // px — approximate row height for computing visible window
+  const OVERSCAN = 15;   // extra rows to render above and below the viewport
+  const [scrollEl, setScrollEl] = useState<HTMLDivElement | null>(null);
+  const [scrollTop, setScrollTop] = useState(0);
+  const [containerHeight, setContainerHeight] = useState(600);
+
+  useEffect(() => {
+    if (!scrollEl) return;
+    setContainerHeight(scrollEl.clientHeight);
+    const onScroll = () => setScrollTop(scrollEl.scrollTop);
+    scrollEl.addEventListener('scroll', onScroll, { passive: true });
+    const ro = new ResizeObserver(() => setContainerHeight(scrollEl.clientHeight));
+    ro.observe(scrollEl);
+    return () => {
+      scrollEl.removeEventListener('scroll', onScroll);
+      ro.disconnect();
+    };
+  }, [scrollEl]);
+
   useEffect(() => {
     saveColumnPreferences(colOrder, colWidths);
   }, [colOrder, colWidths]);
@@ -170,6 +190,13 @@ export default function LogTable({ entries, searchQuery = '', useRegex = false }
   const getSortIndicator = (column: SortColumn) =>
     sortColumn !== column ? ' ⇅' : sortDirection === 'asc' ? ' ▲' : ' ▼';
 
+  // ── Virtual window ───────────────────────────────────────────────────────────
+  const startIdx = Math.max(0, Math.floor(scrollTop / ROW_HEIGHT) - OVERSCAN);
+  const endIdx = Math.min(sortedEntries.length, Math.ceil((scrollTop + containerHeight) / ROW_HEIGHT) + OVERSCAN);
+  const visibleEntries = sortedEntries.slice(startIdx, endIdx);
+  const paddingTop = startIdx * ROW_HEIGHT;
+  const paddingBottom = (sortedEntries.length - endIdx) * ROW_HEIGHT;
+
   // ── Cell renderer ────────────────────────────────────────────────────────────
   const renderCell = (entry: LogEntry, col: SortColumn) => {
     switch (col) {
@@ -211,7 +238,7 @@ export default function LogTable({ entries, searchQuery = '', useRegex = false }
       <div className="table-control">
         <span className="entry-count">{entries.length} entries</span>
       </div>
-      <div className="table-wrapper">
+      <div className="table-wrapper" ref={setScrollEl}>
         <table style={{ tableLayout: 'fixed' }}>
           <colgroup>
             {colOrder.map(col => <col key={col} style={{ width: colWidths[col] }} />)}
@@ -241,11 +268,13 @@ export default function LogTable({ entries, searchQuery = '', useRegex = false }
             </tr>
           </thead>
           <tbody>
-            {sortedEntries.map(entry => (
+            {paddingTop > 0 && <tr style={{ height: paddingTop }}><td colSpan={colOrder.length} /></tr>}
+            {visibleEntries.map(entry => (
               <tr key={entry.id} className={`level-${entry.level.toLowerCase()}`}>
                 {colOrder.map(col => renderCell(entry, col))}
               </tr>
             ))}
+            {paddingBottom > 0 && <tr style={{ height: paddingBottom }}><td colSpan={colOrder.length} /></tr>}
           </tbody>
         </table>
       </div>

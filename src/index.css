@@ -129,10 +129,11 @@ html, body {
 
 /* App Layout */
 .app {
-  min-height: 100vh;
+  height: 100vh;
   display: flex;
   flex-direction: column;
   background-color: var(--bg-primary);
+  overflow: hidden;
 }
 
 .app-header {
@@ -176,6 +177,8 @@ html, body {
   max-width: 2000px;
   margin: 0 auto;
   width: 100%;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .sidebar {
@@ -183,9 +186,7 @@ html, body {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
-  position: sticky;
-  top: 2rem;
-  max-height: calc(100vh - 4rem);
+  max-height: 100%;
   overflow-y: auto;
 }
 
@@ -195,6 +196,8 @@ html, body {
   flex-direction: column;
   gap: 1.5rem;
   min-width: 0;
+  min-height: 0;
+  overflow: hidden;
 }
 
 /* Sidebar Sections */
@@ -220,6 +223,24 @@ html, body {
   text-transform: uppercase;
   letter-spacing: 0.5px;
   opacity: 0.8;
+}
+
+/* Collapsible headings */
+.collapsible-heading {
+  cursor: pointer;
+  user-select: none;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.collapsible-heading:hover {
+  opacity: 0.8;
+}
+
+.collapse-arrow {
+  font-size: 0.65em;
+  opacity: 0.6;
 }
 
 /* File Uploader */
@@ -993,7 +1014,7 @@ html, body {
   display: flex;
   flex-direction: column;
   flex: 1;
-  min-height: 500px;
+  min-height: 0;
   box-shadow: var(--shadow-sm);
 }
 
@@ -1284,7 +1305,6 @@ tbody tr:last-child td {
 
   .sidebar {
     width: 100%;
-    position: static;
     max-height: none;
   }
 
@@ -1294,10 +1314,6 @@ tbody tr:last-child td {
 }
 
 @media (max-width: 768px) {
-  .app {
-    min-height: auto;
-  }
-
   .app-header {
     padding: 1.5rem 1rem;
   }

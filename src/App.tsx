@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { LogEntry } from './lib/parser';
 import { FilterConfig, getFilterDecision } from './lib/filters';
-import { loadFilterConfigs, saveFilterConfigs, saveHiddenLevels, loadHiddenLevels, saveHiddenSources, loadHiddenSources, saveSearchState, loadSearchState } from './lib/statistics';
+import { loadFilterConfigs, saveFilterConfigs, saveHiddenLevels, loadHiddenLevels, saveHiddenSources, loadHiddenSources, saveSearchState, loadSearchState, savePanelCollapsed, loadPanelCollapsed } from './lib/statistics';
 import FileUploader from './components/FileUploader';
 import FilterPanel from './components/FilterPanel';
 import SearchBar from './components/SearchBar';
@@ -30,6 +30,8 @@ function App() {
   // file visibility controls
   const [availableFiles, setAvailableFiles] = useState<string[]>([]);
   const [displayFiles, setDisplayFiles] = useState<Set<string>>(new Set());
+
+  const [filtersCollapsed, setFiltersCollapsed] = useState(() => loadPanelCollapsed('filters'));
 
   // source visibility controls
   const [availableSources, setAvailableSources] = useState<string[]>([]);
@@ -290,23 +292,30 @@ function App() {
             />
           </div>
           <div className="sidebar-section">
-            <h3>Filters & Search</h3>
-            <SearchBar
-              query={searchQuery}
-              onQueryChange={setSearchQuery}
-              useRegex={useRegexSearch}
-              onRegexChange={setUseRegexSearch}
-            />
-            <FilterPanel
-              filters={filters}
-              onAddFilter={handleAddFilter}
-              onUpdateFilter={handleUpdateFilter}
-              onDeleteFilter={handleDeleteFilter}
-              onMoveFilter={handleMoveFilter}
-              onDuplicateFilter={handleDuplicateFilter}
-              onReorderFilter={handleReorderFilter}
-              availableFiles={[...new Set(entries.map(e => e.filename).filter((f): f is string => Boolean(f)))]}
-            />
+            <h3 className="collapsible-heading" onClick={() => setFiltersCollapsed(c => { savePanelCollapsed('filters', !c); return !c; })}>
+              <span className="collapse-arrow">{filtersCollapsed ? '▶' : '▼'}</span>
+              Filters & Search
+            </h3>
+            {!filtersCollapsed && (
+              <>
+                <SearchBar
+                  query={searchQuery}
+                  onQueryChange={setSearchQuery}
+                  useRegex={useRegexSearch}
+                  onRegexChange={setUseRegexSearch}
+                />
+                <FilterPanel
+                  filters={filters}
+                  onAddFilter={handleAddFilter}
+                  onUpdateFilter={handleUpdateFilter}
+                  onDeleteFilter={handleDeleteFilter}
+                  onMoveFilter={handleMoveFilter}
+                  onDuplicateFilter={handleDuplicateFilter}
+                  onReorderFilter={handleReorderFilter}
+                  availableFiles={[...new Set(entries.map(e => e.filename).filter((f): f is string => Boolean(f)))]}
+                />
+              </>
+            )}
           </div>
         </aside>
 

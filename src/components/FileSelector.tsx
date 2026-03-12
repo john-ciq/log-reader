@@ -1,3 +1,5 @@
+import { useState } from 'react';
+import { savePanelCollapsed, loadPanelCollapsed } from '../lib/statistics';
 
 interface FileSelectorProps {
   files: string[];
@@ -9,11 +11,16 @@ interface FileSelectorProps {
 }
 
 export default function FileSelector({ files, selected, onChange, onRemove, parsers = {}, counts = {} }: FileSelectorProps) {
+  const [collapsed, setCollapsed] = useState(() => loadPanelCollapsed('files'));
+
   return (
     <div className="file-selector">
-      <h3>Log Files</h3>
-      {files.length === 0 && <p className="empty-message">No files loaded yet</p>}
-      {files.map(file => (
+      <h3 className="collapsible-heading" onClick={() => setCollapsed(c => { savePanelCollapsed('files', !c); return !c; })}>
+        <span className="collapse-arrow">{collapsed ? '▶' : '▼'}</span>
+        Log Files
+      </h3>
+      {!collapsed && files.length === 0 && <p className="empty-message">No files loaded yet</p>}
+      {!collapsed && files.map(file => (
         <div key={file} className="file-row">
           <label className="file-checkbox">
             <input

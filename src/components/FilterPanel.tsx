@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react';
 import { FilterConfig } from '../lib/filters';
+import { saveExpandedFilters, loadExpandedFilters } from '../lib/statistics';
 
 interface FilterPanelProps {
   filters: FilterConfig[];
@@ -22,7 +23,7 @@ export default function FilterPanel({
   onReorderFilter,
   availableFiles,
 }: FilterPanelProps) {
-  const [expandedFilter, setExpandedFilter] = useState<string | null>(null);
+  const [expandedFilters, setExpandedFilters] = useState<Set<string>>(() => new Set(loadExpandedFilters()));
   const [patternErrors, setPatternErrors] = useState<Record<string, string>>({});
   const [dragOverId, setDragOverId] = useState<string | null>(null);
   const dragIdRef = useRef<string | null>(null);
@@ -169,14 +170,19 @@ export default function FilterPanel({
                   </div>
                 </div>
                 <button
-                  onClick={() => setExpandedFilter(expandedFilter === filter.id ? null : filter.id)}
+                  onClick={() => setExpandedFilters(prev => {
+                    const next = new Set(prev);
+                    if (next.has(filter.id)) next.delete(filter.id); else next.add(filter.id);
+                    saveExpandedFilters([...next]);
+                    return next;
+                  })}
                   className="expand-btn"
                 >
-                  {expandedFilter === filter.id ? '▼' : '▶'}
+                  {expandedFilters.has(filter.id) ? '▼' : '▶'}
                 </button>
               </div>
 
-              {expandedFilter === filter.id && (
+              {expandedFilters.has(filter.id) && (
                 <div className="filter-content">
                   <div className="filter-name-group">
                     <label>Filter Name:</label>
