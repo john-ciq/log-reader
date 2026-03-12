@@ -1,4 +1,4 @@
-import { calculateStatistics } from '../lib/statistics';
+import { calculateStatistics, savePanelCollapsed, loadPanelCollapsed } from '../lib/statistics';
 import { LogEntry } from '../lib/parser';
 import { useState, useMemo } from 'react';
 
@@ -21,6 +21,7 @@ export default function StatisticsPanel({
   displaySources,
   onSourceChange,
 }: StatisticsPanelProps) {
+  const [collapsed, setCollapsed] = useState(() => loadPanelCollapsed('statistics'));
   const [expanded, setExpanded] = useState({
     summary: true,
     levels: true,
@@ -45,7 +46,10 @@ export default function StatisticsPanel({
   return (
     <div className="statistics-panel">
       <div className="stats-header">
-        <h3>📊 Statistics</h3>
+        <h3 className="collapsible-heading" onClick={() => setCollapsed(c => { savePanelCollapsed('statistics', !c); return !c; })}>
+          <span className="collapse-arrow">{collapsed ? '▶' : '▼'}</span>
+          📊 Statistics
+        </h3>
         <div className="stats-actions">
           <span className="total-count">
             Total: {totalEntries} | Filtered: {entries.length}
@@ -63,6 +67,7 @@ export default function StatisticsPanel({
         </div>
       </div>
 
+      {!collapsed && <>
       <div className="stats-section">
         <div
           className="stats-section-header"
@@ -192,6 +197,7 @@ export default function StatisticsPanel({
           </div>
         )}
       </div>
+      </>}
     </div>
   );
 }
