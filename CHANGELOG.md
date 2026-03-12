@@ -2,6 +2,12 @@
 
 All notable changes to the Log Reader project will be documented in this file.
 
+## [1.0.44] - 2026-03-12
+
+### Added
+- Statistics panel is now collapsible — click the "📊 Statistics" heading to collapse or expand it; state persists via `localStorage`
+- App layout now fills the full screen width (removed `max-width` constraint on the main container)
+
 ## [1.0.43] - 2026-03-12
 
 ### Added
