@@ -33,6 +33,7 @@ function App() {
   const [displayFiles, setDisplayFiles] = useState<Set<string>>(new Set());
 
   const [filtersCollapsed, setFiltersCollapsed] = useState(() => loadPanelCollapsed('filters'));
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(() => loadPanelCollapsed('sidebar'));
 
   // raw file tabs
   const [rawFiles, setRawFiles] = useState<RawFile[]>([]);
@@ -316,57 +317,68 @@ function App() {
       </header>
 
       <div className="app-container">
-        <aside className="sidebar">
-          <FileUploader onUpload={handleFileUpload} onRawFiles={handleRawFiles} />
-          <div className="sidebar-section">
-            <LevelSelector
-              levels={availableLevels}
-              selected={displayLevels}
-              onChange={handleLevelCheckbox}
-            />
-            <FileSelector
-              files={availableFiles}
-              selected={displayFiles}
-              onChange={handleFileCheckbox}
-              onRemove={handleFileRemove}
-              onOpenRaw={handleOpenRawFile}
-              parsers={Object.fromEntries(
-                entries
-                  .filter(e => e.filename && e.parser)
-                  .map(e => [e.filename!, e.parser!])
-              )}
-              counts={entries.reduce<Record<string, number>>((acc, e) => {
-                if (e.filename) acc[e.filename] = (acc[e.filename] ?? 0) + 1;
-                return acc;
-              }, {})}
-            />
-          </div>
-          <div className="sidebar-section">
-            <h3 className="collapsible-heading" onClick={() => setFiltersCollapsed(c => { savePanelCollapsed('filters', !c); return !c; })}>
-              <span className="collapse-arrow">{filtersCollapsed ? '▶' : '▼'}</span>
-              Filters & Search
-            </h3>
-            {!filtersCollapsed && (
-              <>
-                <SearchBar
-                  query={searchQuery}
-                  onQueryChange={setSearchQuery}
-                  useRegex={useRegexSearch}
-                  onRegexChange={setUseRegexSearch}
+        <aside className={`sidebar${sidebarCollapsed ? ' sidebar--collapsed' : ''}`}>
+          <button
+            className="sidebar-toggle-btn"
+            onClick={() => setSidebarCollapsed(c => { savePanelCollapsed('sidebar', !c); return !c; })}
+            title={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          >
+            {sidebarCollapsed ? '›' : '‹'}
+          </button>
+          {!sidebarCollapsed && (
+            <>
+              <FileUploader onUpload={handleFileUpload} onRawFiles={handleRawFiles} />
+              <div className="sidebar-section">
+                <LevelSelector
+                  levels={availableLevels}
+                  selected={displayLevels}
+                  onChange={handleLevelCheckbox}
                 />
-                <FilterPanel
-                  filters={filters}
-                  onAddFilter={handleAddFilter}
-                  onUpdateFilter={handleUpdateFilter}
-                  onDeleteFilter={handleDeleteFilter}
-                  onMoveFilter={handleMoveFilter}
-                  onDuplicateFilter={handleDuplicateFilter}
-                  onReorderFilter={handleReorderFilter}
-                  availableFiles={[...new Set(entries.map(e => e.filename).filter((f): f is string => Boolean(f)))]}
+                <FileSelector
+                  files={availableFiles}
+                  selected={displayFiles}
+                  onChange={handleFileCheckbox}
+                  onRemove={handleFileRemove}
+                  onOpenRaw={handleOpenRawFile}
+                  parsers={Object.fromEntries(
+                    entries
+                      .filter(e => e.filename && e.parser)
+                      .map(e => [e.filename!, e.parser!])
+                  )}
+                  counts={entries.reduce<Record<string, number>>((acc, e) => {
+                    if (e.filename) acc[e.filename] = (acc[e.filename] ?? 0) + 1;
+                    return acc;
+                  }, {})}
                 />
-              </>
-            )}
-          </div>
+              </div>
+              <div className="sidebar-section">
+                <h3 className="collapsible-heading" onClick={() => setFiltersCollapsed(c => { savePanelCollapsed('filters', !c); return !c; })}>
+                  <span className="collapse-arrow">{filtersCollapsed ? '▶' : '▼'}</span>
+                  Filters & Search
+                </h3>
+                {!filtersCollapsed && (
+                  <>
+                    <SearchBar
+                      query={searchQuery}
+                      onQueryChange={setSearchQuery}
+                      useRegex={useRegexSearch}
+                      onRegexChange={setUseRegexSearch}
+                    />
+                    <FilterPanel
+                      filters={filters}
+                      onAddFilter={handleAddFilter}
+                      onUpdateFilter={handleUpdateFilter}
+                      onDeleteFilter={handleDeleteFilter}
+                      onMoveFilter={handleMoveFilter}
+                      onDuplicateFilter={handleDuplicateFilter}
+                      onReorderFilter={handleReorderFilter}
+                      availableFiles={[...new Set(entries.map(e => e.filename).filter((f): f is string => Boolean(f)))]}
+                    />
+                  </>
+                )}
+              </div>
+            </>
+          )}
         </aside>
 
         <main className="main-content">

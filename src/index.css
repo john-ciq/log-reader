@@ -180,11 +180,39 @@ html, body {
 
 .sidebar {
   width: 340px;
+  flex-shrink: 0;
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
   max-height: 100%;
   overflow-y: auto;
+  transition: width 0.2s ease;
+}
+
+.sidebar--collapsed {
+  width: 40px;
+  overflow: hidden;
+  gap: 0;
+}
+
+.sidebar-toggle-btn {
+  flex-shrink: 0;
+  width: 100%;
+  padding: 0.4rem 0;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 1.1rem;
+  line-height: 1;
+  text-align: center;
+  transition: background 0.15s, color 0.15s;
+}
+
+.sidebar-toggle-btn:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
 }
 
 .main-content {
@@ -1241,6 +1269,7 @@ html, body {
 .raw-file-scroll {
   flex: 1;
   min-height: 0;
+  min-width: 0;
   overflow: auto;
 }
 
@@ -1253,7 +1282,8 @@ html, body {
   color: var(--text-primary);
   white-space: pre;
   tab-size: 4;
-  min-width: max-content;
+  width: max-content;
+  min-width: 100%;
 }
 
 /* Log Table */

@@ -30,19 +30,26 @@ function findMatches(text: string, query: string, useRegex: boolean): MatchRange
 export default function RawFileViewer({ content }: RawFileViewerProps) {
   const [wrap, setWrap] = useState(false);
   const [searchInput, setSearchInput] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
   const [useRegex, setUseRegex] = useState(false);
   const [currentMatchIdx, setCurrentMatchIdx] = useState(0);
   const preRef = useRef<HTMLPreElement>(null);
 
+  // Debounce search input by 250ms before running matches
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearch(searchInput), 250);
+    return () => clearTimeout(timer);
+  }, [searchInput]);
+
   const matches = useMemo(
-    () => findMatches(content, searchInput, useRegex),
-    [content, searchInput, useRegex]
+    () => findMatches(content, debouncedSearch, useRegex),
+    [content, debouncedSearch, useRegex]
   );
 
-  // Reset to first match when query changes
+  // Reset to first match when debounced query changes
   useEffect(() => {
     setCurrentMatchIdx(0);
-  }, [searchInput, useRegex]);
+  }, [debouncedSearch, useRegex]);
 
   // Scroll current match into view after render
   useEffect(() => {
@@ -57,7 +64,7 @@ export default function RawFileViewer({ content }: RawFileViewerProps) {
   };
 
   const renderedContent = useMemo(() => {
-    if (!searchInput || matches.length === 0) return content;
+    if (!debouncedSearch || matches.length === 0) return content;
 
     const parts: React.ReactNode[] = [];
     let lastIndex = 0;
@@ -77,7 +84,7 @@ export default function RawFileViewer({ content }: RawFileViewerProps) {
 
     if (lastIndex < content.length) parts.push(content.slice(lastIndex));
     return parts;
-  }, [content, matches, currentMatchIdx, searchInput]);
+  }, [content, matches, currentMatchIdx, debouncedSearch]);
 
   return (
     <div className="raw-file-viewer">
@@ -105,7 +112,7 @@ export default function RawFileViewer({ content }: RawFileViewerProps) {
           .*
         </button>
         <span className="raw-file-match-count">
-          {searchInput
+          {debouncedSearch
             ? matches.length === 0
               ? 'No matches'
               : `${currentMatchIdx + 1} of ${matches.length}`
