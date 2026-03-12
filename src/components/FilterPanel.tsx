@@ -200,7 +200,7 @@ export default function FilterPanel({
                     <div className="patterns-list">
                       {filter.includePatterns.map((pattern, i) => (
                         <div key={i} className="pattern-tag">
-                          <span>{pattern}</span>
+                          <span title={pattern}>{pattern}</span>
                           <button
                             onClick={() => handleRemovePattern(filter.id, 'include', i)}
                             className="remove-pattern"
@@ -222,7 +222,7 @@ export default function FilterPanel({
                     <div className="patterns-list">
                       {filter.excludePatterns.map((pattern, i) => (
                         <div key={i} className="pattern-tag">
-                          <span>{pattern}</span>
+                          <span title={pattern}>{pattern}</span>
                           <button
                             onClick={() => handleRemovePattern(filter.id, 'exclude', i)}
                             className="remove-pattern"

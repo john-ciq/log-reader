@@ -655,13 +655,13 @@ html, body {
 
 .patterns-list {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
   gap: 0.5rem;
   min-height: 1.5rem;
 }
 
 .pattern-tag {
-  display: inline-flex;
+  display: flex;
   align-items: center;
   gap: 0.5rem;
   background: rgba(59, 130, 246, 0.15);
@@ -672,6 +672,15 @@ html, body {
   font-size: 0.8rem;
   font-family: 'Monaco', 'Courier New', monospace;
   font-weight: 500;
+  min-width: 0;
+}
+
+.pattern-tag span {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
 }
 
 .remove-pattern {
