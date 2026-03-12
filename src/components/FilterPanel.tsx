@@ -102,7 +102,10 @@ export default function FilterPanel({
         <p className="empty-message">No filters yet. Create one to get started!</p>
       ) : (
         <div className="filters-list">
-          {filters.map(filter => (
+          {filters.map(filter => {
+            const hasPatterns = filter.includePatterns.length > 0 || filter.excludePatterns.length > 0;
+            const hasCriteria = filter.levelFilters.length > 0 || filter.fileFilters.length > 0;
+            return (
             <div
               key={filter.id}
               className={`filter-item${dragOverId === filter.id ? ' drag-over' : ''}`}
@@ -186,8 +189,8 @@ export default function FilterPanel({
                     />
                   </div>
 
-                  <div className="filter-patterns">
-                    <h5>Include Patterns</h5>
+                  <div className={`filter-patterns${hasCriteria && !hasPatterns ? ' section-inactive' : ''}`}>
+                    <h5>Include Patterns {hasCriteria && !hasPatterns && <span className="inactive-note">inactive — level/file criteria in use</span>}</h5>
                     <div className="patterns-list">
                       {filter.includePatterns.map((pattern, i) => (
                         <div key={i} className="pattern-tag">
@@ -208,8 +211,8 @@ export default function FilterPanel({
                     />
                   </div>
 
-                  <div className="filter-patterns">
-                    <h5>Exclude Patterns</h5>
+                  <div className={`filter-patterns${hasCriteria && !hasPatterns ? ' section-inactive' : ''}`}>
+                    <h5>Exclude Patterns {hasCriteria && !hasPatterns && <span className="inactive-note">inactive — level/file criteria in use</span>}</h5>
                     <div className="patterns-list">
                       {filter.excludePatterns.map((pattern, i) => (
                         <div key={i} className="pattern-tag">
@@ -230,8 +233,8 @@ export default function FilterPanel({
                     />
                   </div>
 
-                  <div className="filter-levels">
-                    <h5>Log Levels</h5>
+                  <div className={`filter-levels${hasPatterns ? ' section-inactive' : ''}`}>
+                    <h5>Log Levels {hasPatterns && <span className="inactive-note">inactive — patterns in use</span>}</h5>
                     <div className="level-buttons">
                       {commonLevels.map(level => (
                         <button
@@ -243,6 +246,7 @@ export default function FilterPanel({
                             onUpdateFilter(filter.id, { levelFilters: newLevels });
                           }}
                           className={`level-btn ${filter.levelFilters.includes(level) ? 'active' : ''}`}
+                          disabled={hasPatterns}
                         >
                           {level}
                         </button>
@@ -251,8 +255,8 @@ export default function FilterPanel({
                   </div>
 
                   {availableFiles.length > 0 && (
-                    <div className="filter-files">
-                      <h5>Log Files</h5>
+                    <div className={`filter-files${hasPatterns ? ' section-inactive' : ''}`}>
+                      <h5>Log Files {hasPatterns && <span className="inactive-note">inactive — patterns in use</span>}</h5>
                       <div className="file-buttons">
                         {availableFiles.map(file => (
                           <button
@@ -265,6 +269,7 @@ export default function FilterPanel({
                             }}
                             className={`file-btn ${filter.fileFilters.includes(file) ? 'active' : ''}`}
                             title={file}
+                            disabled={hasPatterns}
                           >
                             {file.length > 30 ? `${file.substring(0, 27)}...` : file}
                           </button>
@@ -275,7 +280,8 @@ export default function FilterPanel({
                 </div>
               )}
             </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>

@@ -621,6 +621,20 @@ html, body {
   margin: 0;
 }
 
+.section-inactive {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+.inactive-note {
+  font-size: 0.65rem;
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
 .patterns-list {
   display: flex;
   flex-wrap: wrap;

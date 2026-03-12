@@ -2,6 +2,18 @@
 
 All notable changes to the Log Reader project will be documented in this file.
 
+## [1.0.42] - 2026-03-12
+
+### Added
+- Filter editor now visually indicates which mode (patterns or level/file criteria) is active
+  - When include or exclude patterns are present, Log Levels and Log Files sections are dimmed and their buttons are disabled, with an *"inactive — patterns in use"* label
+  - When level or file criteria are selected but no patterns exist, the pattern input sections are dimmed with an *"inactive — level/file criteria in use"* label
+  - Prevents confusion when both are configured but only one set is actually evaluated
+
+### Fixed
+- Build output now uses relative asset paths (`./assets/...`) instead of absolute paths (`/assets/...`)
+  - Set `base: './'` in `vite.config.ts` so the app can be served from any subdirectory or opened directly as a file
+
 ## [1.0.41] - 2026-03-12
 
 ### Documentation
