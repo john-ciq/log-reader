@@ -206,8 +206,13 @@ export default function LogTable({ entries, searchQuery = '', useRegex = false }
   // ── Cell renderer ────────────────────────────────────────────────────────────
   const renderCell = (entry: LogEntry, col: SortColumn) => {
     switch (col) {
-      case 'timestamp':
-        return <td key={col} className="timestamp-cell">{highlightText(entry.timestamp.toLocaleString(), searchQuery, useRegex)}</td>;
+      case 'timestamp': {
+        const t = entry.timestamp;
+        const pad2 = (n: number) => String(n).padStart(2, '0');
+        const pad3 = (n: number) => String(n).padStart(3, '0');
+        const formatted = `${t.getFullYear()}${pad2(t.getMonth() + 1)}${pad2(t.getDate())} ${pad2(t.getHours())}:${pad2(t.getMinutes())}:${pad2(t.getSeconds())}.${pad3(t.getMilliseconds())}`;
+        return <td key={col} className="timestamp-cell">{highlightText(formatted, searchQuery, useRegex)}</td>;
+      }
       case 'level':
         return (
           <td key={col} className="level-cell">

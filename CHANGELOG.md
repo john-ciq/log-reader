@@ -2,6 +2,13 @@
 
 All notable changes to the Log Reader project will be documented in this file.
 
+## [1.0.47] - 2026-03-12
+
+### Changed
+- Timestamp column now displays in `YYYYMMDD HH:mm:ss.mmm` format (24-hour, fixed-width, milliseconds always shown)
+- Milliseconds are now preserved when parsing FEA log timestamps (previously dropped by the parser)
+- Log entries from formats without millisecond precision display `.000`
+
 ## [1.0.46] - 2026-03-12
 
 ### Fixed

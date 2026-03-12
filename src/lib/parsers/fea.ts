@@ -11,7 +11,7 @@ export const fea: ParserConfig = {
   name: 'FEA log',
   description: 'Logs from the FEA system with ISO timestamps and timezone',
   patterns: [
-    /^\[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})(?:\.\d+)?([+-]\d{2}:\d{2})?\] \[([^\]]+)\](?::)? ([\s\S]*)$/,
+    /^\[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}(?:\.\d+)?)([+-]\d{2}:\d{2})?\] \[([^\]]+)\](?::)? ([\s\S]*)$/,
   ],
   format: (match) => {
     const [, timestamp, tz, level, message] = match;
