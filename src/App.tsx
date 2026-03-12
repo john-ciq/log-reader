@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { LogEntry } from './lib/parser';
-import { FilterConfig } from './lib/filters';
-import { loadFilterConfigs, saveFilterConfigs, loadActiveFilterId, saveActiveFilterId, saveHiddenLevels, loadHiddenLevels, saveHiddenSources, loadHiddenSources, saveSearchState, loadSearchState } from './lib/statistics';
+import { FilterConfig, getFilterDecision } from './lib/filters';
+import { loadFilterConfigs, saveFilterConfigs, saveHiddenLevels, loadHiddenLevels, saveHiddenSources, loadHiddenSources, saveSearchState, loadSearchState } from './lib/statistics';
 import FileUploader from './components/FileUploader';
 import FilterPanel from './components/FilterPanel';
 import SearchBar from './components/SearchBar';
@@ -19,11 +19,6 @@ function App() {
   const [entries, setEntries] = useState<LogEntry[]>([]);
   const [filteredEntries, setFilteredEntries] = useState<LogEntry[]>([]);
   const [filters, setFilters] = useState<FilterConfig[]>(() => loadFilterConfigs());
-  const [activeFilterId, setActiveFilterId] = useState<string | null>(() => {
-    const savedId = loadActiveFilterId();
-    const savedFilters = loadFilterConfigs();
-    return (savedId && savedFilters.some(f => f.id === savedId)) ? savedId : null;
-  });
   const [searchQuery, setSearchQuery] = useState(() => loadSearchState().query);
   const [useRegexSearch, setUseRegexSearch] = useState(() => loadSearchState().useRegex);
 
@@ -46,77 +41,24 @@ function App() {
     saveFilterConfigs(filters);
   }, [filters]);
 
-  // Save active filter ID
-  useEffect(() => {
-    if (activeFilterId) {
-      saveActiveFilterId(activeFilterId);
-    }
-  }, [activeFilterId]);
-
   // Save search state
   useEffect(() => {
     saveSearchState(searchQuery, useRegexSearch);
   }, [searchQuery, useRegexSearch]);
 
-  const activeFilter = activeFilterId ? filters.find(f => f.id === activeFilterId) : null;
-
   // Apply filters, level visibility, and file visibility
   useEffect(() => {
     let result = entries;
 
-    // Apply active filter
-    if (activeFilter) {
+    // Apply enabled filters — entry passes if it matches ANY enabled filter
+    const enabledFilters = filters.filter(f => f.enabled);
+    if (enabledFilters.length > 0) {
       result = result.filter(entry => {
-        const searchText = `${entry.timestamp.toISOString()} ${entry.level} ${entry.source} ${entry.filename || ''} ${entry.message}`;
-
-        // Include patterns — a match forces inclusion, bypassing all other filters
-        if (activeFilter.includePatterns.length > 0) {
-          const includeMatch = activeFilter.includePatterns.some(pattern => {
-            try {
-              return new RegExp(pattern, 'i').test(searchText);
-            } catch {
-              return false;
-            }
-          });
-          if (includeMatch) return true;
-          return false;
+        for (const filter of enabledFilters) {
+          const decision = getFilterDecision(entry, filter);
+          if (decision !== null) return decision;
         }
-
-        // Exclude patterns
-        if (activeFilter.excludePatterns.length > 0) {
-          const excludeMatch = activeFilter.excludePatterns.some(pattern => {
-            try {
-              return new RegExp(pattern, 'i').test(searchText);
-            } catch {
-              return false;
-            }
-          });
-          if (excludeMatch) return false;
-        }
-
-        // Level filters
-        if (activeFilter.levelFilters.length > 0) {
-          if (!activeFilter.levelFilters.includes(entry.level.toLowerCase())) {
-            return false;
-          }
-        }
-
-        // Source filters
-        if (activeFilter.sourceFilters.length > 0) {
-          if (!activeFilter.sourceFilters.includes(entry.source)) {
-            return false;
-          }
-        }
-
-        // File filters
-        if (activeFilter.fileFilters.length > 0) {
-          const filename = entry.filename || '';
-          if (!activeFilter.fileFilters.includes(filename)) {
-            return false;
-          }
-        }
-
-        return true;
+        return true; // no filter claimed this entry → include by default
       });
     }
 
@@ -130,7 +72,7 @@ function App() {
     result = result.filter(entry => displaySources.has(entry.source));
 
     setFilteredEntries(result);
-  }, [entries, activeFilter, displayLevels, displayFiles, displaySources]);
+  }, [entries, filters, displayLevels, displayFiles, displaySources]);
 
   const handleFileUpload = useCallback((uploadedEntries: LogEntry[]) => {
     setEntries(prev => [...prev, ...uploadedEntries]);
@@ -140,6 +82,7 @@ function App() {
     const newFilter: FilterConfig = {
       id: `filter-${Date.now()}`,
       name: `Filter ${filters.length + 1}`,
+      enabled: true,
       includePatterns: [],
       excludePatterns: [],
       levelFilters: [],
@@ -147,7 +90,6 @@ function App() {
       fileFilters: [],
     };
     setFilters([...filters, newFilter]);
-    setActiveFilterId(newFilter.id);
   }, [filters]);
 
   // keep track of available levels when entries change
@@ -248,10 +190,7 @@ function App() {
 
   const handleDeleteFilter = useCallback((filterId: string) => {
     setFilters(filters.filter(f => f.id !== filterId));
-    if (activeFilterId === filterId) {
-      setActiveFilterId(filters[0]?.id || null);
-    }
-  }, [filters, activeFilterId]);
+  }, [filters]);
 
   const handleMoveFilter = useCallback((filterId: string, direction: 'up' | 'down') => {
     setFilters(prev => {
@@ -291,7 +230,6 @@ function App() {
       next.splice(idx + 1, 0, copy);
       return next;
     });
-    setActiveFilterId(copy.id);
   }, [filters]);
 
   const handleExportJSON = useCallback(() => {
@@ -361,8 +299,6 @@ function App() {
             />
             <FilterPanel
               filters={filters}
-              activeFilterId={activeFilterId}
-              onActiveFilterChange={setActiveFilterId}
               onAddFilter={handleAddFilter}
               onUpdateFilter={handleUpdateFilter}
               onDeleteFilter={handleDeleteFilter}

@@ -2,6 +2,22 @@
 
 All notable changes to the Log Reader project will be documented in this file.
 
+## [1.0.40] - 2026-03-12
+
+### Changed
+- Multiple filters can now be enabled simultaneously; they are evaluated in order
+  - Each enabled filter is checked in sequence; the first filter that has an opinion about an entry wins
+  - A filter has an opinion when one of its patterns or criteria matches the entry
+  - If no filter claims an entry, it is included by default
+- Filter enable/disable is now a checkbox instead of a radio button, allowing multiple active filters
+- Filter decision logic is now tri-state: include, exclude, or no opinion (pass to next filter)
+  - Include pattern matches → include the entry and stop
+  - Include pattern exists but doesn't match → no opinion, try next filter
+  - Exclude pattern matches → exclude the entry and stop
+  - Exclude pattern exists but doesn't match → no opinion, try next filter
+  - No patterns, all level/source/file criteria pass → include and stop
+  - No patterns, a criterion doesn't apply to this entry → no opinion, try next filter
+
 ## [1.0.39] - 2026-03-12
 
 ### Added

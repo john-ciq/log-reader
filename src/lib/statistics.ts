@@ -76,7 +76,10 @@ export function saveFilterConfigs(configs: FilterConfig[]): void {
 export function loadFilterConfigs(): FilterConfig[] {
   try {
     const stored = localStorage.getItem(`${STORAGE_PREFIX}filters`);
-    return stored ? JSON.parse(stored) : [];
+    if (!stored) return [];
+    const configs: FilterConfig[] = JSON.parse(stored);
+    // Migrate: ensure enabled field exists (defaults to true for old configs)
+    return configs.map(c => ({ ...c, enabled: c.enabled ?? true }));
   } catch (error) {
     console.error('Failed to load filter configs:', error);
     return [];

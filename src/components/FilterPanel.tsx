@@ -3,8 +3,6 @@ import { FilterConfig } from '../lib/filters';
 
 interface FilterPanelProps {
   filters: FilterConfig[];
-  activeFilterId: string | null;
-  onActiveFilterChange: (filterId: string | null) => void;
   onAddFilter: () => void;
   onUpdateFilter: (filterId: string, updates: Partial<FilterConfig>) => void;
   onDeleteFilter: (filterId: string) => void;
@@ -16,8 +14,6 @@ interface FilterPanelProps {
 
 export default function FilterPanel({
   filters,
-  activeFilterId,
-  onActiveFilterChange,
   onAddFilter,
   onUpdateFilter,
   onDeleteFilter,
@@ -126,11 +122,10 @@ export default function FilterPanel({
               <div className="filter-header-bar">
                 <div className="filter-radio">
                   <input
-                    type="radio"
+                    type="checkbox"
                     id={`filter-${filter.id}`}
-                    name="active-filter"
-                    checked={activeFilterId === filter.id}
-                    onChange={() => onActiveFilterChange(filter.id)}
+                    checked={filter.enabled}
+                    onChange={() => onUpdateFilter(filter.id, { enabled: !filter.enabled })}
                   />
                   <div className="filter-title-group">
                     <label htmlFor={`filter-${filter.id}`}>
