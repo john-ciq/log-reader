@@ -2,6 +2,14 @@
 
 All notable changes to the Log Reader project will be documented in this file.
 
+## [1.0.35] - 2026-03-12
+
+### Fixed
+- Inline object expansion now correctly handles messages where a non-JSON bracket group (e.g. `[o [WebRequestError]]`) appears before the actual object
+  - `extractJson` previously locked onto the first `[` or `{` and would not recover if that bracket group failed to parse
+  - Rewritten to restart the search after each failed bracket group, so the JS-style `{...}` object that follows is found and expanded correctly
+  - Covers log files like `ChartIQ Example App.log` and `bloombergBridgeService.log`
+
 ## [1.0.34] - 2026-03-12
 
 ### Fixed

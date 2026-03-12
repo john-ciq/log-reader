@@ -45,35 +45,47 @@ function normalizeToJson(str: string): string {
 
 // attempt to locate and parse the first JSON object/array in the message
 function extractJson(text: string): JsonExtraction | null {
-  const startIdx = text.search(/[\{\[]/);
-  if (startIdx === -1) return null;
+  let searchFrom = 0;
 
-  const openChar = text[startIdx];
-  const closeChar = openChar === '{' ? '}' : ']';
-  let depth = 0;
-  for (let i = startIdx; i < text.length; i++) {
-    const ch = text[i];
-    if (ch === openChar) depth++;
-    else if (ch === closeChar) {
-      depth--;
-      if (depth === 0) {
-        const rawStr = text.slice(startIdx, i + 1);
-        const before = text.slice(0, startIdx);
-        const after = text.slice(i + 1);
+  while (searchFrom < text.length) {
+    const relIdx = text.slice(searchFrom).search(/[\{\[]/);
+    if (relIdx === -1) return null;
 
-        // Try strict JSON first, then fall back to normalised JS-object notation
-        for (const candidate of [rawStr, normalizeToJson(rawStr)]) {
-          try {
-            const parsed = JSON.parse(candidate);
-            return { before, json: parsed, after };
-          } catch {
-            // try next candidate
-          }
-        }
-        // Neither parse succeeded; continue searching for another { or [
+    const startIdx = searchFrom + relIdx;
+    const openChar = text[startIdx];
+    const closeChar = openChar === '{' ? '}' : ']';
+    let depth = 0;
+    let endIdx = -1;
+
+    for (let i = startIdx; i < text.length; i++) {
+      const ch = text[i];
+      if (ch === openChar) depth++;
+      else if (ch === closeChar) {
+        depth--;
+        if (depth === 0) { endIdx = i; break; }
       }
     }
+
+    if (endIdx === -1) return null; // unbalanced — give up
+
+    const rawStr = text.slice(startIdx, endIdx + 1);
+    const before = text.slice(0, startIdx);
+    const after = text.slice(endIdx + 1);
+
+    // Try strict JSON first, then fall back to JS-object notation
+    for (const candidate of [rawStr, normalizeToJson(rawStr)]) {
+      try {
+        const parsed = JSON.parse(candidate);
+        return { before, json: parsed, after };
+      } catch {
+        // try next candidate
+      }
+    }
+
+    // Neither parse succeeded — advance past this bracket group and keep searching
+    searchFrom = endIdx + 1;
   }
+
   return null;
 }
 
