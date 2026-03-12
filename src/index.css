@@ -1282,7 +1282,6 @@ html, body {
   color: var(--text-primary);
   white-space: pre;
   tab-size: 4;
-  width: max-content;
   min-width: 100%;
 }
 

@@ -35,6 +35,15 @@ export default function RawFileViewer({ content }: RawFileViewerProps) {
   const [currentMatchIdx, setCurrentMatchIdx] = useState(0);
   const preRef = useRef<HTMLPreElement>(null);
 
+  // Pretty-print JSON content to avoid single-line files that are millions of pixels wide
+  const displayContent = useMemo(() => {
+    try {
+      return JSON.stringify(JSON.parse(content), null, 2);
+    } catch {
+      return content;
+    }
+  }, [content]);
+
   // Debounce search input by 250ms before running matches
   useEffect(() => {
     const timer = setTimeout(() => setDebouncedSearch(searchInput), 250);
@@ -42,8 +51,8 @@ export default function RawFileViewer({ content }: RawFileViewerProps) {
   }, [searchInput]);
 
   const matches = useMemo(
-    () => findMatches(content, debouncedSearch, useRegex),
-    [content, debouncedSearch, useRegex]
+    () => findMatches(displayContent, debouncedSearch, useRegex),
+    [displayContent, debouncedSearch, useRegex]
   );
 
   // Reset to first match when debounced query changes
@@ -64,27 +73,27 @@ export default function RawFileViewer({ content }: RawFileViewerProps) {
   };
 
   const renderedContent = useMemo(() => {
-    if (!debouncedSearch || matches.length === 0) return content;
+    if (!debouncedSearch || matches.length === 0) return displayContent;
 
     const parts: React.ReactNode[] = [];
     let lastIndex = 0;
 
     matches.forEach((m, idx) => {
-      if (m.start > lastIndex) parts.push(content.slice(lastIndex, m.start));
+      if (m.start > lastIndex) parts.push(displayContent.slice(lastIndex, m.start));
       parts.push(
         <mark
           key={idx}
           className={idx === currentMatchIdx ? 'raw-highlight raw-highlight-current' : 'raw-highlight'}
         >
-          {content.slice(m.start, m.end)}
+          {displayContent.slice(m.start, m.end)}
         </mark>
       );
       lastIndex = m.end;
     });
 
-    if (lastIndex < content.length) parts.push(content.slice(lastIndex));
+    if (lastIndex < displayContent.length) parts.push(displayContent.slice(lastIndex));
     return parts;
-  }, [content, matches, currentMatchIdx, debouncedSearch]);
+  }, [displayContent, matches, currentMatchIdx, debouncedSearch]);
 
   return (
     <div className="raw-file-viewer">
@@ -131,7 +140,7 @@ export default function RawFileViewer({ content }: RawFileViewerProps) {
         <pre
           ref={preRef}
           className="raw-file-content"
-          style={{ whiteSpace: wrap ? 'pre-wrap' : 'pre' }}
+          style={{ whiteSpace: wrap ? 'pre-wrap' : 'pre', width: wrap ? undefined : 'max-content' }}
         >
           {renderedContent}
         </pre>
