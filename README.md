@@ -1,51 +1,66 @@
-# Log Reader
+# Full View
 
 A modern, browser-based log file analyzer with flexible parsing, filtering, searching, and export capabilities.
 
 ## Features
 
-- **Multi-Format Parsing**: Automatically detects and parses logs in multiple formats:
-  - ISO timestamps with levels (`[2026-02-26T11:11:59.893] [INFO]`)
-  - FEA logs with timezone (`[2026-03-10 12:00:28.127-04:00] [debug]`)
-  - Bracketed format with IDs (`[2026-02-26 11:12:01,480] [1] [INFO]`)
-  - NCSA/Apache access logs
-  - JSON-based logs
+### Parsing
+- **Multi-Format Parsing**: Automatically detects and parses logs in 8 formats:
+  - ISO timestamp with level: `[2026-02-26T11:11:59.893] [INFO] source - message`
+  - ISO timestamp with level and process ID: `[2026-02-26T11:12:42.856] [WARN] [13760_15] [Source] - message`
+  - FEA logs with timezone offset: `[2026-03-10 12:00:28.127-04:00] [debug] source - message`
+  - Bracketed format with thread ID: `[2026-02-26 11:12:01,480] [1] [INFO] Component - message`
+  - NCSA/Apache access log format
+  - JSON log lines
   - Finsemble JSON format
-  - Generic bracketed format as fallback
+  - Generic bracketed format (fallback)
+- **Parser Name Display**: Each file in the Log Files panel shows which parser was matched, or "no parser found" if none matched
+- **Multi-Line Entry Support**: Continuation lines (stack traces, wrapped messages) are automatically merged into their parent entry
+- **ZIP Archive Support**: Upload `.zip` files; all JSON files inside are extracted and parsed automatically
 
-- **Multi-Line Entry Support**: Automatically merges continuation lines so that log entries spanning multiple lines are treated as a single entry
+### Log Table
+- **Columns**: Timestamp, Level, File, Source, Message
+- **Resizable Columns**: Drag the right edge of any column header to resize it
+- **Drag-to-Reorder Columns**: Drag any column header to a new position
+- **Sortable Columns**: Click any column header to sort ascending/descending
+- **Persistent Layout**: Column widths, order, and sort preference are saved in `localStorage` and restored on reload
+- **Color-Coded Level Badges**: Each log level is visually distinguished with a color badge
 
-- **JSON Expansion**: Log entries containing JSON data display an expandable arrow (▶/▼) allowing you to view formatted, nested JSON inline
+### Message Display
+- **Long Message Preview**: Messages over 300 characters are collapsed to a preview by default
+  - Click "show more" to expand; click "show less" or double-click the message to collapse
+- **Inline JSON Expansion**: Messages containing JSON display a ▶/▼ toggle to view formatted, nested JSON inline
 
-- **Advanced Filtering**:
-  - Include regex: Show only entries matching a pattern
-  - Exclude regex: Hide entries matching a pattern
-  - Named filters: Save and reuse filter configurations locally
-  - Level checkboxes: Filter by log levels (debug, info, warn, error, log, etc.)
-  - File selection: Filter by source file name
+### Filtering & Visibility
+- **Named Filters**: Create, save, and reload named filter configurations via `localStorage`
+- **Include Regex**: Show only entries whose message matches a pattern
+- **Exclude Regex**: Hide entries whose message matches a pattern
+- **Level Checkboxes**: Show/hide entries by log level (error, warn, info, log, debug, etc.)
+- **File Checkboxes**: Show/hide entries by source file; uncheck a file to hide all its entries
+- **Source Checkboxes**: Show/hide entries by logging source (component/module name), accessible in the Statistics panel
+- **Remove File**: Each file in the Log Files panel has an × button to permanently remove it and all its entries
 
-- **Search & Navigation**:
-  - Global search across all messages
-  - Plain text or regex-based search
-  - Case-sensitive toggle
-  - Results highlighted in context
+### Search
+- **Inline Highlighting**: Search highlights all matches across all columns without hiding non-matching entries
+- **Plain Text or Regex**: Toggle the `.*` button to switch between literal and regex search
+- **Real-Time**: Highlights update as you type
 
-- **Sorting**: Click column headers to sort by timestamp, level, file, or message
+### Statistics Panel
+- **Collapsible Sections**: Summary, Log Levels, and Logging Sources each collapse independently
+- **Summary**: Date range (min → max) and message length statistics (min/avg/max)
+- **Log Levels**: Entry count per level with a proportional bar, sorted by severity
+- **Logging Sources**: Entry count per source with a proportional bar; each row has a checkbox to show/hide that source
 
-- **Statistics**: View entry counts by level and per file
+### Export
+- **JSON Export**: Download all currently filtered/visible entries as a JSON file
 
-- **Multi-File Upload**: Load and analyze multiple log files at once with filename tracking in the "File" column
+### Persistence
+All of the following are saved in browser `localStorage` and restored on reload:
+- Named filter configurations and the active filter selection
+- Sort column and direction
+- Column widths and order
 
-- **ZIP Archive Support**: Upload `.zip` files containing JSON log files
-  - Automatically extracts and parses all JSON files inside (except `log_state.json`)
-  - Supports flexible JSON formats with automatic field mapping (timestamp, level, message, source, etc.)
-  - Preserves filename from the ZIP archive in the "File" column
-
-- **Export**: Download filtered/searched results as JSON
-
-- **Persistent Configuration**: All filters, active filter selections, and sort preferences are saved in browser localStorage and restored on reload
-
-- **Modern UI**: Dark/light theme support, responsive design, clean typography
+---
 
 ## Installation & Setup
 
@@ -54,17 +69,12 @@ A modern, browser-based log file analyzer with flexible parsing, filtering, sear
 
 ### Development
 
-1. Clone or navigate to the project directory
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
+```bash
+npm install
+npm run dev
+```
 
-3. Start the development server:
-   ```bash
-   npm run dev
-   ```
-   This opens the app at `http://localhost:5173` in your browser
+Opens the app at `http://localhost:5173`.
 
 ### Production Build
 
@@ -72,7 +82,7 @@ A modern, browser-based log file analyzer with flexible parsing, filtering, sear
 npm run build
 ```
 
-Output is in the `dist/` folder. Serve it with any static HTTP server.
+Output goes to `dist/`. Serve with any static HTTP server.
 
 ### Preview Built App
 
@@ -80,139 +90,99 @@ Output is in the `dist/` folder. Serve it with any static HTTP server.
 npm run preview
 ```
 
+---
+
 ## Usage
 
-1. **Upload Log Files**: Click the file upload area to select one or more log files (or ZIP archives)
-   - Supports `.log`, `.txt`, and `.zip` files
-   - For ZIP files, all JSON files will be extracted and parsed automatically
-2. **View Logs**: Entries appear in the table with timestamp, level, source file, and message
+1. **Upload Log Files**: Click the upload area or drag files onto it
+   - Accepts `.log`, `.txt`, and `.zip` files
+   - Multiple files can be uploaded at once; entries from all files are merged into one view
+2. **View Logs**: Entries appear in the table with timestamp, level, file, source, and message
 3. **Filter**:
-   - Enter regex patterns in the "Include" and "Exclude" fields
-   - Click "Apply Filter" or use the checkboxes below to enable/disable
-   - Select specific levels with the level checkboxes
-4. **Search**: Type a search term in the search bar (use `/pattern/` for regex)
-5. **Expand JSON**: Click the ▶ arrow next to messages containing JSON to view formatted data
-6. **Sort**: Click column headers to reorder entries
-7. **Export**: Click "Export JSON" to download filtered results
+   - Use the Include/Exclude regex fields in the Filters & Search panel
+   - Toggle levels with the level checkboxes
+   - Toggle files with the file checkboxes in the Log Files panel
+   - Toggle sources with the checkboxes in the Statistics panel → Logging Sources
+4. **Search**: Type in the search bar to highlight matching text; enable `.*` for regex
+5. **Expand Messages**: Click "show more" on truncated messages; click ▶ to expand inline JSON
+6. **Resize/Reorder Columns**: Drag column edges to resize; drag column headers to reorder
+7. **Export**: Click "Export JSON" in the Statistics panel header to download filtered results
+
+---
 
 ## Project Structure
 
 ```
 src/
 ├── components/
-│   ├── App.tsx                 # Main app component
-│   ├── FileUploader.tsx        # File input handler
-│   ├── FilterPanel.tsx         # Filter UI
-│   ├── LogTable.tsx            # Log entry table
-│   ├── MessageCell.tsx         # Message with JSON expansion
-│   ├── SearchBar.tsx           # Search input
-│   ├── StatisticsPanel.tsx     # Statistics display
+│   ├── App.tsx                 # Main app component and state management
+│   ├── FileSelector.tsx        # Log Files panel with visibility and remove controls
+│   ├── FileUploader.tsx        # File input and drag-and-drop handler
+│   ├── FilterPanel.tsx         # Named filter UI (include/exclude regex, level/file filters)
+│   ├── LogTable.tsx            # Log entry table with sort, resize, and reorder
+│   ├── MessageCell.tsx         # Message preview, expansion, and inline JSON rendering
+│   ├── SearchBar.tsx           # Search input with regex toggle
+│   ├── StatisticsPanel.tsx     # Statistics display with source visibility controls
 │   └── LevelSelector.tsx       # Level checkbox filters
 ├── lib/
-│   ├── parser.ts              # Main parser & log entry types
-│   ├── parsers/               # Individual format parsers
-│   │   ├── fea.ts
+│   ├── parser.ts               # Main parser orchestrator and LogEntry type
+│   ├── parsers/
 │   │   ├── isoWithLevel.ts
-│   │   ├── isoWithTimezone.ts
+│   │   ├── isoWithLevelAndProcess.ts
+│   │   ├── fea.ts
 │   │   ├── bracketedWithId.ts
 │   │   ├── ncsa.ts
 │   │   ├── json.ts
 │   │   ├── finsembleJson.ts
 │   │   └── genericBracketed.ts
-│   └── statistics.ts          # Statistics & persistence utilities
-├── index.css                   # Global styles & theme
+│   └── statistics.ts           # Statistics calculation and localStorage utilities
+├── index.css                   # Global styles and theme variables
 └── main.tsx                    # Entry point
-
-package.json                    # Dependencies & scripts
-vite.config.ts                  # Vite build configuration
-tsconfig.json                   # TypeScript configuration
+package.json
+vite.config.ts
+tsconfig.json
 ```
+
+---
 
 ## Architecture
 
 ### Log Parsing Pipeline
 
-1. **File Upload**: User uploads one or more log files
-2. **Content Extraction**: Files are read as text via the File API
-3. **Multi-Line Merging**: Raw content is processed to merge continuation lines (lines that don't start with a timestamp)
-4. **Format Detection**: Each line/entry is tested against all parser patterns in order
-5. **Parsing**: When a match is found, the parser extracts timestamp, level, source, and message
-6. **Normalization**: Log levels are normalized (e.g., "log-" → "log")
+1. **File Upload**: User uploads one or more `.log`, `.txt`, or `.zip` files
+2. **Content Extraction**: Files are read as text via the File API; ZIP files are extracted with jszip
+3. **Multi-Line Merging**: Raw content is processed to merge continuation lines into their parent entry
+4. **Format Detection**: Each buffered entry is tested against all parser patterns in priority order
+5. **Parsing**: The first matching parser extracts timestamp, level, source, and message
+6. **Normalization**: Log levels are normalized (e.g., `"log-"` → `"log"`)
 7. **Storage**: Parsed entries are stored in React state with unique IDs
-
-### Component Flow
-
-```
-App (state management)
-├── FileUploader → parseLogContent()
-├── FilterPanel → applies regex filters
-├── LevelSelector → filters by log level
-├── SearchBar → global message search
-├── LogTable → displays sorted entries
-│   └── MessageCell → renders message + expandable JSON
-└── StatisticsPanel → counts entries by level/file
-```
 
 ### Data Model
 
 ```typescript
 interface LogEntry {
-  id: string;           // Unique identifier
-  timestamp: Date;      // Parsed timestamp
-  level: string;        // log, debug, info, warn, error, etc.
-  source: string;       // Component/module name
-  filename?: string;    // Source file name
-  message: string;      // Full message content
-  raw: string;          // Original unparsed line
-  metadata?: Record<string, unknown>; // Additional context
+  id: string;                          // Unique identifier
+  timestamp: Date;                     // Parsed timestamp
+  level: string;                       // debug, info, warn, error, log, etc.
+  source: string;                      // Component/module name
+  filename?: string;                   // Source file name
+  parser?: string;                     // Name of the parser that matched
+  message: string;                     // Full message content
+  raw: string;                         // Original unparsed line
+  metadata?: Record<string, unknown>;  // Additional context (e.g. thread ID)
 }
 ```
 
-## Browser Support
-
-- Chrome/Edge 90+
-- Firefox 88+
-- Safari 14+
-
-Requires modern ES2020+ JavaScript and React 18+.
-
-## Local Storage
-
-The app saves to browser `localStorage`:
-- **Filters**: Named filter configurations
-- **Active Filter**: Currently selected filter
-- **Sort Preference**: Last sort column and direction
-
-Clear localStorage to reset all preferences.
-
-## Tips & Tricks
-
-- **Quick Filter**: Use simple words for plain-text matches; wrap in `/pattern/` for regex
-- **JSON Expansion**: Nested JSON renders with indentation; click arrows to collapse/expand
-- **Large Files**: The app can handle logs with thousands of entries; sorting and filtering remain responsive
-- **Multiline Logs**: All log lines are automatically merged; no special handling needed
-- **Level Normalization**: Levels with trailing hyphens (e.g., "log-") are automatically cleaned to "log"
-
-## Development Notes
-
-- Built with **React 18**, **TypeScript**, and **Vite**
-- No backend required; everything runs in the browser
-- Uses the File API for local file reading
-- CSS uses custom properties for theming
-- Regex patterns are defined per-format in `src/lib/parsers/`
-
 ### Adding a New Log Format
 
-1. Create a new file in `src/lib/parsers/myFormat.ts`:
+1. Create `src/lib/parsers/myFormat.ts`:
    ```typescript
    import type { ParserConfig } from '../parser';
 
    export const myFormat: ParserConfig = {
      name: 'My Format',
      description: 'Description of the format',
-     patterns: [
-       /^your regex pattern$/,
-     ],
+     patterns: [/^your regex pattern$/],
      format: (match) => ({
        timestamp: new Date(match[1]),
        level: match[2].toLowerCase(),
@@ -221,19 +191,21 @@ Clear localStorage to reset all preferences.
      }),
    };
    ```
+2. Import and prepend to `PARSER_CONFIGS` in `src/lib/parser.ts` (more specific parsers should come before generic ones)
+3. Note which sample log files were used to derive the pattern in the file's top comment
 
-2. Import and add to `PARSER_CONFIGS` in `src/lib/parser.ts`
+---
 
-3. Add a comment at the top of the parser file noting which sample log files were used to derive it
+## Browser Support
+
+- Chrome/Edge 90+
+- Firefox 88+
+- Safari 14+
+
+Requires ES2020+ and React 18+.
+
+---
 
 ## License
 
 MIT
-
-## Version
-
-1.0.10
-
-## Contact
-
-For issues or suggestions, refer to the project repository.

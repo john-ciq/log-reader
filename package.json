@@ -1,7 +1,7 @@
 {
-  "name": "log-reader",
-  "version": "1.0.30",
-  "description": "A web-based log file analyzer with flexible parsing, filtering, and export capabilities",
+  "name": "full-view",
+  "version": "1.0.31",
+  "description": "Full View - A web-based log file analyzer with flexible parsing, filtering, and export capabilities",
   "type": "module",
   "scripts": {
     "dev": "vite",

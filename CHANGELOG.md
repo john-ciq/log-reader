@@ -2,6 +2,12 @@
 
 All notable changes to the Log Reader project will be documented in this file.
 
+## [1.0.31] - 2026-03-12
+
+### Changed
+- Project renamed from "Log Reader" to "Full View"
+  - Updated page title, app header, and package name
+
 ## [1.0.30] - 2026-03-12
 
 ### Added

@@ -264,7 +264,7 @@ function App() {
     <div className="app">
       <header className="app-header">
         <div className="header-title">
-        <h1>📋 Log Reader</h1>
+        <h1>📋 Full View</h1>
         <span className="app-version">v{pkg.version}</span>
       </div>
       <p>Parse, filter, and analyze log files with ease</p>
