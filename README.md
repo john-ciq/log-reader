@@ -5,11 +5,12 @@ A modern, browser-based log file analyzer with flexible parsing, filtering, sear
 ## Features
 
 ### Parsing
-- **Multi-Format Parsing**: Automatically detects and parses logs in 8 formats:
+- **Multi-Format Parsing**: Automatically detects and parses logs in 9 formats:
   - ISO timestamp with level: `[2026-02-26T11:11:59.893] [INFO] source - message`
   - ISO timestamp with level and process ID: `[2026-02-26T11:12:42.856] [WARN] [13760_15] [Source] - message`
   - FEA logs with timezone offset: `[2026-03-10 12:00:28.127-04:00] [debug] source - message`
   - Bracketed format with thread ID: `[2026-02-26 11:12:01,480] [1] [INFO] Component - message`
+  - ICG Desktop Native Bridge: `2026-02-18 00:00:45.580 -05:00 [INF] tid:25 Source - message`
   - NCSA/Apache access log format
   - JSON log lines
   - Finsemble JSON format
@@ -142,6 +143,7 @@ src/
 │   │   ├── ncsa.ts
 │   │   ├── json.ts
 │   │   ├── finsembleJson.ts
+│   │   ├── icgDesktopNativeBridge.ts
 │   │   └── genericBracketed.ts
 │   └── statistics.ts           # Statistics calculation and localStorage utilities
 ├── index.css                   # Global styles and theme variables
