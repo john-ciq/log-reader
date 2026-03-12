@@ -179,6 +179,66 @@ export function loadColumnPreferences(): { order: string[]; widths: Record<strin
 }
 
 /**
+ * Save/load hidden level names (unchecked in sidebar)
+ */
+export function saveHiddenLevels(levels: string[]): void {
+  try {
+    localStorage.setItem(`${STORAGE_PREFIX}hidden-levels`, JSON.stringify(levels));
+  } catch (error) {
+    console.error('Failed to save hidden levels:', error);
+  }
+}
+
+export function loadHiddenLevels(): string[] {
+  try {
+    const stored = localStorage.getItem(`${STORAGE_PREFIX}hidden-levels`);
+    return stored ? JSON.parse(stored) : [];
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * Save/load hidden source names (unchecked in sidebar)
+ */
+export function saveHiddenSources(sources: string[]): void {
+  try {
+    localStorage.setItem(`${STORAGE_PREFIX}hidden-sources`, JSON.stringify(sources));
+  } catch (error) {
+    console.error('Failed to save hidden sources:', error);
+  }
+}
+
+export function loadHiddenSources(): string[] {
+  try {
+    const stored = localStorage.getItem(`${STORAGE_PREFIX}hidden-sources`);
+    return stored ? JSON.parse(stored) : [];
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * Save/load search bar state
+ */
+export function saveSearchState(query: string, useRegex: boolean): void {
+  try {
+    localStorage.setItem(`${STORAGE_PREFIX}search`, JSON.stringify({ query, useRegex }));
+  } catch (error) {
+    console.error('Failed to save search state:', error);
+  }
+}
+
+export function loadSearchState(): { query: string; useRegex: boolean } {
+  try {
+    const stored = localStorage.getItem(`${STORAGE_PREFIX}search`);
+    return stored ? JSON.parse(stored) : { query: '', useRegex: false };
+  } catch {
+    return { query: '', useRegex: false };
+  }
+}
+
+/**
  * Clear all stored data
  */
 export function clearAllStoredData(): void {

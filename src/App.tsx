@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { LogEntry } from './lib/parser';
 import { FilterConfig } from './lib/filters';
-import { loadFilterConfigs, saveFilterConfigs, loadActiveFilterId, saveActiveFilterId } from './lib/statistics';
+import { loadFilterConfigs, saveFilterConfigs, loadActiveFilterId, saveActiveFilterId, saveHiddenLevels, loadHiddenLevels, saveHiddenSources, loadHiddenSources, saveSearchState, loadSearchState } from './lib/statistics';
 import FileUploader from './components/FileUploader';
 import FilterPanel from './components/FilterPanel';
 import SearchBar from './components/SearchBar';
@@ -18,14 +18,19 @@ import './App.css';
 function App() {
   const [entries, setEntries] = useState<LogEntry[]>([]);
   const [filteredEntries, setFilteredEntries] = useState<LogEntry[]>([]);
-  const [filters, setFilters] = useState<FilterConfig[]>([]);
-  const [activeFilterId, setActiveFilterId] = useState<string | null>(null);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [useRegexSearch, setUseRegexSearch] = useState(false);
+  const [filters, setFilters] = useState<FilterConfig[]>(() => loadFilterConfigs());
+  const [activeFilterId, setActiveFilterId] = useState<string | null>(() => {
+    const savedId = loadActiveFilterId();
+    const savedFilters = loadFilterConfigs();
+    return (savedId && savedFilters.some(f => f.id === savedId)) ? savedId : null;
+  });
+  const [searchQuery, setSearchQuery] = useState(() => loadSearchState().query);
+  const [useRegexSearch, setUseRegexSearch] = useState(() => loadSearchState().useRegex);
 
   // level visibility controls
   const [availableLevels, setAvailableLevels] = useState<string[]>([]);
   const [displayLevels, setDisplayLevels] = useState<Set<string>>(new Set());
+  const [hiddenLevels, setHiddenLevels] = useState<Set<string>>(() => new Set(loadHiddenLevels()));
 
   // file visibility controls
   const [availableFiles, setAvailableFiles] = useState<string[]>([]);
@@ -34,17 +39,7 @@ function App() {
   // source visibility controls
   const [availableSources, setAvailableSources] = useState<string[]>([]);
   const [displaySources, setDisplaySources] = useState<Set<string>>(new Set());
-
-  // Load saved filters on mount
-  useEffect(() => {
-    const savedFilters = loadFilterConfigs();
-    setFilters(savedFilters);
-
-    const savedFilterId = loadActiveFilterId();
-    if (savedFilterId && savedFilters.some(f => f.id === savedFilterId)) {
-      setActiveFilterId(savedFilterId);
-    }
-  }, []);
+  const [hiddenSources, setHiddenSources] = useState<Set<string>>(() => new Set(loadHiddenSources()));
 
   // Save filters whenever they change
   useEffect(() => {
@@ -58,6 +53,11 @@ function App() {
     }
   }, [activeFilterId]);
 
+  // Save search state
+  useEffect(() => {
+    saveSearchState(searchQuery, useRegexSearch);
+  }, [searchQuery, useRegexSearch]);
+
   const activeFilter = activeFilterId ? filters.find(f => f.id === activeFilterId) : null;
 
   // Apply filters, level visibility, and file visibility
@@ -69,7 +69,7 @@ function App() {
       result = result.filter(entry => {
         const searchText = `${entry.timestamp.toISOString()} ${entry.level} ${entry.source} ${entry.filename || ''} ${entry.message}`;
 
-        // Include patterns
+        // Include patterns — a match forces inclusion, bypassing all other filters
         if (activeFilter.includePatterns.length > 0) {
           const includeMatch = activeFilter.includePatterns.some(pattern => {
             try {
@@ -78,7 +78,8 @@ function App() {
               return false;
             }
           });
-          if (!includeMatch) return false;
+          if (includeMatch) return true;
+          return false;
         }
 
         // Exclude patterns
@@ -169,14 +170,14 @@ function App() {
     setAvailableLevels(unique);
     setDisplayLevels(prev => {
       const next = new Set(prev);
-      unique.forEach(l => next.add(l));
+      unique.forEach(l => { if (!hiddenLevels.has(l)) next.add(l); });
       return next;
     });
-  }, [entries]);
+  }, [entries, hiddenLevels]);
 
   // keep track of available files when entries change
   useEffect(() => {
-    const unique = Array.from(new Set(entries.map(e => e.filename).filter(Boolean))).sort();
+    const unique = Array.from(new Set(entries.map(e => e.filename).filter((f): f is string => Boolean(f)))).sort();
     setAvailableFiles(unique);
     setDisplayFiles(prev => {
       const next = new Set(prev);
@@ -191,16 +192,22 @@ function App() {
     setAvailableSources(unique);
     setDisplaySources(prev => {
       const next = new Set(prev);
-      unique.forEach(s => next.add(s));
+      unique.forEach(s => { if (!hiddenSources.has(s)) next.add(s); });
       return next;
     });
-  }, [entries]);
+  }, [entries, hiddenSources]);
 
   const handleLevelCheckbox = useCallback((level: string, checked: boolean) => {
     setDisplayLevels(prev => {
       const next = new Set(prev);
       if (checked) next.add(level);
       else next.delete(level);
+      return next;
+    });
+    setHiddenLevels(prev => {
+      const next = new Set(prev);
+      if (!checked) next.add(level); else next.delete(level);
+      saveHiddenLevels([...next]);
       return next;
     });
   }, []);
@@ -227,6 +234,12 @@ function App() {
       else next.delete(source);
       return next;
     });
+    setHiddenSources(prev => {
+      const next = new Set(prev);
+      if (!checked) next.add(source); else next.delete(source);
+      saveHiddenSources([...next]);
+      return next;
+    });
   }, []);
 
   const handleUpdateFilter = useCallback((filterId: string, updates: Partial<FilterConfig>) => {
@@ -239,6 +252,47 @@ function App() {
       setActiveFilterId(filters[0]?.id || null);
     }
   }, [filters, activeFilterId]);
+
+  const handleMoveFilter = useCallback((filterId: string, direction: 'up' | 'down') => {
+    setFilters(prev => {
+      const idx = prev.findIndex(f => f.id === filterId);
+      if (idx === -1) return prev;
+      const next = [...prev];
+      const swapIdx = direction === 'up' ? idx - 1 : idx + 1;
+      if (swapIdx < 0 || swapIdx >= next.length) return prev;
+      [next[idx], next[swapIdx]] = [next[swapIdx], next[idx]];
+      return next;
+    });
+  }, []);
+
+  const handleReorderFilter = useCallback((fromId: string, toId: string) => {
+    setFilters(prev => {
+      const fromIdx = prev.findIndex(f => f.id === fromId);
+      const toIdx = prev.findIndex(f => f.id === toId);
+      if (fromIdx === -1 || toIdx === -1) return prev;
+      const next = [...prev];
+      const [moved] = next.splice(fromIdx, 1);
+      next.splice(toIdx, 0, moved);
+      return next;
+    });
+  }, []);
+
+  const handleDuplicateFilter = useCallback((filterId: string) => {
+    const source = filters.find(f => f.id === filterId);
+    if (!source) return;
+    const copy: FilterConfig = {
+      ...source,
+      id: `filter-${Date.now()}`,
+      name: `${source.name} (copy)`,
+    };
+    setFilters(prev => {
+      const idx = prev.findIndex(f => f.id === filterId);
+      const next = [...prev];
+      next.splice(idx + 1, 0, copy);
+      return next;
+    });
+    setActiveFilterId(copy.id);
+  }, [filters]);
 
   const handleExportJSON = useCallback(() => {
     const dataStr = JSON.stringify(filteredEntries, null, 2);
@@ -312,7 +366,10 @@ function App() {
               onAddFilter={handleAddFilter}
               onUpdateFilter={handleUpdateFilter}
               onDeleteFilter={handleDeleteFilter}
-              availableFiles={[...new Set(entries.map(e => e.filename).filter(Boolean))]}
+              onMoveFilter={handleMoveFilter}
+              onDuplicateFilter={handleDuplicateFilter}
+              onReorderFilter={handleReorderFilter}
+              availableFiles={[...new Set(entries.map(e => e.filename).filter((f): f is string => Boolean(f)))]}
             />
           </div>
         </aside>

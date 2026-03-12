@@ -2,6 +2,25 @@
 
 All notable changes to the Log Reader project will be documented in this file.
 
+## [1.0.39] - 2026-03-12
+
+### Added
+- Drag-and-drop reordering of filters in the Filter panel
+  - Drag any filter card to a new position; a blue highlight indicates the drop target
+  - Filter order persists via localStorage alongside other filter settings
+- Duplicate filter button (⧉ Duplicate) to copy an existing filter with all its settings
+- Remove filter button (✕ Remove) on each filter card
+- Up/down arrow buttons to reorder filters one position at a time
+
+### Fixed
+- Filter settings (include/exclude patterns, level filters, file filters) now persist correctly across page reloads
+  - Previously, the save effect would fire with an empty array on mount before the load effect restored saved data
+  - Fixed by replacing the load `useEffect` with lazy `useState` initialization
+- Include patterns now force entry inclusion, bypassing all other filters (exclude patterns, level filters, file filters)
+  - Previously, include patterns were treated as additional restrictions rather than overrides
+- Level and source visibility selections now persist across page reloads
+  - Unchecked levels/sources are saved to localStorage and restored on load
+
 ## [1.0.38] - 2026-03-12
 
 ### Added

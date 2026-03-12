@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { FilterConfig } from '../lib/filters';
 
 interface FilterPanelProps {
@@ -8,6 +8,9 @@ interface FilterPanelProps {
   onAddFilter: () => void;
   onUpdateFilter: (filterId: string, updates: Partial<FilterConfig>) => void;
   onDeleteFilter: (filterId: string) => void;
+  onDuplicateFilter: (filterId: string) => void;
+  onMoveFilter: (filterId: string, direction: 'up' | 'down') => void;
+  onReorderFilter: (fromId: string, toId: string) => void;
   availableFiles: string[];
 }
 
@@ -18,10 +21,15 @@ export default function FilterPanel({
   onAddFilter,
   onUpdateFilter,
   onDeleteFilter,
+  onDuplicateFilter,
+  onMoveFilter,
+  onReorderFilter,
   availableFiles,
 }: FilterPanelProps) {
   const [expandedFilter, setExpandedFilter] = useState<string | null>(null);
   const [patternErrors, setPatternErrors] = useState<Record<string, string>>({});
+  const [dragOverId, setDragOverId] = useState<string | null>(null);
+  const dragIdRef = useRef<string | null>(null);
 
   const validatePattern = (pattern: string): boolean => {
     try {
@@ -99,7 +107,22 @@ export default function FilterPanel({
       ) : (
         <div className="filters-list">
           {filters.map(filter => (
-            <div key={filter.id} className="filter-item">
+            <div
+              key={filter.id}
+              className={`filter-item${dragOverId === filter.id ? ' drag-over' : ''}`}
+              draggable
+              onDragStart={() => { dragIdRef.current = filter.id; }}
+              onDragOver={e => { e.preventDefault(); setDragOverId(filter.id); }}
+              onDragLeave={() => setDragOverId(null)}
+              onDrop={() => {
+                setDragOverId(null);
+                if (dragIdRef.current && dragIdRef.current !== filter.id) {
+                  onReorderFilter(dragIdRef.current, filter.id);
+                }
+                dragIdRef.current = null;
+              }}
+              onDragEnd={() => { setDragOverId(null); dragIdRef.current = null; }}
+            >
               <div className="filter-header-bar">
                 <div className="filter-radio">
                   <input
@@ -109,22 +132,49 @@ export default function FilterPanel({
                     checked={activeFilterId === filter.id}
                     onChange={() => onActiveFilterChange(filter.id)}
                   />
-                  <label htmlFor={`filter-${filter.id}`}>
-                    {filter.name || 'Unnamed Filter'}
-                  </label>
+                  <div className="filter-title-group">
+                    <label htmlFor={`filter-${filter.id}`}>
+                      {filter.name || 'Unnamed Filter'}
+                    </label>
+                    <div className="filter-actions">
+                      <button
+                        onClick={() => onMoveFilter(filter.id, 'up')}
+                        className="move-btn"
+                        title="Move up"
+                        disabled={filters.indexOf(filter) === 0}
+                      >
+                        ↑
+                      </button>
+                      <button
+                        onClick={() => onMoveFilter(filter.id, 'down')}
+                        className="move-btn"
+                        title="Move down"
+                        disabled={filters.indexOf(filter) === filters.length - 1}
+                      >
+                        ↓
+                      </button>
+                      <button
+                        onClick={() => onDuplicateFilter(filter.id)}
+                        className="duplicate-btn"
+                        title="Duplicate filter"
+                      >
+                        ⧉ Duplicate
+                      </button>
+                      <button
+                        onClick={() => onDeleteFilter(filter.id)}
+                        className="delete-btn"
+                        title="Delete filter"
+                      >
+                        ✕ Remove
+                      </button>
+                    </div>
+                  </div>
                 </div>
                 <button
                   onClick={() => setExpandedFilter(expandedFilter === filter.id ? null : filter.id)}
                   className="expand-btn"
                 >
                   {expandedFilter === filter.id ? '▼' : '▶'}
-                </button>
-                <button
-                  onClick={() => onDeleteFilter(filter.id)}
-                  className="delete-btn"
-                  title="Delete filter"
-                >
-                  ✕
                 </button>
               </div>
 
