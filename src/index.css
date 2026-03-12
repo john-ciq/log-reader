@@ -174,9 +174,6 @@ html, body {
   flex: 1;
   gap: 2rem;
   padding: 2rem;
-  max-width: 2000px;
-  margin: 0 auto;
-  width: 100%;
   min-height: 0;
   overflow: hidden;
 }
