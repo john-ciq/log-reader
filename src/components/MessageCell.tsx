@@ -34,6 +34,15 @@ interface JsonExtraction {
   after: string;
 }
 
+// Attempt to coerce a JavaScript-style object literal into valid JSON.
+// Handles unquoted keys, single-quoted strings, and `undefined` values.
+function normalizeToJson(str: string): string {
+  return str
+    .replace(/([\{,]\s*)(\w+)\s*:/g, '$1"$2":')   // quote unquoted keys
+    .replace(/:\s*'([^']*)'/g, ': "$1"')            // single-quoted → double-quoted strings
+    .replace(/:\s*undefined\b/g, ': null');          // undefined → null
+}
+
 // attempt to locate and parse the first JSON object/array in the message
 function extractJson(text: string): JsonExtraction | null {
   const startIdx = text.search(/[\{\[]/);
@@ -48,17 +57,20 @@ function extractJson(text: string): JsonExtraction | null {
     else if (ch === closeChar) {
       depth--;
       if (depth === 0) {
-        const jsonStr = text.slice(startIdx, i + 1);
-        try {
-          const parsed = JSON.parse(jsonStr);
-          return {
-            before: text.slice(0, startIdx),
-            json: parsed,
-            after: text.slice(i + 1),
-          };
-        } catch {
-          // fall through and continue searching
+        const rawStr = text.slice(startIdx, i + 1);
+        const before = text.slice(0, startIdx);
+        const after = text.slice(i + 1);
+
+        // Try strict JSON first, then fall back to normalised JS-object notation
+        for (const candidate of [rawStr, normalizeToJson(rawStr)]) {
+          try {
+            const parsed = JSON.parse(candidate);
+            return { before, json: parsed, after };
+          } catch {
+            // try next candidate
+          }
         }
+        // Neither parse succeeded; continue searching for another { or [
       }
     }
   }

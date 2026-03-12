@@ -2,6 +2,13 @@
 
 All notable changes to the Log Reader project will be documented in this file.
 
+## [1.0.34] - 2026-03-12
+
+### Fixed
+- Inline object expansion now works for JavaScript-style object literals (unquoted keys, single-quoted strings, `undefined` values)
+  - These appear in logs like `ChartIQ Example App.log` where a `WebRequestError` object is appended to the message
+  - A normalization step converts the JS notation to valid JSON before attempting to parse and render the expandable tree
+
 ## [1.0.33] - 2026-03-12
 
 ### Fixed
