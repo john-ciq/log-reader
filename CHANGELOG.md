@@ -2,6 +2,23 @@
 
 All notable changes to the Log Reader project will be documented in this file.
 
+## [1.0.52] - 2026-03-13
+
+### Added
+- **Row detail panel** — click any log row to open a slide-in panel on the right showing all fields (timestamp, level, file, source, parser, message, metadata, raw); navigate with ← → arrow keys or the ‹ › buttons; close with Esc
+- **Log density histogram** — SVG bar chart above the table showing log volume over time, coloured by log level; click and drag to set a time range filter; click ✕ to clear
+- **Time range filter** — two datetime-local inputs in the sidebar to constrain entries to a time window; the selected range persists across page loads, gated behind
+a feature
+- **Keyboard navigation** — press `/` anywhere to focus the search bar; `j`/`↓` and `k`/`↑` to move between rows in the table; `Enter` to open the detail panel for the active row; `Esc` to close the detail panel
+- **Convert search to filter** — when a search query is active, a `+ Filter` button appears next to the search bar; clicking it creates a new filter from the query and clears the search field
+- **Deduplication** feature flag — when enabled, consecutive identical log entries (same message, level, and source) are merged into a single row with a `×N` badge in the message column; the entry count shows total vs. deduplicated counts (default: off)
+- **Copy rows to clipboard** — Ctrl/Cmd+click to select individual rows, Shift+click to select a range; a toolbar appears showing the selection count with a "Copy N" button that copies the selected rows as tab-separated text; click ✕ to clear the selection
+- **Saved presets** feature flag — when enabled, a Presets panel appears in the sidebar; click `+` to save the current filters, search, and time range as a named preset; click a preset to restore it; click ✕ to delete (default: off)
+
+### Changed
+- Feature flag definitions consolidated into a single `FeatureDefinition` object per feature (containing `defaultValue`, `description`, and `visible`) replacing the previous separate `featureDefaults` and `featureDescriptions` maps; the `visible` field controls whether a feature appears in the settings panel
+- Height of the "Search Logs" input, `.*` regex toggle, "Filter sources…" input, and source sort buttons (A–Z / #) now matches the height of the `+ New` button
+
 ## [1.0.51] - 2026-03-12
 
 ### Added
