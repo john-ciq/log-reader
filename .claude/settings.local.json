@@ -1,9 +1,7 @@
 {
   "permissions": {
     "allow": [
-      "Bash(npm test:*)",
-      "Bash(node_modules/.bin/vitest run:*)",
-      "Bash(npx tsc:*)"
+
     ]
   }
 }
