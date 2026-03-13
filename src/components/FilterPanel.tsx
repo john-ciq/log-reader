@@ -124,6 +124,7 @@ export default function FilterPanel({
               onDragEnd={() => { setDragOverId(null); dragIdRef.current = null; }}
             >
               <div className="filter-header-bar">
+                <span className="filter-drag-handle" title="Drag to reorder">⠿</span>
                 <div className="filter-radio">
                   <input
                     type="checkbox"

@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef, useEffect, ReactNode } from 'react';
+import { useState, useMemo, useRef, useEffect, useLayoutEffect, ReactNode } from 'react';
 import { LogEntry } from '../lib/parser';
 import MessageCell from './MessageCell';
 import { saveSortPreference, loadSortPreference, saveColumnPreferences, loadColumnPreferences } from '../lib/statistics';
@@ -73,6 +73,15 @@ export default function LogTable({ entries, searchQuery = '', useRegex = false }
     return DEFAULT_COL_ORDER;
   });
   const [dragOverCol, setDragOverCol] = useState<SortColumn | null>(null);
+  const [collapsedCols, setCollapsedCols] = useState<Set<SortColumn>>(new Set());
+
+  const toggleCollapse = (col: SortColumn) => {
+    setCollapsedCols(prev => {
+      const next = new Set(prev);
+      if (next.has(col)) next.delete(col); else next.add(col);
+      return next;
+    });
+  };
 
   const resizing = useRef<{ col: SortColumn; startX: number; startWidth: number } | null>(null);
   const draggingCol = useRef<SortColumn | null>(null);
@@ -100,6 +109,41 @@ export default function LogTable({ entries, searchQuery = '', useRegex = false }
   useEffect(() => {
     saveColumnPreferences(colOrder, colWidths);
   }, [colOrder, colWidths]);
+
+  // Auto-size timestamp and level columns to fit their content
+  useLayoutEffect(() => {
+    if (entries.length === 0) return;
+    const tsCell = document.querySelector<HTMLElement>('.timestamp-cell');
+    const levelCell = document.querySelector<HTMLElement>('.level-cell');
+    if (!tsCell || !levelCell) return;
+
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    // Measure timestamp (format is always fixed-width: "YYYYMMDD HH:MM:SS.mmm")
+    ctx.font = window.getComputedStyle(tsCell).font;
+    const pad2 = (n: number) => String(n).padStart(2, '0');
+    const pad3 = (n: number) => String(n).padStart(3, '0');
+    const t = entries[0].timestamp;
+    const tsStr = `${t.getFullYear()}${pad2(t.getMonth()+1)}${pad2(t.getDate())} ${pad2(t.getHours())}:${pad2(t.getMinutes())}:${pad2(t.getSeconds())}.${pad3(t.getMilliseconds())}`;
+    const tsCellStyle = window.getComputedStyle(tsCell);
+    const tsPadH = parseFloat(tsCellStyle.paddingLeft) + parseFloat(tsCellStyle.paddingRight);
+    const tsWidth = Math.ceil(ctx.measureText(tsStr).width) + tsPadH + 2;
+
+    // Measure level — find the longest level value across all entries
+    const longestLevel = [...new Set(entries.map(e => e.level.toUpperCase()))]
+      .reduce((a, b) => (a.length >= b.length ? a : b), '');
+    const badge = levelCell.querySelector<HTMLElement>('.level-badge');
+    const badgeStyle = badge ? window.getComputedStyle(badge) : null;
+    ctx.font = badgeStyle ? badgeStyle.font : window.getComputedStyle(levelCell).font;
+    const badgePadH = badgeStyle ? parseFloat(badgeStyle.paddingLeft) + parseFloat(badgeStyle.paddingRight) : 0;
+    const levelCellStyle = window.getComputedStyle(levelCell);
+    const levelPadH = parseFloat(levelCellStyle.paddingLeft) + parseFloat(levelCellStyle.paddingRight);
+    const levelWidth = Math.ceil(ctx.measureText(longestLevel).width) + badgePadH + levelPadH + 2;
+
+    setColWidths(prev => ({ ...prev, timestamp: tsWidth, level: levelWidth }));
+  }, [entries]);
 
   // ── Column resize ────────────────────────────────────────────────────────────
   const startResize = (col: SortColumn, e: React.MouseEvent) => {
@@ -205,6 +249,7 @@ export default function LogTable({ entries, searchQuery = '', useRegex = false }
 
   // ── Cell renderer ────────────────────────────────────────────────────────────
   const renderCell = (entry: LogEntry, col: SortColumn) => {
+    if (collapsedCols.has(col)) return <td key={col} className="cell-collapsed" />;
     switch (col) {
       case 'timestamp': {
         const t = entry.timestamp;
@@ -252,30 +297,49 @@ export default function LogTable({ entries, searchQuery = '', useRegex = false }
       <div className="table-wrapper" ref={setScrollEl}>
         <table style={{ tableLayout: 'fixed' }}>
           <colgroup>
-            {colOrder.map(col => <col key={col} style={{ width: colWidths[col] }} />)}
+            {colOrder.map(col => <col key={col} style={{ width: collapsedCols.has(col) ? 28 : colWidths[col] }} />)}
           </colgroup>
           <thead>
             <tr>
-              {colOrder.map(col => (
-                <th
-                  key={col}
-                  draggable
-                  onDragStart={e => handleDragStart(col, e)}
-                  onDragOver={e => handleDragOver(col, e)}
-                  onDrop={() => handleDrop(col)}
-                  onDragEnd={handleDragEnd}
-                  onClick={() => handleSort(col)}
-                  className={`sortable${dragOverCol === col ? ' col-drag-over' : ''}`}
-                >
-                  {COL_LABELS[col]}{getSortIndicator(col)}
-                  <div
-                    className="resize-handle"
-                    onMouseDown={e => startResize(col, e)}
-                    draggable={false}
-                    onDragStart={e => e.preventDefault()}
-                  />
-                </th>
-              ))}
+              {colOrder.map(col => {
+                const collapsed = collapsedCols.has(col);
+                return (
+                  <th
+                    key={col}
+                    draggable={!collapsed}
+                    onDragStart={e => !collapsed && handleDragStart(col, e)}
+                    onDragOver={e => !collapsed && handleDragOver(col, e)}
+                    onDrop={() => !collapsed && handleDrop(col)}
+                    onDragEnd={handleDragEnd}
+                    onClick={() => !collapsed && handleSort(col)}
+                    className={`sortable${dragOverCol === col ? ' col-drag-over' : ''}${collapsed ? ' col-collapsed-header' : ''}`}
+                    title={collapsed ? `Expand ${COL_LABELS[col]}` : undefined}
+                  >
+                    {collapsed ? (
+                      <button
+                        className="col-expand-btn"
+                        onClick={e => { e.stopPropagation(); toggleCollapse(col); }}
+                        title={`Expand ${COL_LABELS[col]}`}
+                      >›</button>
+                    ) : (
+                      <>
+                        <button
+                          className="col-collapse-btn"
+                          onClick={e => { e.stopPropagation(); toggleCollapse(col); }}
+                          title={`Collapse ${COL_LABELS[col]}`}
+                        >‹</button>
+                        {COL_LABELS[col]}{getSortIndicator(col)}
+                        <div
+                          className="resize-handle"
+                          onMouseDown={e => startResize(col, e)}
+                          draggable={false}
+                          onDragStart={e => e.preventDefault()}
+                        />
+                      </>
+                    )}
+                  </th>
+                );
+              })}
             </tr>
           </thead>
           <tbody>
