@@ -160,9 +160,16 @@ export function loadUIPreferences(): Record<string, unknown> {
 /**
  * Save column order and widths
  */
-export function saveColumnPreferences(order: string[], widths: Record<string, number>): void {
+export function saveColumnPreferences(order: string[], widths: Record<string, number>, collapsed?: string[]): void {
   try {
-    localStorage.setItem(`${STORAGE_PREFIX}columns`, JSON.stringify({ order, widths }));
+    const stored = localStorage.getItem(`${STORAGE_PREFIX}columns`);
+    const existing = stored ? JSON.parse(stored) : {};
+    localStorage.setItem(`${STORAGE_PREFIX}columns`, JSON.stringify({
+      ...existing,
+      order,
+      widths,
+      ...(collapsed !== undefined ? { collapsed } : {}),
+    }));
   } catch (error) {
     console.error('Failed to save column preferences:', error);
   }
@@ -171,7 +178,7 @@ export function saveColumnPreferences(order: string[], widths: Record<string, nu
 /**
  * Load column order and widths
  */
-export function loadColumnPreferences(): { order: string[]; widths: Record<string, number> } | null {
+export function loadColumnPreferences(): { order: string[]; widths: Record<string, number>; collapsed?: string[] } | null {
   try {
     const stored = localStorage.getItem(`${STORAGE_PREFIX}columns`);
     return stored ? JSON.parse(stored) : null;
@@ -283,6 +290,28 @@ export function loadPanelCollapsed(panelId: string): boolean {
     return panels[panelId] ?? false;
   } catch {
     return false;
+  }
+}
+
+export function saveSourcesState(filter: string, sort: 'name' | 'count'): void {
+  try {
+    localStorage.setItem(`${STORAGE_PREFIX}sources-state`, JSON.stringify({ filter, sort }));
+  } catch (error) {
+    console.error('Failed to save sources state:', error);
+  }
+}
+
+export function loadSourcesState(): { filter: string; sort: 'name' | 'count' } {
+  try {
+    const stored = localStorage.getItem(`${STORAGE_PREFIX}sources-state`);
+    if (!stored) return { filter: '', sort: 'name' };
+    const parsed = JSON.parse(stored);
+    return {
+      filter: typeof parsed.filter === 'string' ? parsed.filter : '',
+      sort: parsed.sort === 'count' ? 'count' : 'name',
+    };
+  } catch {
+    return { filter: '', sort: 'name' };
   }
 }
 

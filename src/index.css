@@ -303,6 +303,7 @@ html, body {
 }
 
 .upload-area {
+  margin-top: 1.5rem;
   border: 2px dashed var(--border-light);
   border-radius: 10px;
   padding: 2.5rem;
@@ -1058,6 +1059,94 @@ html, body {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
+}
+
+.stats-breakdown--scrollable {
+  max-height: 17rem;
+  overflow-y: auto;
+  padding-right: 4px;
+  display: grid;
+  grid-template-columns: max-content 1fr auto;
+  align-content: start;
+}
+
+.stats-breakdown--scrollable .stats-row {
+  display: contents;
+}
+
+.stats-breakdown--scrollable .stats-row > * {
+  padding: 0.75rem;
+  display: flex;
+  align-items: center;
+  transition: background 0.2s;
+}
+
+.stats-breakdown--scrollable .stats-row:has(:hover) > * {
+  background: var(--bg-hover);
+}
+
+.stats-breakdown--scrollable .stats-row > *:first-child {
+  border-radius: 6px 0 0 6px;
+}
+
+.stats-breakdown--scrollable .stats-row > *:last-child {
+  border-radius: 0 6px 6px 0;
+}
+
+.source-controls {
+  display: flex;
+  gap: 0.4rem;
+  margin-bottom: 0.5rem;
+  align-items: center;
+}
+
+.source-controls .source-filter-input {
+  margin-bottom: 0;
+  flex: 1;
+}
+
+.source-sort-btns {
+  display: flex;
+  gap: 2px;
+}
+
+.source-sort-btn {
+  padding: 0.3rem 0.5rem;
+  font-size: 0.75rem;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text-muted);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.source-sort-btn:hover {
+  border-color: var(--primary);
+  color: var(--text);
+}
+
+.source-sort-btn.active {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+}
+
+.source-filter-input {
+  width: 100%;
+  padding: 0.4rem 0.6rem;
+  margin-bottom: 0.5rem;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text-primary);
+  font-size: 0.85rem;
+  box-sizing: border-box;
+}
+
+.source-filter-input:focus {
+  outline: none;
+  border-color: var(--primary);
 }
 
 .stats-row {

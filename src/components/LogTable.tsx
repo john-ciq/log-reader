@@ -73,12 +73,17 @@ export default function LogTable({ entries, searchQuery = '', useRegex = false }
     return DEFAULT_COL_ORDER;
   });
   const [dragOverCol, setDragOverCol] = useState<SortColumn | null>(null);
-  const [collapsedCols, setCollapsedCols] = useState<Set<SortColumn>>(new Set());
+  const [collapsedCols, setCollapsedCols] = useState<Set<SortColumn>>(() => {
+    const saved = loadColumnPreferences();
+    if (!saved?.collapsed) return new Set();
+    return new Set(saved.collapsed.filter(c => DEFAULT_COL_ORDER.includes(c as SortColumn)) as SortColumn[]);
+  });
 
   const toggleCollapse = (col: SortColumn) => {
     setCollapsedCols(prev => {
       const next = new Set(prev);
       if (next.has(col)) next.delete(col); else next.add(col);
+      saveColumnPreferences(colOrder, colWidths, [...next]);
       return next;
     });
   };
@@ -107,8 +112,8 @@ export default function LogTable({ entries, searchQuery = '', useRegex = false }
   }, [scrollEl]);
 
   useEffect(() => {
-    saveColumnPreferences(colOrder, colWidths);
-  }, [colOrder, colWidths]);
+    saveColumnPreferences(colOrder, colWidths, [...collapsedCols]);
+  }, [colOrder, colWidths, collapsedCols]);
 
   // Auto-size timestamp and level columns to fit their content
   useLayoutEffect(() => {

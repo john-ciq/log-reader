@@ -1,4 +1,4 @@
-import { calculateStatistics, savePanelCollapsed, loadPanelCollapsed } from '../lib/statistics';
+import { calculateStatistics, savePanelCollapsed, loadPanelCollapsed, saveSourcesState, loadSourcesState } from '../lib/statistics';
 import { LogEntry } from '../lib/parser';
 import { useState, useMemo } from 'react';
 
@@ -23,10 +23,12 @@ export default function StatisticsPanel({
 }: StatisticsPanelProps) {
   const [collapsed, setCollapsed] = useState(() => loadPanelCollapsed('statistics'));
   const [expanded, setExpanded] = useState({
-    summary: true,
-    levels: true,
-    sources: false,
+    summary: !loadPanelCollapsed('stats-summary'),
+    levels: !loadPanelCollapsed('stats-levels'),
+    sources: !loadPanelCollapsed('stats-sources'),
   });
+  const [sourceFilter, setSourceFilter] = useState(() => loadSourcesState().filter);
+  const [sourceSort, setSourceSort] = useState<'name' | 'count'>(() => loadSourcesState().sort);
 
   const stats = useMemo(() => calculateStatistics(entries), [entries]);
 
@@ -71,7 +73,7 @@ export default function StatisticsPanel({
       <div className="stats-section">
         <div
           className="stats-section-header"
-          onClick={() => setExpanded({ ...expanded, summary: !expanded.summary })}
+          onClick={() => { const v = !expanded.summary; savePanelCollapsed('stats-summary', !v); setExpanded({ ...expanded, summary: v }); }}
         >
           <h4>Summary {!expanded.summary && '▼'} {expanded.summary && '▲'}</h4>
         </div>
@@ -111,7 +113,7 @@ export default function StatisticsPanel({
       <div className="stats-section">
         <div
           className="stats-section-header"
-          onClick={() => setExpanded({ ...expanded, levels: !expanded.levels })}
+          onClick={() => { const v = !expanded.levels; savePanelCollapsed('stats-levels', !v); setExpanded({ ...expanded, levels: v }); }}
         >
           <h4>Log Levels {!expanded.levels && '▼'} {expanded.levels && '▲'}</h4>
         </div>
@@ -159,27 +161,53 @@ export default function StatisticsPanel({
       <div className="stats-section">
         <div
           className="stats-section-header"
-          onClick={() => setExpanded({ ...expanded, sources: !expanded.sources })}
+          onClick={() => { const v = !expanded.sources; savePanelCollapsed('stats-sources', !v); setExpanded({ ...expanded, sources: v }); }}
         >
           <h4>Logging Sources {!expanded.sources && '▼'} {expanded.sources && '▲'}</h4>
         </div>
         {expanded.sources && (
-          <div className="stats-breakdown">
+          <>
+          <div className="source-controls">
+            <input
+              type="text"
+              value={sourceFilter}
+              onChange={e => { setSourceFilter(e.target.value); saveSourcesState(e.target.value, sourceSort); }}
+              placeholder="Filter sources…"
+              className="source-filter-input"
+            />
+            <div className="source-sort-btns">
+              <button
+                className={`source-sort-btn${sourceSort === 'name' ? ' active' : ''}`}
+                onClick={() => { setSourceSort('name'); saveSourcesState(sourceFilter, 'name'); }}
+                title="Sort by name"
+              >A–Z</button>
+              <button
+                className={`source-sort-btn${sourceSort === 'count' ? ' active' : ''}`}
+                onClick={() => { setSourceSort('count'); saveSourcesState(sourceFilter, 'count'); }}
+                title="Sort by count"
+              >#</button>
+            </div>
+          </div>
+          <div className="stats-breakdown stats-breakdown--scrollable">
             {availableSources
               .slice()
-              .sort((a, b) => (stats.sourceCounts[b] ?? 0) - (stats.sourceCounts[a] ?? 0))
+              .filter(s => s.toLowerCase().includes(sourceFilter.toLowerCase()))
+              .sort((a, b) => sourceSort === 'name'
+                ? a.toLowerCase().localeCompare(b.toLowerCase())
+                : (stats.sourceCounts[b] ?? 0) - (stats.sourceCounts[a] ?? 0)
+              )
               .map(source => {
                 const count = stats.sourceCounts[source] ?? 0;
                 return (
                   <label key={source} className="stats-row">
-                    <span className="stats-label truncate">
+                    <span className="stats-label truncate" title={source}>
                       <input
                         type="checkbox"
                         checked={displaySources.has(source)}
                         onChange={e => onSourceChange(source, e.target.checked)}
                         style={{ accentColor: 'var(--primary)', width: 14, height: 14, flexShrink: 0 }}
                       />
-                      {source}
+                      {source.length > 35 ? source.slice(0, 35) + '…' : source}
                     </span>
                     <span className="stats-bar-container">
                       <span
@@ -195,6 +223,7 @@ export default function StatisticsPanel({
                 );
               })}
           </div>
+          </>
         )}
       </div>
       </>}
