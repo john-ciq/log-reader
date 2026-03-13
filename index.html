@@ -5,6 +5,12 @@
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Full View</title>
+    <script>
+      (function() {
+        var t = localStorage.getItem('log-reader-theme');
+        document.documentElement.setAttribute('data-theme', t === 'dark' || t === 'light' ? t : 'system');
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

@@ -1,6 +1,7 @@
-import { useRef } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { useFeatures } from '../lib/FeaturesContext';
 import { FeatureKey, featureDefinitions } from '../lib/features';
+import { Theme, loadTheme, saveTheme, applyTheme } from '../lib/theme';
 
 interface FeaturesPanelProps {
   onClose: () => void;
@@ -24,6 +25,19 @@ function exportStorage() {
 export default function FeaturesPanel({ onClose }: FeaturesPanelProps) {
   const { features, setFeature, resetFeatures } = useFeatures();
   const importInputRef = useRef<HTMLInputElement>(null);
+  const [theme, setThemeState] = useState<Theme>(loadTheme);
+
+  const handleThemeChange = (t: Theme) => {
+    setThemeState(t);
+    saveTheme(t);
+    applyTheme(t);
+  };
+
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
+    document.addEventListener('keydown', handler);
+    return () => document.removeEventListener('keydown', handler);
+  }, [onClose]);
 
   const handleImport = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -51,6 +65,18 @@ export default function FeaturesPanel({ onClose }: FeaturesPanelProps) {
           <button className="features-panel-close" onClick={onClose}>✕</button>
         </div>
         <div className="features-panel-body">
+          <div className="theme-selector">
+            <span className="theme-label">Theme</span>
+            <div className="theme-options">
+              {(['dark', 'light', 'system'] as Theme[]).map(t => (
+                <label key={t} className={`theme-option${theme === t ? ' active' : ''}`}>
+                  <input type="radio" name="theme" value={t} checked={theme === t} onChange={() => handleThemeChange(t)} />
+                  {t.charAt(0).toUpperCase() + t.slice(1)}
+                </label>
+              ))}
+            </div>
+          </div>
+          <hr className="features-divider" />
           {(Object.keys(featureDefinitions) as FeatureKey[])
             .filter(key => featureDefinitions[key].visible)
             .map(key => (
