@@ -2,6 +2,15 @@
 
 All notable changes to the Log Reader project will be documented in this file.
 
+## [1.0.53] - 2026-03-13
+
+### Added
+- **Browse button** in the "Upload Log File(s)" panel heading — opens the file picker without needing to expand the panel; works whether the panel is collapsed or expanded
+- **Reset button** in the settings panel — resets all feature flags to their default values and clears persisted overrides from localStorage
+- **`importExportStorage`** feature flag (default: off) — when enabled, Import and Export buttons appear at the bottom of the settings panel to back up and restore all localStorage settings as `log-reader-settings.json`; importing reloads the page to apply
+- **`persistTimeRange`** feature flag (default: off) — when enabled, the selected time range filter is saved to localStorage and restored on the next page load; disabling the flag clears any previously stored range
+- **Import/Export for filter presets** — Import and Export buttons in the Filter Presets panel header to save presets to `log-reader-presets.json` and restore them from a previously exported file
+
 ## [1.0.52] - 2026-03-13
 
 ### Added

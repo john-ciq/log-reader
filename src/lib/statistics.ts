@@ -331,7 +331,6 @@ export function loadSourcesState(): { filter: string; sort: 'name' | 'count' } {
 
 export function saveTimeRange(range: TimeRange | null): void {
   try {
-    // TODO: Add a gated feature
     localStorage.setItem(`${STORAGE_PREFIX}time-range`, JSON.stringify(
       range ? { from: range.from?.toISOString() ?? null, to: range.to?.toISOString() ?? null } : null
     ));

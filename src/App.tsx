@@ -69,7 +69,7 @@ function App() {
   const [hiddenSources, setHiddenSources] = useState<Set<string>>(() => new Set(loadHiddenSources()));
 
   // new: time range, row detail, search ref, presets
-  const [timeRange, setTimeRange] = useState<TimeRange | null>(() => loadTimeRange());
+  const [timeRange, setTimeRange] = useState<TimeRange | null>(() => features.persistTimeRange ? loadTimeRange() : null);
   const [activeEntryId, setActiveEntryId] = useState<string | null>(null);
   const [detailEntry, setDetailEntry] = useState<LogEntry | null>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
@@ -85,10 +85,10 @@ function App() {
     saveSearchState(searchQuery, useRegexSearch);
   }, [searchQuery, useRegexSearch]);
 
-  // Save time range
+  // Save time range (only when persistence is enabled; clear stored value when disabled)
   useEffect(() => {
-    saveTimeRange(timeRange);
-  }, [timeRange]);
+    saveTimeRange(features.persistTimeRange ? timeRange : null);
+  }, [timeRange, features.persistTimeRange]);
 
   // Save presets
   useEffect(() => {
