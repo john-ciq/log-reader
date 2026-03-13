@@ -4,6 +4,7 @@ import { Features, FeatureKey, featureDefaults, loadFeatureOverrides, saveFeatur
 interface FeaturesContextValue {
   features: Features;
   setFeature: (key: FeatureKey, value: boolean) => void;
+  resetFeatures: () => void;
 }
 
 const FeaturesContext = createContext<FeaturesContextValue | null>(null);
@@ -27,8 +28,13 @@ export function FeaturesProvider({ children }: { children: ReactNode }) {
     });
   };
 
+  const resetFeatures = () => {
+    saveFeatureOverrides({});
+    setFeatures({ ...featureDefaults });
+  };
+
   return (
-    <FeaturesContext.Provider value={{ features, setFeature }}>
+    <FeaturesContext.Provider value={{ features, setFeature, resetFeatures }}>
       {children}
     </FeaturesContext.Provider>
   );

@@ -200,6 +200,28 @@ html, body {
   font-size: 1rem;
 }
 
+.features-panel-reset {
+  margin-left: auto;
+  margin-right: 0.5rem;
+  padding: 0.6rem 1.2rem;
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.features-panel-reset:hover {
+  background: var(--primary-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
 .features-panel-close {
   background: none;
   border: none;
