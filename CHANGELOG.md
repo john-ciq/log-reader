@@ -2,10 +2,24 @@
 
 All notable changes to the Log Reader project will be documented in this file.
 
+## [1.0.50] - 2026-03-12
+
+### Added
+- Import/export of filter and search configuration — export saves all filters plus the current search query/regex flag to a JSON file; import restores them from a previously exported file
+  - Export/Import buttons appear in the "Filters & Search" heading
+- JSON preview in message cells — when a message contains JSON that is collapsed, the first 35 characters of the compact JSON are shown inline next to the toggle arrow
+- Collapsible table columns — each column header has a `‹` button to collapse the column to a narrow strip; clicking `›` in the collapsed header restores it
+- Drag handles on filter containers (⠿ icon on the left side of each filter item)
+
+### Changed
+- Timestamp and Level table columns are now auto-sized to fit their content when log entries are loaded — timestamp never wraps, level is as narrow as possible
+- Sidebar now has matching padding on both left and right sides
+- Column collapse buttons are always visible (not just on hover)
+
 ## [1.0.49] - 2026-03-12
 
 ### Added
-- Collapsible sidebar — a `‹`/`›` toggle button collapses all left panels to a narrow 40px strip; collapsed state persists via localStorage
+- Collapsible sidebar — a `‹`/`›` toggle button collapses all left panels to a narrow 2rem strip; collapsed state persists via localStorage
 
 ### Changed
 - Search highlighting in raw file tabs is now debounced by 250ms — highlights do not update until typing pauses, preventing expensive re-renders on every keystroke
