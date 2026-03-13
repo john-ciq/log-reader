@@ -2,6 +2,7 @@ import { useState, useMemo, useRef, useEffect, useLayoutEffect, ReactNode } from
 import { LogEntry } from '../lib/parser';
 import MessageCell from './MessageCell';
 import { saveSortPreference, loadSortPreference, saveColumnPreferences, loadColumnPreferences } from '../lib/statistics';
+import features from '../lib/features';
 
 interface LogTableProps {
   entries: LogEntry[];
@@ -117,6 +118,7 @@ export default function LogTable({ entries, searchQuery = '', useRegex = false }
 
   // Auto-size timestamp and level columns to fit their content
   useLayoutEffect(() => {
+    if (!features.autoSizeColumns) return;
     if (entries.length === 0) return;
     const tsCell = document.querySelector<HTMLElement>('.timestamp-cell');
     const levelCell = document.querySelector<HTMLElement>('.level-cell');

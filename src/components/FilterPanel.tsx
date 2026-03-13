@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react';
 import { FilterConfig } from '../lib/filters';
 import { saveExpandedFilters, loadExpandedFilters } from '../lib/statistics';
+import features from '../lib/features';
 
 interface FilterPanelProps {
   filters: FilterConfig[];
@@ -240,28 +241,30 @@ export default function FilterPanel({
                     />
                   </div>
 
-                  <div className={`filter-levels${hasPatterns ? ' section-inactive' : ''}`}>
-                    <h5>Log Levels {hasPatterns && <span className="inactive-note">inactive — patterns in use</span>}</h5>
-                    <div className="level-buttons">
-                      {commonLevels.map(level => (
-                        <button
-                          key={level}
-                          onClick={() => {
-                            const newLevels = filter.levelFilters.includes(level)
-                              ? filter.levelFilters.filter(l => l !== level)
-                              : [...filter.levelFilters, level];
-                            onUpdateFilter(filter.id, { levelFilters: newLevels });
-                          }}
-                          className={`level-btn ${filter.levelFilters.includes(level) ? 'active' : ''}`}
-                          disabled={hasPatterns}
-                        >
-                          {level}
-                        </button>
-                      ))}
+                  {features.advancedFilters && (
+                    <div className={`filter-levels${hasPatterns ? ' section-inactive' : ''}`}>
+                      <h5>Log Levels {hasPatterns && <span className="inactive-note">inactive — patterns in use</span>}</h5>
+                      <div className="level-buttons">
+                        {commonLevels.map(level => (
+                          <button
+                            key={level}
+                            onClick={() => {
+                              const newLevels = filter.levelFilters.includes(level)
+                                ? filter.levelFilters.filter(l => l !== level)
+                                : [...filter.levelFilters, level];
+                              onUpdateFilter(filter.id, { levelFilters: newLevels });
+                            }}
+                            className={`level-btn ${filter.levelFilters.includes(level) ? 'active' : ''}`}
+                            disabled={hasPatterns}
+                          >
+                            {level}
+                          </button>
+                        ))}
+                      </div>
                     </div>
-                  </div>
+                  )}
 
-                  {availableFiles.length > 0 && (
+                  {features.advancedFilters && availableFiles.length > 0 && (
                     <div className={`filter-files${hasPatterns ? ' section-inactive' : ''}`}>
                       <h5>Log Files {hasPatterns && <span className="inactive-note">inactive — patterns in use</span>}</h5>
                       <div className="file-buttons">
