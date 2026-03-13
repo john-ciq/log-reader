@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef, useEffect, useLayoutEffect, ReactNode } from 'react';
+import { useState, useMemo, useRef, useEffect, useLayoutEffect, ReactNode, useCallback } from 'react';
 import { LogEntry } from '../lib/parser';
 import MessageCell from './MessageCell';
 import { saveSortPreference, loadSortPreference, saveColumnPreferences, loadColumnPreferences } from '../lib/statistics';
@@ -8,6 +8,13 @@ interface LogTableProps {
   entries: LogEntry[];
   searchQuery?: string;
   useRegex?: boolean;
+  activeEntryId?: string | null;
+  onRowClick?: (entry: LogEntry) => void;
+}
+
+interface DisplayEntry {
+  entry: LogEntry;
+  count: number;
 }
 
 function highlightText(text: string, query: string, useRegex: boolean): ReactNode {
@@ -53,7 +60,13 @@ const COL_LABELS: Record<SortColumn, string> = {
   message:   'Message',
 };
 
-export default function LogTable({ entries, searchQuery = '', useRegex = false }: LogTableProps) {
+export default function LogTable({
+  entries,
+  searchQuery = '',
+  useRegex = false,
+  activeEntryId,
+  onRowClick,
+}: LogTableProps) {
   const { features } = useFeatures();
   const saved = loadSortPreference();
   const [sortColumn, setSortColumn] = useState<SortColumn>(
@@ -81,6 +94,10 @@ export default function LogTable({ entries, searchQuery = '', useRegex = false }
     return new Set(saved.collapsed.filter(c => DEFAULT_COL_ORDER.includes(c as SortColumn)) as SortColumn[]);
   });
 
+  // ── Row selection (for copy) ──────────────────────────────────────────────────
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const lastClickedIdxRef = useRef<number>(-1);
+
   const toggleCollapse = (col: SortColumn) => {
     setCollapsedCols(prev => {
       const next = new Set(prev);
@@ -94,8 +111,8 @@ export default function LogTable({ entries, searchQuery = '', useRegex = false }
   const draggingCol = useRef<SortColumn | null>(null);
 
   // ── Virtual scroll ───────────────────────────────────────────────────────────
-  const ROW_HEIGHT = 36; // px — approximate row height for computing visible window
-  const OVERSCAN = 15;   // extra rows to render above and below the viewport
+  const ROW_HEIGHT = 36;
+  const OVERSCAN = 15;
   const [scrollEl, setScrollEl] = useState<HTMLDivElement | null>(null);
   const [scrollTop, setScrollTop] = useState(0);
   const [containerHeight, setContainerHeight] = useState(600);
@@ -129,7 +146,6 @@ export default function LogTable({ entries, searchQuery = '', useRegex = false }
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    // Measure timestamp (format is always fixed-width: "YYYYMMDD HH:MM:SS.mmm")
     ctx.font = window.getComputedStyle(tsCell).font;
     const pad2 = (n: number) => String(n).padStart(2, '0');
     const pad3 = (n: number) => String(n).padStart(3, '0');
@@ -139,7 +155,6 @@ export default function LogTable({ entries, searchQuery = '', useRegex = false }
     const tsPadH = parseFloat(tsCellStyle.paddingLeft) + parseFloat(tsCellStyle.paddingRight);
     const tsWidth = Math.ceil(ctx.measureText(tsStr).width) + tsPadH + 2;
 
-    // Measure level — find the longest level value across all entries
     const longestLevel = [...new Set(entries.map(e => e.level.toUpperCase()))]
       .reduce((a, b) => (a.length >= b.length ? a : b), '');
     const badge = levelCell.querySelector<HTMLElement>('.level-badge');
@@ -227,6 +242,28 @@ export default function LogTable({ entries, searchQuery = '', useRegex = false }
     });
   }, [entries, sortColumn, sortDirection]);
 
+  // ── Deduplication ────────────────────────────────────────────────────────────
+  const displayEntries = useMemo((): DisplayEntry[] => {
+    if (!features.deduplication) {
+      return sortedEntries.map(e => ({ entry: e, count: 1 }));
+    }
+    const result: DisplayEntry[] = [];
+    for (const entry of sortedEntries) {
+      const last = result[result.length - 1];
+      if (
+        last &&
+        last.entry.message === entry.message &&
+        last.entry.level === entry.level &&
+        last.entry.source === entry.source
+      ) {
+        last.count++;
+      } else {
+        result.push({ entry, count: 1 });
+      }
+    }
+    return result;
+  }, [sortedEntries, features.deduplication]);
+
   const handleSort = (column: SortColumn) => {
     if (sortColumn === column) {
       const dir = sortDirection === 'asc' ? 'desc' : 'asc';
@@ -243,20 +280,94 @@ export default function LogTable({ entries, searchQuery = '', useRegex = false }
     sortColumn !== column ? ' ⇅' : sortDirection === 'asc' ? ' ▲' : ' ▼';
 
   // ── Virtual window ───────────────────────────────────────────────────────────
-  const totalRows = sortedEntries.length;
+  const totalRows = displayEntries.length;
   const rawStart = Math.max(0, Math.floor(scrollTop / ROW_HEIGHT) - OVERSCAN);
   const endIdx = Math.min(totalRows, Math.ceil((scrollTop + containerHeight) / ROW_HEIGHT) + OVERSCAN);
-  // When we've reached the last row, clamp startIdx to a stable minimum window.
-  // Without this, variable-height rows (taller than ROW_HEIGHT) cause scrollTop to
-  // exceed scrollHeight at the bottom, triggering a feedback loop of re-renders.
   const minWindow = Math.ceil(containerHeight / ROW_HEIGHT) + 2 * OVERSCAN;
   const startIdx = endIdx >= totalRows ? Math.max(0, totalRows - minWindow) : rawStart;
-  const visibleEntries = sortedEntries.slice(startIdx, endIdx);
+  const visibleEntries = displayEntries.slice(startIdx, endIdx);
   const paddingTop = startIdx * ROW_HEIGHT;
   const paddingBottom = (totalRows - endIdx) * ROW_HEIGHT;
 
+  // ── Scroll active entry into view ────────────────────────────────────────────
+  useEffect(() => {
+    if (!activeEntryId || !scrollEl) return;
+    const idx = displayEntries.findIndex(d => d.entry.id === activeEntryId);
+    if (idx === -1) return;
+    const rowTop = idx * ROW_HEIGHT;
+    const rowBottom = rowTop + ROW_HEIGHT;
+    if (rowTop < scrollEl.scrollTop) {
+      scrollEl.scrollTop = rowTop;
+    } else if (rowBottom > scrollEl.scrollTop + scrollEl.clientHeight) {
+      scrollEl.scrollTop = rowBottom - scrollEl.clientHeight;
+    }
+  }, [activeEntryId, displayEntries, scrollEl]);
+
+  // ── Row click / selection ────────────────────────────────────────────────────
+  const handleRowClick = useCallback((displayEntry: DisplayEntry, idx: number, e: React.MouseEvent) => {
+    const entry = displayEntry.entry;
+    if (e.ctrlKey || e.metaKey) {
+      setSelectedIds(prev => {
+        const next = new Set(prev);
+        if (next.has(entry.id)) next.delete(entry.id); else next.add(entry.id);
+        return next;
+      });
+      lastClickedIdxRef.current = idx;
+    } else if (e.shiftKey && lastClickedIdxRef.current !== -1) {
+      const from = Math.min(lastClickedIdxRef.current, idx);
+      const to = Math.max(lastClickedIdxRef.current, idx);
+      setSelectedIds(prev => {
+        const next = new Set(prev);
+        for (let i = from; i <= to; i++) {
+          next.add(displayEntries[i].entry.id);
+        }
+        return next;
+      });
+    } else {
+      setSelectedIds(new Set());
+      lastClickedIdxRef.current = idx;
+      onRowClick?.(entry);
+    }
+  }, [displayEntries, onRowClick]);
+
+  // ── Keyboard navigation ──────────────────────────────────────────────────────
+  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+    if (!onRowClick) return;
+    const activeIdx = activeEntryId
+      ? displayEntries.findIndex(d => d.entry.id === activeEntryId)
+      : -1;
+
+    if (e.key === 'ArrowDown' || e.key === 'j') {
+      e.preventDefault();
+      const next = activeIdx < displayEntries.length - 1 ? activeIdx + 1 : activeIdx;
+      if (displayEntries[next]) onRowClick(displayEntries[next].entry);
+    } else if (e.key === 'ArrowUp' || e.key === 'k') {
+      e.preventDefault();
+      const prev = activeIdx > 0 ? activeIdx - 1 : 0;
+      if (displayEntries[prev]) onRowClick(displayEntries[prev].entry);
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      if (activeIdx !== -1 && displayEntries[activeIdx]) onRowClick(displayEntries[activeIdx].entry);
+    }
+  }, [activeEntryId, displayEntries, onRowClick]);
+
+  // ── Copy selection ───────────────────────────────────────────────────────────
+  const copySelectedRows = () => {
+    const rows = displayEntries
+      .filter(d => selectedIds.has(d.entry.id))
+      .map(d => {
+        const e = d.entry;
+        const t = e.timestamp;
+        const pad2 = (n: number) => String(n).padStart(2, '0');
+        const pad3 = (n: number) => String(n).padStart(3, '0');
+        const ts = `${t.getFullYear()}${pad2(t.getMonth()+1)}${pad2(t.getDate())} ${pad2(t.getHours())}:${pad2(t.getMinutes())}:${pad2(t.getSeconds())}.${pad3(t.getMilliseconds())}`;
+        return [ts, e.level.toUpperCase(), e.filename || e.source, e.source, e.message].join('\t');
+      });
+    navigator.clipboard.writeText(rows.join('\n'));
+  };
+
   // ── Cell renderer ────────────────────────────────────────────────────────────
-  const renderCell = (entry: LogEntry, col: SortColumn) => {
+  const renderCell = (entry: LogEntry, col: SortColumn, count: number) => {
     if (collapsedCols.has(col)) return <td key={col} className="cell-collapsed" />;
     switch (col) {
       case 'timestamp': {
@@ -282,6 +393,7 @@ export default function LogTable({ entries, searchQuery = '', useRegex = false }
         return (
           <td key={col} className="message-cell">
             <div className="message-content">
+              {count > 1 && <span className="dedup-count-badge">×{count}</span>}
               <MessageCell message={entry.message} searchQuery={searchQuery} useRegex={useRegex} />
             </div>
           </td>
@@ -300,9 +412,25 @@ export default function LogTable({ entries, searchQuery = '', useRegex = false }
   return (
     <div className="log-table">
       <div className="table-control">
-        <span className="entry-count">{entries.length} entries</span>
+        <span className="entry-count">
+          {features.deduplication && displayEntries.length !== entries.length
+            ? `${displayEntries.length} entries (${entries.length} total, ${entries.length - displayEntries.length} deduplicated)`
+            : `${entries.length} entries`}
+        </span>
+        {selectedIds.size > 0 && (
+          <span className="copy-selection-info">
+            {selectedIds.size} selected
+            <button className="copy-rows-btn" onClick={copySelectedRows}>Copy {selectedIds.size}</button>
+            <button className="clear-selection-btn" onClick={() => setSelectedIds(new Set())}>✕</button>
+          </span>
+        )}
       </div>
-      <div className="table-wrapper" ref={setScrollEl}>
+      <div
+        className="table-wrapper"
+        ref={setScrollEl}
+        tabIndex={0}
+        onKeyDown={handleKeyDown}
+      >
         <table style={{ tableLayout: 'fixed' }}>
           <colgroup>
             {colOrder.map(col => <col key={col} style={{ width: collapsedCols.has(col) ? 28 : colWidths[col] }} />)}
@@ -352,11 +480,22 @@ export default function LogTable({ entries, searchQuery = '', useRegex = false }
           </thead>
           <tbody>
             {paddingTop > 0 && <tr style={{ height: paddingTop }}><td colSpan={colOrder.length} /></tr>}
-            {visibleEntries.map(entry => (
-              <tr key={entry.id} className={`level-${entry.level.toLowerCase()}`}>
-                {colOrder.map(col => renderCell(entry, col))}
-              </tr>
-            ))}
+            {visibleEntries.map((displayEntry, i) => {
+              const { entry, count } = displayEntry;
+              const globalIdx = startIdx + i;
+              const isActive = entry.id === activeEntryId;
+              const isSelected = selectedIds.has(entry.id);
+              return (
+                <tr
+                  key={entry.id}
+                  className={`level-${entry.level.toLowerCase()}${isActive ? ' row-active' : ''}${isSelected ? ' row-selected' : ''}`}
+                  onClick={e => handleRowClick(displayEntry, globalIdx, e)}
+                  style={{ cursor: 'pointer' }}
+                >
+                  {colOrder.map(col => renderCell(entry, col, count))}
+                </tr>
+              );
+            })}
             {paddingBottom > 0 && <tr style={{ height: paddingBottom }}><td colSpan={colOrder.length} /></tr>}
           </tbody>
         </table>

@@ -1,6 +1,20 @@
 import { LogEntry } from './parser';
 import { FilterConfig } from './filters';
 
+export interface TimeRange {
+  from: Date | null;
+  to: Date | null;
+}
+
+export interface FilterPreset {
+  id: string;
+  name: string;
+  filters: FilterConfig[];
+  search: { query: string; useRegex: boolean };
+  timeRange: { from: string | null; to: string | null } | null;
+  createdAt: string;
+}
+
 /**
  * Statistics about a collection of log entries
  */
@@ -312,6 +326,49 @@ export function loadSourcesState(): { filter: string; sort: 'name' | 'count' } {
     };
   } catch {
     return { filter: '', sort: 'name' };
+  }
+}
+
+export function saveTimeRange(range: TimeRange | null): void {
+  try {
+    // TODO: Add a gated feature
+    localStorage.setItem(`${STORAGE_PREFIX}time-range`, JSON.stringify(
+      range ? { from: range.from?.toISOString() ?? null, to: range.to?.toISOString() ?? null } : null
+    ));
+  } catch (error) {
+    console.error('Failed to save time range:', error);
+  }
+}
+
+export function loadTimeRange(): TimeRange | null {
+  try {
+    const stored = localStorage.getItem(`${STORAGE_PREFIX}time-range`);
+    if (!stored) return null;
+    const parsed = JSON.parse(stored);
+    if (!parsed) return null;
+    const from = parsed.from ? new Date(parsed.from) : null;
+    const to = parsed.to ? new Date(parsed.to) : null;
+    if (!from && !to) return null;
+    return { from, to };
+  } catch {
+    return null;
+  }
+}
+
+export function saveFilterPresets(presets: FilterPreset[]): void {
+  try {
+    localStorage.setItem(`${STORAGE_PREFIX}presets`, JSON.stringify(presets));
+  } catch (error) {
+    console.error('Failed to save presets:', error);
+  }
+}
+
+export function loadFilterPresets(): FilterPreset[] {
+  try {
+    const stored = localStorage.getItem(`${STORAGE_PREFIX}presets`);
+    return stored ? JSON.parse(stored) : [];
+  } catch {
+    return [];
   }
 }
 

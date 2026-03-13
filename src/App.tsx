@@ -1,7 +1,17 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { LogEntry } from './lib/parser';
 import { FilterConfig, getFilterDecision } from './lib/filters';
-import { loadFilterConfigs, saveFilterConfigs, saveHiddenLevels, loadHiddenLevels, saveHiddenSources, loadHiddenSources, saveSearchState, loadSearchState, savePanelCollapsed, loadPanelCollapsed } from './lib/statistics';
+import {
+  loadFilterConfigs, saveFilterConfigs,
+  saveHiddenLevels, loadHiddenLevels,
+  saveHiddenSources, loadHiddenSources,
+  saveSearchState, loadSearchState,
+  savePanelCollapsed, loadPanelCollapsed,
+  TimeRange, FilterPreset,
+  saveTimeRange, loadTimeRange,
+  saveFilterPresets, loadFilterPresets,
+} from './lib/statistics';
+import { useFeatures } from './lib/FeaturesContext';
 import FileUploader, { RawFile } from './components/FileUploader';
 import FilterPanel from './components/FilterPanel';
 import SearchBar from './components/SearchBar';
@@ -11,6 +21,10 @@ import LevelSelector from './components/LevelSelector';
 import FileSelector from './components/FileSelector';
 import RawFileViewer from './components/RawFileViewer';
 import FeaturesPanel from './components/FeaturesPanel';
+import TimeRangeFilter from './components/TimeRangeFilter';
+import RowDetailPanel from './components/RowDetailPanel';
+import LogDensityHistogram from './components/LogDensityHistogram';
+import PresetsPanel from './components/PresetsPanel';
 
 // import version from package.json (Vite allows direct import)
 import pkg from '../package.json';
@@ -18,6 +32,7 @@ import pkg from '../package.json';
 import './App.css';
 
 function App() {
+  const { features } = useFeatures();
   const [entries, setEntries] = useState<LogEntry[]>([]);
   const [filteredEntries, setFilteredEntries] = useState<LogEntry[]>([]);
   const [filters, setFilters] = useState<FilterConfig[]>(() => loadFilterConfigs());
@@ -53,6 +68,13 @@ function App() {
   const [displaySources, setDisplaySources] = useState<Set<string>>(new Set());
   const [hiddenSources, setHiddenSources] = useState<Set<string>>(() => new Set(loadHiddenSources()));
 
+  // new: time range, row detail, search ref, presets
+  const [timeRange, setTimeRange] = useState<TimeRange | null>(() => loadTimeRange());
+  const [activeEntryId, setActiveEntryId] = useState<string | null>(null);
+  const [detailEntry, setDetailEntry] = useState<LogEntry | null>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  const [presets, setPresets] = useState<FilterPreset[]>(() => loadFilterPresets());
+
   // Save filters whenever they change
   useEffect(() => {
     saveFilterConfigs(filters);
@@ -63,7 +85,17 @@ function App() {
     saveSearchState(searchQuery, useRegexSearch);
   }, [searchQuery, useRegexSearch]);
 
-  // Apply filters, level visibility, and file visibility
+  // Save time range
+  useEffect(() => {
+    saveTimeRange(timeRange);
+  }, [timeRange]);
+
+  // Save presets
+  useEffect(() => {
+    saveFilterPresets(presets);
+  }, [presets]);
+
+  // Apply filters, level visibility, file visibility, and time range
   useEffect(() => {
     let result = entries;
 
@@ -88,8 +120,36 @@ function App() {
     // Apply global source visibility
     result = result.filter(entry => displaySources.has(entry.source));
 
+    // Apply time range (only when feature is enabled)
+    if (features.timeRange && timeRange) {
+      const from = timeRange.from?.getTime();
+      const to = timeRange.to?.getTime();
+      result = result.filter(entry => {
+        const t = entry.timestamp.getTime();
+        return (from === undefined || t >= from) && (to === undefined || t <= to);
+      });
+    }
+
     setFilteredEntries(result);
-  }, [entries, filters, displayLevels, displayFiles, displaySources]);
+  }, [entries, filters, displayLevels, displayFiles, displaySources, timeRange]);
+
+  // Global keyboard shortcuts
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      // '/' focuses search bar (unless already in an input/textarea)
+      if (e.key === '/' && document.activeElement?.tagName !== 'INPUT' && document.activeElement?.tagName !== 'TEXTAREA') {
+        e.preventDefault();
+        searchInputRef.current?.focus();
+      }
+      // Escape closes detail panel
+      if (e.key === 'Escape' && detailEntry) {
+        setDetailEntry(null);
+        setActiveEntryId(null);
+      }
+    };
+    document.addEventListener('keydown', handler);
+    return () => document.removeEventListener('keydown', handler);
+  }, [detailEntry]);
 
   const handleFileUpload = useCallback((uploadedEntries: LogEntry[]) => {
     setEntries(prev => [...prev, ...uploadedEntries]);
@@ -159,7 +219,7 @@ function App() {
     };
 
     const unique = Array.from(new Set(entries.map(e => e.level.toLowerCase()))).sort((a, b) => {
-      const severityA = severityOrder[a] ?? 999; // Unknown levels go to the end
+      const severityA = severityOrder[a] ?? 999;
       const severityB = severityOrder[b] ?? 999;
       return severityA - severityB;
     });
@@ -346,6 +406,81 @@ function App() {
     URL.revokeObjectURL(url);
   }, [entries]);
 
+  // ── Row detail navigation ─────────────────────────────────────────────────────
+  const handleRowClick = useCallback((entry: LogEntry) => {
+    setActiveEntryId(entry.id);
+    setDetailEntry(entry);
+  }, []);
+
+  const detailIdx = detailEntry ? filteredEntries.findIndex(e => e.id === detailEntry.id) : -1;
+  const hasPrev = detailIdx > 0;
+  const hasNext = detailIdx !== -1 && detailIdx < filteredEntries.length - 1;
+
+  const handleDetailPrev = useCallback(() => {
+    if (detailIdx > 0) {
+      const prev = filteredEntries[detailIdx - 1];
+      setDetailEntry(prev);
+      setActiveEntryId(prev.id);
+    }
+  }, [detailIdx, filteredEntries]);
+
+  const handleDetailNext = useCallback(() => {
+    if (detailIdx !== -1 && detailIdx < filteredEntries.length - 1) {
+      const next = filteredEntries[detailIdx + 1];
+      setDetailEntry(next);
+      setActiveEntryId(next.id);
+    }
+  }, [detailIdx, filteredEntries]);
+
+  const handleCloseDetail = useCallback(() => {
+    setDetailEntry(null);
+    setActiveEntryId(null);
+  }, []);
+
+  // ── Convert search to filter ──────────────────────────────────────────────────
+  const handleConvertToFilter = useCallback(() => {
+    if (!searchQuery.trim()) return;
+    const pattern = useRegexSearch
+      ? searchQuery
+      : searchQuery.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const newFilter: FilterConfig = {
+      id: `filter-${Date.now()}`,
+      name: searchQuery.slice(0, 30),
+      enabled: true,
+      includePatterns: [pattern],
+      excludePatterns: [],
+      levelFilters: [],
+      sourceFilters: [],
+      fileFilters: [],
+    };
+    setFilters(prev => [...prev, newFilter]);
+    setSearchQuery('');
+  }, [searchQuery, useRegexSearch]);
+
+  // ── Presets ───────────────────────────────────────────────────────────────────
+  const handleSavePreset = useCallback((name: string) => {
+    const preset: FilterPreset = {
+      id: `preset-${Date.now()}`,
+      name,
+      filters,
+      search: { query: searchQuery, useRegex: useRegexSearch },
+      timeRange: timeRange ? { from: timeRange.from?.toISOString() ?? null, to: timeRange.to?.toISOString() ?? null } : null,
+      createdAt: new Date().toISOString(),
+    };
+    setPresets(prev => [...prev, preset]);
+  }, [filters, searchQuery, useRegexSearch, timeRange]);
+
+  const handleApplyPreset = useCallback((preset: FilterPreset) => {
+    setFilters(preset.filters);
+    setSearchQuery(preset.search.query);
+    setUseRegexSearch(preset.search.useRegex);
+    setTimeRange(preset.timeRange ? { from: preset.timeRange.from ? new Date(preset.timeRange.from) : null, to: preset.timeRange.to ? new Date(preset.timeRange.to) : null } : null);
+  }, []);
+
+  const handleDeletePreset = useCallback((id: string) => {
+    setPresets(prev => prev.filter(p => p.id !== id));
+  }, []);
+
   return (
     <div className="app">
       <header className="app-header">
@@ -357,6 +492,15 @@ function App() {
         <button className="features-toggle-btn" onClick={() => setFeaturesPanelOpen(true)} title="Features">⚙</button>
       </header>
       {featuresPanelOpen && <FeaturesPanel onClose={() => setFeaturesPanelOpen(false)} />}
+
+      <RowDetailPanel
+        entry={detailEntry}
+        onClose={handleCloseDetail}
+        onPrev={handleDetailPrev}
+        onNext={handleDetailNext}
+        hasPrev={hasPrev}
+        hasNext={hasNext}
+      />
 
       <div className="app-container">
         <aside className={`sidebar${sidebarCollapsed ? ' sidebar--collapsed' : ''}`}>
@@ -410,7 +554,12 @@ function App() {
                       onQueryChange={setSearchQuery}
                       useRegex={useRegexSearch}
                       onRegexChange={setUseRegexSearch}
+                      onConvertToFilter={handleConvertToFilter}
+                      inputRef={searchInputRef}
                     />
+                    {features.timeRange && (
+                      <TimeRangeFilter value={timeRange} onChange={setTimeRange} />
+                    )}
                     <FilterPanel
                       filters={filters}
                       onAddFilter={handleAddFilter}
@@ -421,9 +570,27 @@ function App() {
                       onReorderFilter={handleReorderFilter}
                       availableFiles={[...new Set(entries.map(e => e.filename).filter((f): f is string => Boolean(f)))]}
                     />
+                    {features.savedPresets && (
+                      <PresetsPanel
+                        presets={presets}
+                        onApply={handleApplyPreset}
+                        onDelete={handleDeletePreset}
+                        onSaveCurrent={handleSavePreset}
+                      />
+                    )}
                   </>
                 )}
               </div>
+              {/* {features.savedPresets && (
+                <div className="sidebar-section">
+                  <PresetsPanel
+                    presets={presets}
+                    onApply={handleApplyPreset}
+                    onDelete={handleDeletePreset}
+                    onSaveCurrent={handleSavePreset}
+                  />
+                </div>
+              )} */}
             </>
           )}
         </aside>
@@ -481,7 +648,20 @@ function App() {
                 displaySources={displaySources}
                 onSourceChange={handleSourceCheckbox}
               />
-              <LogTable entries={filteredEntries} searchQuery={searchQuery} useRegex={useRegexSearch} />
+              {features.timeRange && (
+                <LogDensityHistogram
+                  entries={filteredEntries}
+                  timeRange={timeRange}
+                  onTimeRangeChange={setTimeRange}
+                />
+              )}
+              <LogTable
+                entries={filteredEntries}
+                searchQuery={searchQuery}
+                useRegex={useRegexSearch}
+                activeEntryId={activeEntryId}
+                onRowClick={handleRowClick}
+              />
             </div>
           ) : (() => {
             const rf = rawFiles.find(f => f.id === activeTab && openTabIds.has(f.id));

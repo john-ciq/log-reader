@@ -1,10 +1,12 @@
-import { useState } from 'react';
+import { useState, RefObject } from 'react';
 
 interface SearchBarProps {
   query: string;
   onQueryChange: (query: string) => void;
   useRegex: boolean;
   onRegexChange: (useRegex: boolean) => void;
+  onConvertToFilter?: () => void;
+  inputRef?: RefObject<HTMLInputElement>;
 }
 
 export default function SearchBar({
@@ -12,6 +14,8 @@ export default function SearchBar({
   onQueryChange,
   useRegex,
   onRegexChange,
+  onConvertToFilter,
+  inputRef,
 }: SearchBarProps) {
   const [error, setError] = useState<string | null>(null);
 
@@ -19,7 +23,6 @@ export default function SearchBar({
     const value = e.target.value;
     onQueryChange(value);
 
-    // Validate regex if regex mode is enabled
     if (useRegex && value.trim()) {
       try {
         new RegExp(value);
@@ -32,16 +35,28 @@ export default function SearchBar({
     }
   };
 
+  const handleClear = () => {
+    onQueryChange('');
+    setError(null);
+    inputRef?.current?.focus();
+  };
+
   return (
     <div className="search-bar">
       <div className="search-input-group">
-        <input
-          type="text"
-          placeholder={useRegex ? "Enter regex pattern..." : "Search logs..."}
-          value={query}
-          onChange={handleChange}
-          className={`search-input ${error ? 'error' : ''}`}
-        />
+        <div className="search-input-wrap">
+          <input
+            ref={inputRef}
+            type="text"
+            placeholder={useRegex ? "Enter regex pattern..." : "Search logs..."}
+            value={query}
+            onChange={handleChange}
+            className={`search-input ${error ? 'error' : ''}`}
+          />
+          {query && (
+            <button className="search-clear-btn" onClick={handleClear} title="Clear search" tabIndex={-1}>✕</button>
+          )}
+        </div>
         <button
           className={`regex-toggle ${useRegex ? 'active' : ''}`}
           onClick={() => onRegexChange(!useRegex)}
@@ -49,6 +64,16 @@ export default function SearchBar({
         >
           .*
         </button>
+        {onConvertToFilter && (
+          <button
+            className="add-filter-btn"
+            onClick={onConvertToFilter}
+            disabled={!query.trim()}
+            title="Add current search as a filter"
+          >
+            + Filter
+          </button>
+        )}
       </div>
       {error && <div className="error-message">{error}</div>}
     </div>
