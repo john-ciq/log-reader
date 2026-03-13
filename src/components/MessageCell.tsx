@@ -150,6 +150,8 @@ export default function MessageCell({ message, searchQuery = '', useRegex = fals
 
   if (extraction) {
     const { before, json, after } = extraction;
+    const jsonStr = JSON.stringify(json);
+    const jsonPreview = jsonStr.length > 35 ? jsonStr.slice(0, 35) + '…' : jsonStr;
     return (
       <div className="message-json" onClick={collapseOnDoubleClick}>
         {before && <span className="json-before">{highlightText(before, searchQuery, useRegex)}</span>}
@@ -160,6 +162,7 @@ export default function MessageCell({ message, searchQuery = '', useRegex = fals
         >
           {jsonExpanded ? '▼' : '▶'}
         </button>
+        {!jsonExpanded && <span className="json-preview">{jsonPreview}</span>}
         {after && <span className="json-after">{highlightText(after, searchQuery, useRegex)}</span>}
         {jsonExpanded && <div className="json-tree"><JsonTree data={json} /></div>}
         {isLong && (

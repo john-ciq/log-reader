@@ -209,6 +209,7 @@ html, body {
   line-height: 1;
   text-align: center;
   transition: background 0.15s, color 0.15s;
+  min-width: 2rem;
 }
 
 .sidebar-toggle-btn:hover {
@@ -407,6 +408,13 @@ html, body {
   font-size: 0.9rem;
   line-height: 1;
   padding: 0 4px;
+}
+
+.json-preview {
+  font-family: 'Monaco', 'Courier New', monospace;
+  font-size: 0.8em;
+  color: var(--text-muted);
+  margin-left: 4px;
 }
 
 .message-ellipsis {
