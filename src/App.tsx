@@ -481,6 +481,10 @@ function App() {
     setPresets(prev => prev.filter(p => p.id !== id));
   }, []);
 
+  const handleImportPresets = useCallback((imported: FilterPreset[]) => {
+    setPresets(imported);
+  }, []);
+
   return (
     <div className="app">
       <header className="app-header">
@@ -576,6 +580,7 @@ function App() {
                         onApply={handleApplyPreset}
                         onDelete={handleDeletePreset}
                         onSaveCurrent={handleSavePreset}
+                        onImport={handleImportPresets}
                       />
                     )}
                   </>
@@ -625,7 +630,7 @@ function App() {
                   });
                 }}
               >
-                {rf.name.length > 24 ? `${rf.name.slice(0, 21)}…` : rf.name}
+                {rf.name.length > 20 ? `${rf.name.slice(0, 17)}…` : rf.name}
                 <span
                   className="tab-close"
                   onClick={e => { e.stopPropagation(); handleCloseTab(rf.id); }}

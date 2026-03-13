@@ -155,7 +155,22 @@ export default function FileUploader({ onUpload, onRawFiles }: FileUploaderProps
       <h3 className="collapsible-heading" onClick={() => setCollapsed(c => { savePanelCollapsed('uploader', !c); return !c; })}>
         <span className="collapse-arrow">{collapsed ? '▶' : '▼'}</span>
         📁 Upload Log File(s)
+        <button
+          className="uploader-browse-btn"
+          onClick={e => { e.stopPropagation(); handleClick(); }}
+          disabled={loading}
+        >Browse</button>
       </h3>
+
+      <input
+        ref={fileInputRef}
+        type="file"
+        onChange={handleFileSelect}
+        disabled={loading}
+        className="file-input"
+        accept=".log,.txt,.zip,.json"
+        multiple
+      />
 
       {!collapsed && (
         <>
@@ -166,15 +181,6 @@ export default function FileUploader({ onUpload, onRawFiles }: FileUploaderProps
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
           >
-            <input
-              ref={fileInputRef}
-              type="file"
-              onChange={handleFileSelect}
-              disabled={loading}
-              className="file-input"
-              accept=".log,.txt,.zip,.json"
-              multiple
-            />
 
             {loading ? (
               <p className="upload-text">Loading...</p>

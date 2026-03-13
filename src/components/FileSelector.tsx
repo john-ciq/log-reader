@@ -20,7 +20,7 @@ export default function FileSelector({ files, selected, onChange, onRemove, onOp
         <span className="collapse-arrow">{collapsed ? '▶' : '▼'}</span>
         Log Files
       </h3>
-      {!collapsed && files.length === 0 && <p className="empty-message">No files loaded yet</p>}
+      {!collapsed && files.length === 0 && <p className="empty-message no-padding">No files loaded yet</p>}
       {!collapsed && files.map(file => (
         <div key={file} className="file-row">
           <label className="file-checkbox">

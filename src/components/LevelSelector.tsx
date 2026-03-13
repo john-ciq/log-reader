@@ -18,7 +18,7 @@ export default function LevelSelector({ levels, selected, onChange }: LevelSelec
       </h3>
       {!collapsed && (
         <>
-          {levels.length === 0 && <p className="empty-message">No levels detected yet</p>}
+          {levels.length === 0 && <p className="empty-message no-padding">No levels detected yet</p>}
           {levels.map(level => (
             <label key={level} className="level-checkbox">
               <input

@@ -243,6 +243,31 @@ html, body {
   gap: 0.75rem;
 }
 
+.features-panel-footer {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  border-top: 1px solid var(--border);
+}
+
+.features-io-btn {
+  flex: 1;
+  padding: 0.6rem 1.2rem;
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.features-io-btn:hover {
+  background: var(--primary-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
 .feature-row {
   display: flex;
   align-items: flex-start;
@@ -409,6 +434,29 @@ html, body {
   opacity: 0.6;
 }
 
+.uploader-browse-btn {
+  margin-left: auto;
+  padding: 0.6rem 1.2rem;
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.uploader-browse-btn:hover:not(:disabled) {
+  background: var(--primary-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.uploader-browse-btn:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
 /* File Uploader */
 .file-uploader {
   background: var(--bg-secondary);
@@ -515,7 +563,7 @@ html, body {
 
 .search-input {
   flex: 1;
-  padding: 0.85rem 1rem;
+  padding: calc(0.6rem - 2px) 1rem;
   border: 2px solid var(--border);
   border-radius: 8px;
   background: var(--bg-tertiary);
@@ -608,7 +656,7 @@ html, body {
 }
 
 .regex-toggle {
-  padding: 0.85rem 1.25rem;
+  padding: calc(0.6rem - 2px) 1.25rem;
   border: 2px solid var(--border);
   border-radius: 8px;
   background: var(--bg-tertiary);
@@ -1258,8 +1306,8 @@ html, body {
 }
 
 .source-sort-btn {
-  padding: 0.3rem 0.5rem;
-  font-size: 0.75rem;
+  padding: calc(0.6rem - 1px) 0.6rem;
+  font-size: 0.875rem;
   background: var(--bg-secondary);
   border: 1px solid var(--border);
   border-radius: 4px;
@@ -1281,13 +1329,13 @@ html, body {
 
 .source-filter-input {
   width: 100%;
-  padding: 0.4rem 0.6rem;
+  padding: calc(0.6rem - 1px) 0.6rem;
   margin-bottom: 0.5rem;
   background: var(--bg-tertiary);
   border: 1px solid var(--border);
   border-radius: 6px;
   color: var(--text-primary);
-  font-size: 0.85rem;
+  font-size: 0.875rem;
   box-sizing: border-box;
 }
 
@@ -1942,6 +1990,9 @@ tbody tr:last-child td {
   flex-direction: column;
   align-items: center;
   justify-content: center;
+}
+.empty-message.no-padding {
+  padding: 0;
 }
 
 .empty-message svg {

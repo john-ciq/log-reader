@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { FilterPreset } from '../lib/statistics';
 
 interface PresetsPanelProps {
@@ -6,11 +6,40 @@ interface PresetsPanelProps {
   onApply: (preset: FilterPreset) => void;
   onDelete: (id: string) => void;
   onSaveCurrent: (name: string) => void;
+  onImport: (presets: FilterPreset[]) => void;
 }
 
-export default function PresetsPanel({ presets, onApply, onDelete, onSaveCurrent }: PresetsPanelProps) {
+export default function PresetsPanel({ presets, onApply, onDelete, onSaveCurrent, onImport }: PresetsPanelProps) {
   const [saving, setSaving] = useState(false);
   const [name, setName] = useState('');
+  const importInputRef = useRef<HTMLInputElement>(null);
+
+  const handleExport = () => {
+    const blob = new Blob([JSON.stringify(presets, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'log-reader-presets.json';
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleImportFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const data = JSON.parse(reader.result as string) as FilterPreset[];
+        if (!Array.isArray(data)) throw new Error('Not an array');
+        onImport(data);
+      } catch {
+        alert('Failed to import presets: invalid file.');
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = '';
+  };
 
   const handleSave = () => {
     const trimmed = name.trim();
@@ -23,8 +52,13 @@ export default function PresetsPanel({ presets, onApply, onDelete, onSaveCurrent
   return (
     <div className="presets-panel">
       <div className="presets-header">
-        <h4>Filter Presets</h4>
-        <button className="add-filter-btn" onClick={() => setSaving(s => !s)} title="Save current configuration as preset">+ Save</button>
+        <h4>📁 Filter Presets</h4>
+        <div className="filter-config-actions">
+          <input ref={importInputRef} type="file" accept=".json" style={{ display: 'none' }} onChange={handleImportFile} />
+          <button className="config-action-btn" onClick={handleExport}>⬇ Export</button>
+          <button className="config-action-btn" onClick={() => importInputRef.current?.click()}>⬆ Import</button>
+          <button className="config-action-btn" onClick={() => setSaving(s => !s)} title="Save current configuration as preset">Save</button>
+        </div>
       </div>
 
       {saving && (

@@ -1,6 +1,6 @@
 const STORAGE_KEY = 'log-reader-features';
 
-export type FeatureKey = 'autoSizeColumns' | 'advancedFilters' | 'deduplication' | 'savedPresets' | 'timeRange';
+export type FeatureKey = 'autoSizeColumns' | 'advancedFilters' | 'deduplication' | 'savedPresets' | 'timeRange' | 'importExportStorage';
 
 export interface FeatureDefinition {
   defaultValue: boolean;
@@ -32,6 +32,11 @@ export const featureDefinitions: Record<FeatureKey, FeatureDefinition> = {
   timeRange: {
     defaultValue: true,
     description: 'Show a Time Range filter and a log density histogram above the table',
+    visible: true,
+  },
+  importExportStorage: {
+    defaultValue: false,
+    description: 'Allow import and export of all settings to share with others or across devices',
     visible: true,
   },
 };
