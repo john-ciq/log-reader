@@ -2,7 +2,7 @@ import { useState, useMemo, useRef, useEffect, useLayoutEffect, ReactNode } from
 import { LogEntry } from '../lib/parser';
 import MessageCell from './MessageCell';
 import { saveSortPreference, loadSortPreference, saveColumnPreferences, loadColumnPreferences } from '../lib/statistics';
-import features from '../lib/features';
+import { useFeatures } from '../lib/FeaturesContext';
 
 interface LogTableProps {
   entries: LogEntry[];
@@ -54,6 +54,7 @@ const COL_LABELS: Record<SortColumn, string> = {
 };
 
 export default function LogTable({ entries, searchQuery = '', useRegex = false }: LogTableProps) {
+  const { features } = useFeatures();
   const saved = loadSortPreference();
   const [sortColumn, setSortColumn] = useState<SortColumn>(
     (saved?.column as SortColumn) || 'timestamp'

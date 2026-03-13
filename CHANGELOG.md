@@ -2,6 +2,20 @@
 
 All notable changes to the Log Reader project will be documented in this file.
 
+## [1.0.51] - 2026-03-12
+
+### Added
+- Feature flags panel — click the ⚙ button in the top-right of the header to open a modal where features can be toggled on or off at runtime without editing code; selections persist across page loads via localStorage
+- **autoSizeColumns** feature flag — auto-sizes the Timestamp and Level columns to fit their content on load (default: off)
+- **advancedFilters** feature flag — shows the "Log Levels" and "Log Files" filter sections in the filter panel (default: off)
+- Logging Sources sort order — sources can now be sorted alphabetically (A–Z) or by count (#); the chosen sort persists across page loads
+- Collapse state of the Summary, Log Levels, and Logging Sources statistics panels now persists across page loads
+- Source filter text and sort order in the Logging Sources panel now persists across page loads
+- Collapsed table columns now persist across page loads
+
+### Changed
+- Source labels in the Logging Sources panel are truncated at 35 characters; the full name is shown as a tooltip on hover
+
 ## [1.0.50] - 2026-03-12
 
 ### Added

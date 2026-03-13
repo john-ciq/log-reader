@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react';
 import { FilterConfig } from '../lib/filters';
 import { saveExpandedFilters, loadExpandedFilters } from '../lib/statistics';
-import features from '../lib/features';
+import { useFeatures } from '../lib/FeaturesContext';
 
 interface FilterPanelProps {
   filters: FilterConfig[];
@@ -24,6 +24,7 @@ export default function FilterPanel({
   onReorderFilter,
   availableFiles,
 }: FilterPanelProps) {
+  const { features } = useFeatures();
   const [expandedFilters, setExpandedFilters] = useState<Set<string>>(() => new Set(loadExpandedFilters()));
   const [patternErrors, setPatternErrors] = useState<Record<string, string>>({});
   const [dragOverId, setDragOverId] = useState<string | null>(null);

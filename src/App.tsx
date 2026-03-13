@@ -10,6 +10,7 @@ import StatisticsPanel from './components/StatisticsPanel';
 import LevelSelector from './components/LevelSelector';
 import FileSelector from './components/FileSelector';
 import RawFileViewer from './components/RawFileViewer';
+import FeaturesPanel from './components/FeaturesPanel';
 
 // import version from package.json (Vite allows direct import)
 import pkg from '../package.json';
@@ -45,6 +46,7 @@ function App() {
   const dragTabId = useRef<string | null>(null);
   const dragSubTabId = useRef<string | null>(null);
   const importConfigRef = useRef<HTMLInputElement>(null);
+  const [featuresPanelOpen, setFeaturesPanelOpen] = useState(false);
 
   // source visibility controls
   const [availableSources, setAvailableSources] = useState<string[]>([]);
@@ -348,11 +350,13 @@ function App() {
     <div className="app">
       <header className="app-header">
         <div className="header-title">
-        <h1>📋 Full View</h1>
-        <span className="app-version">v{pkg.version}</span>
-      </div>
-      <p>Parse, filter, and analyze log files with ease</p>
+          <h1>📋 Full View</h1>
+          <span className="app-version">v{pkg.version}</span>
+        </div>
+        <p>Parse, filter, and analyze log files with ease</p>
+        <button className="features-toggle-btn" onClick={() => setFeaturesPanelOpen(true)} title="Features">⚙</button>
       </header>
+      {featuresPanelOpen && <FeaturesPanel onClose={() => setFeaturesPanelOpen(false)} />}
 
       <div className="app-container">
         <aside className={`sidebar${sidebarCollapsed ? ' sidebar--collapsed' : ''}`}>
