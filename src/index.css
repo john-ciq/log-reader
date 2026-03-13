@@ -179,7 +179,7 @@ html, body {
 }
 
 .sidebar {
-  width: 340px;
+  width: 420px;
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
@@ -187,6 +187,7 @@ html, body {
   max-height: 100%;
   overflow-y: auto;
   transition: width 0.2s ease;
+  padding-right: 2rem;
 }
 
 .sidebar--collapsed {
@@ -257,6 +258,29 @@ html, body {
   display: flex;
   align-items: center;
   gap: 0.4rem;
+}
+
+.filter-config-actions {
+  margin-left: auto;
+  display: flex;
+  gap: 0.3rem;
+}
+
+.config-action-btn {
+  background: none;
+  border: 1px solid var(--border-light);
+  border-radius: 4px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 0.7rem;
+  padding: 0.1rem 0.4rem;
+  white-space: nowrap;
+  transition: background 0.15s, color 0.15s;
+}
+
+.config-action-btn:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
 }
 
 .collapsible-heading:hover {
