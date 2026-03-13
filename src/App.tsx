@@ -44,6 +44,7 @@ function App() {
   const [subTabOrders, setSubTabOrders] = useState<Record<string, string[]>>({});
   const dragTabId = useRef<string | null>(null);
   const dragSubTabId = useRef<string | null>(null);
+  const importConfigRef = useRef<HTMLInputElement>(null);
 
   // source visibility controls
   const [availableSources, setAvailableSources] = useState<string[]>([]);
@@ -284,6 +285,43 @@ function App() {
     });
   }, [filters]);
 
+  const handleExportConfig = useCallback(() => {
+    const config = {
+      version: 1,
+      filters,
+      search: { query: searchQuery, useRegex: useRegexSearch },
+    };
+    const blob = new Blob([JSON.stringify(config, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `full-view-config-${new Date().toISOString().split('T')[0]}.json`;
+    link.click();
+    URL.revokeObjectURL(url);
+  }, [filters, searchQuery, useRegexSearch]);
+
+  const handleImportConfig = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      try {
+        const config = JSON.parse(ev.target?.result as string);
+        if (config.filters && Array.isArray(config.filters)) {
+          setFilters(config.filters.map((f: FilterConfig) => ({ ...f, enabled: f.enabled ?? true })));
+        }
+        if (config.search) {
+          setSearchQuery(config.search.query ?? '');
+          setUseRegexSearch(config.search.useRegex ?? false);
+        }
+      } catch {
+        alert('Failed to import config: invalid JSON file.');
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = '';
+  }, []);
+
   const handleExportJSON = useCallback(() => {
     const dataStr = JSON.stringify(filteredEntries, null, 2);
     const dataBlob = new Blob([dataStr], { type: 'application/json' });
@@ -355,6 +393,11 @@ function App() {
                 <h3 className="collapsible-heading" onClick={() => setFiltersCollapsed(c => { savePanelCollapsed('filters', !c); return !c; })}>
                   <span className="collapse-arrow">{filtersCollapsed ? '▶' : '▼'}</span>
                   Filters & Search
+                  <span className="filter-config-actions" onClick={e => e.stopPropagation()}>
+                    <button className="config-action-btn" title="Export filters & search config" onClick={handleExportConfig}>⬇ Export</button>
+                    <button className="config-action-btn" title="Import filters & search config" onClick={() => importConfigRef.current?.click()}>⬆ Import</button>
+                    <input ref={importConfigRef} type="file" accept=".json" style={{ display: 'none' }} onChange={handleImportConfig} />
+                  </span>
                 </h3>
                 {!filtersCollapsed && (
                   <>
