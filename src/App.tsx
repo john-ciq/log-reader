@@ -481,6 +481,15 @@ function App() {
     setPresets(prev => prev.filter(p => p.id !== id));
   }, []);
 
+  const handleUpdatePreset = useCallback((id: string) => {
+    setPresets(prev => prev.map(p => p.id !== id ? p : {
+      ...p,
+      filters,
+      search: { query: searchQuery, useRegex: useRegexSearch },
+      timeRange: timeRange ? { from: timeRange.from?.toISOString() ?? null, to: timeRange.to?.toISOString() ?? null } : null,
+    }));
+  }, [filters, searchQuery, useRegexSearch, timeRange]);
+
   const handleImportPresets = useCallback((imported: FilterPreset[]) => {
     setPresets(imported);
   }, []);
@@ -579,6 +588,7 @@ function App() {
                         onApply={handleApplyPreset}
                         onDelete={handleDeletePreset}
                         onSaveCurrent={handleSavePreset}
+                        onUpdate={handleUpdatePreset}
                         onImport={handleImportPresets}
                       />
                     )}

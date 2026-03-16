@@ -6,10 +6,11 @@ interface PresetsPanelProps {
   onApply: (preset: FilterPreset) => void;
   onDelete: (id: string) => void;
   onSaveCurrent: (name: string) => void;
+  onUpdate: (id: string) => void;
   onImport: (presets: FilterPreset[]) => void;
 }
 
-export default function PresetsPanel({ presets, onApply, onDelete, onSaveCurrent, onImport }: PresetsPanelProps) {
+export default function PresetsPanel({ presets, onApply, onDelete, onSaveCurrent, onUpdate, onImport }: PresetsPanelProps) {
   const [saving, setSaving] = useState(false);
   const [name, setName] = useState('');
   const importInputRef = useRef<HTMLInputElement>(null);
@@ -89,6 +90,7 @@ export default function PresetsPanel({ presets, onApply, onDelete, onSaveCurrent
               <span className="preset-meta">
                 {new Date(preset.createdAt).toLocaleDateString()}
               </span>
+              <button className="config-action-btn" onClick={() => onUpdate(preset.id)} title="Overwrite preset with current filters">Update</button>
               <button className="preset-delete-btn" onClick={() => onDelete(preset.id)} title="Delete preset">✕</button>
             </li>
           ))}
