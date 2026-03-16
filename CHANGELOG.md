@@ -2,6 +2,14 @@
 
 All notable changes to the Log Reader project will be documented in this file.
 
+## [1.0.55] - 2026-03-16
+
+### Added
+- **Refresh prompt after settings reset** — after clicking Reset in the settings panel and confirming, the user is prompted to reload the page so all changes take effect immediately
+
+### Changed
+- **Reset confirmation dialog** — replaced native browser `confirm()` with a styled in-app dialog that matches the UI theme
+
 ## [10.054] - 2026-03-16
 
 ### Added
