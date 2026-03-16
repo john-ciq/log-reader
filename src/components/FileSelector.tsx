@@ -34,7 +34,9 @@ export default function FileSelector({ files, selected, onChange, onRemove, onOp
               {counts[file] != null && (
                 <span className="parser-name">{counts[file].toLocaleString()} entries</span>
               )}
-              <span className="parser-name">{parsers[file] ?? 'no parser found'}</span>
+              <span className={`parser-name${parsers[file] ? '' : ' parser-name--missing'}`}>
+                {parsers[file] ?? 'no parser found'}
+              </span>
             </span>
           </label>
           {onOpenRaw && (

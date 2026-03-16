@@ -2097,6 +2097,10 @@ tbody tr:last-child td {
   text-overflow: ellipsis;
 }
 
+.parser-name--missing {
+  color: var(--error);
+}
+
 /* file column (was source) */
 .file-cell {
   font-weight: 600;
