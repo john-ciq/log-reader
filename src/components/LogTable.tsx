@@ -111,7 +111,7 @@ export default function LogTable({
   const draggingCol = useRef<SortColumn | null>(null);
 
   // ── Virtual scroll ───────────────────────────────────────────────────────────
-  const ROW_HEIGHT = 36;
+  const ROW_HEIGHT = 28;
   const OVERSCAN = 15;
   const [scrollEl, setScrollEl] = useState<HTMLDivElement | null>(null);
   const [scrollTop, setScrollTop] = useState(0);

@@ -1882,7 +1882,7 @@ html, body {
 table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.9rem;
+  font-size: 0.8rem;
 }
 
 thead {
@@ -1984,7 +1984,7 @@ th.sortable:hover {
 }
 
 td {
-  padding: 0.875rem 1.25rem;
+  padding: 0.25rem 0.6rem;
   border-bottom: 1px solid var(--border);
 }
 
