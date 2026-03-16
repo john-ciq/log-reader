@@ -205,7 +205,7 @@ export default function StatisticsPanel({
                         type="checkbox"
                         checked={displaySources.has(source)}
                         onChange={e => onSourceChange(source, e.target.checked)}
-                        style={{ accentColor: 'var(--primary)', width: 14, height: 14, flexShrink: 0 }}
+                        className="app-checkbox"
                       />
                       {source.length > 35 ? source.slice(0, 35) + '…' : source}
                     </span>

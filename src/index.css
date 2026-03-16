@@ -135,11 +135,56 @@ html, body {
   cursor: pointer;
 }
 
-.level-checkbox input {
-  accent-color: var(--primary);
-  width: 16px;
-  height: 16px;
+/* Shared custom checkbox style — matches the filters panel */
+.app-checkbox,
+.level-checkbox input[type="checkbox"],
+.feature-row input[type="checkbox"],
+.file-checkbox input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--border-light);
+  border-radius: 4px;
+  background: var(--bg-tertiary);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.15s, border-color 0.15s;
+  position: relative;
+  margin: 0;
 }
+
+.app-checkbox:hover,
+.level-checkbox input[type="checkbox"]:hover,
+.feature-row input[type="checkbox"]:hover,
+.file-checkbox input[type="checkbox"]:hover {
+  border-color: var(--primary);
+}
+
+.app-checkbox:checked,
+.level-checkbox input[type="checkbox"]:checked,
+.feature-row input[type="checkbox"]:checked,
+.file-checkbox input[type="checkbox"]:checked {
+  background: var(--primary);
+  border-color: var(--primary);
+}
+
+.app-checkbox:checked::after,
+.level-checkbox input[type="checkbox"]:checked::after,
+.feature-row input[type="checkbox"]:checked::after,
+.file-checkbox input[type="checkbox"]:checked::after {
+  content: '';
+  position: absolute;
+  left: 4px;
+  top: 1px;
+  width: 5px;
+  height: 9px;
+  border: 2px solid #fff;
+  border-top: none;
+  border-left: none;
+  transform: rotate(45deg);
+}
+
 
 /* App Layout */
 .app {
@@ -349,10 +394,6 @@ html, body {
 
 .feature-row input[type="checkbox"] {
   margin-top: 2px;
-  flex-shrink: 0;
-  accent-color: var(--primary);
-  width: 14px;
-  height: 14px;
 }
 
 .app-header h1 {
@@ -1994,11 +2035,7 @@ tbody tr:last-child td {
 }
 
 .file-checkbox input {
-  accent-color: var(--primary);
-  width: 16px;
-  height: 16px;
   margin-top: 2px;
-  flex-shrink: 0;
 }
 
 .file-checkbox-label {
