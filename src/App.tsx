@@ -67,7 +67,7 @@ function App() {
   // Split pane
   const [splitPct, setSplitPct] = useState(() => {
     const saved = localStorage.getItem('splitPct');
-    return saved ? parseFloat(saved) : 35;
+    return saved ? parseFloat(saved) : 50;
   });
   const splitDragging = useRef(false);
   const splitContainerRef = useRef<HTMLDivElement>(null);
