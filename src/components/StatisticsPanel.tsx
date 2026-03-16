@@ -41,6 +41,10 @@ export default function StatisticsPanel({
 
   const { features } = useFeatures();
   const stats = useMemo(() => calculateStatistics(entries), [entries]);
+  const maxSourceCount = useMemo(() => {
+    const counts = Object.values(stats.sourceCounts);
+    return counts.length > 0 ? Math.max(...counts) : 1;
+  }, [stats.sourceCounts]);
 
   const getLevelColor = (level: string): string => {
     const colors: Record<string, string> = {
@@ -225,7 +229,7 @@ export default function StatisticsPanel({
                       <span
                         className="stats-bar"
                         style={{
-                          width: `${stats.totalEntries > 0 ? (count / stats.totalEntries) * 100 : 0}%`,
+                          width: `${(count / maxSourceCount) * 100}%`,
                           backgroundColor: '#4CAF50',
                         }}
                       />

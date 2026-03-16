@@ -1519,6 +1519,10 @@ html, body {
   border-radius: 0 6px 6px 0;
 }
 
+.stats-breakdown--scrollable .stats-row > .stats-bar-container {
+  padding: 0 0.5rem;
+}
+
 .source-controls {
   display: flex;
   gap: 0.4rem;
