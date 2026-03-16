@@ -63,6 +63,33 @@ function App() {
   const importConfigRef = useRef<HTMLInputElement>(null);
   const [featuresPanelOpen, setFeaturesPanelOpen] = useState(false);
 
+  // Split pane
+  const [splitPct, setSplitPct] = useState(() => {
+    const saved = localStorage.getItem('splitPct');
+    return saved ? parseFloat(saved) : 35;
+  });
+  const splitDragging = useRef(false);
+  const splitContainerRef = useRef<HTMLDivElement>(null);
+
+  const handleSplitMouseDown = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    splitDragging.current = true;
+    const onMove = (ev: MouseEvent) => {
+      if (!splitDragging.current || !splitContainerRef.current) return;
+      const rect = splitContainerRef.current.getBoundingClientRect();
+      const pct = Math.min(80, Math.max(10, ((ev.clientY - rect.top) / rect.height) * 100));
+      setSplitPct(pct);
+      localStorage.setItem('splitPct', String(pct));
+    };
+    const onUp = () => {
+      splitDragging.current = false;
+      window.removeEventListener('mousemove', onMove);
+      window.removeEventListener('mouseup', onUp);
+    };
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('mouseup', onUp);
+  }, []);
+
   // source visibility controls
   const [availableSources, setAvailableSources] = useState<string[]>([]);
   const [displaySources, setDisplaySources] = useState<Set<string>>(new Set());
@@ -652,30 +679,35 @@ function App() {
           </div>
 
           {activeTab === 'viewer' ? (
-            <div className="tab-content">
-              <StatisticsPanel
-                entries={filteredEntries}
-                totalEntries={entries.length}
-                onExport={handleExportJSON}
-                onExportAll={handleExportAllJSON}
-                availableSources={availableSources}
-                displaySources={displaySources}
-                onSourceChange={handleSourceCheckbox}
-              />
-              {features.timeRange && (
-                <LogDensityHistogram
+            <div className="split-pane" ref={splitContainerRef}>
+              <div className="split-pane__top" style={{ height: `${splitPct}%` }}>
+                <StatisticsPanel
                   entries={filteredEntries}
-                  timeRange={timeRange}
-                  onTimeRangeChange={setTimeRange}
+                  totalEntries={entries.length}
+                  onExport={handleExportJSON}
+                  onExportAll={handleExportAllJSON}
+                  availableSources={availableSources}
+                  displaySources={displaySources}
+                  onSourceChange={handleSourceCheckbox}
                 />
-              )}
-              <LogTable
-                entries={filteredEntries}
-                searchQuery={searchQuery}
-                useRegex={useRegexSearch}
-                activeEntryId={activeEntryId}
-                onRowClick={handleRowClick}
-              />
+              </div>
+              <div className="split-pane__divider" onMouseDown={handleSplitMouseDown} />
+              <div className="split-pane__bottom">
+                {features.timeRange && (
+                  <LogDensityHistogram
+                    entries={filteredEntries}
+                    timeRange={timeRange}
+                    onTimeRangeChange={setTimeRange}
+                  />
+                )}
+                <LogTable
+                  entries={filteredEntries}
+                  searchQuery={searchQuery}
+                  useRegex={useRegexSearch}
+                  activeEntryId={activeEntryId}
+                  onRowClick={handleRowClick}
+                />
+              </div>
             </div>
           ) : (() => {
             const rf = rawFiles.find(f => f.id === activeTab && openTabIds.has(f.id));
