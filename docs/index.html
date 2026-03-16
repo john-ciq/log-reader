@@ -5,8 +5,14 @@
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Full View</title>
-    <script type="module" crossorigin src="./assets/index-Cipp3hBp.js"></script>
-    <link rel="stylesheet" crossorigin href="./assets/index-Cixk-DTg.css">
+    <script>
+      (function() {
+        var t = localStorage.getItem('log-reader-theme');
+        document.documentElement.setAttribute('data-theme', t === 'dark' || t === 'light' ? t : 'system');
+      })();
+    </script>
+    <script type="module" crossorigin src="./assets/index-BujRRhJx.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-DoFsOw8T.css">
   </head>
   <body>
     <div id="root"></div>
