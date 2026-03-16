@@ -27,6 +27,7 @@ export default function FeaturesPanel({ onClose }: FeaturesPanelProps) {
   const { features, setFeature, resetFeatures } = useFeatures();
   const importInputRef = useRef<HTMLInputElement>(null);
   const [theme, setThemeState] = useState<Theme>(loadTheme);
+  const [showRefreshConfirm, setShowRefreshConfirm] = useState(false);
 
   const handleThemeChange = (t: Theme) => {
     setThemeState(t);
@@ -58,11 +59,23 @@ export default function FeaturesPanel({ onClose }: FeaturesPanelProps) {
   };
 
   return (
+    <>
+    {showRefreshConfirm && (
+      <div className="confirm-dialog-overlay">
+        <div className="confirm-dialog">
+          <p className="confirm-dialog-message">Settings have been reset. Refresh the page to apply all changes?</p>
+          <div className="confirm-dialog-actions">
+            <button className="confirm-dialog-btn confirm-dialog-btn--secondary" onClick={() => setShowRefreshConfirm(false)}>Later</button>
+            <button className="confirm-dialog-btn confirm-dialog-btn--primary" onClick={() => window.location.reload()}>Refresh now</button>
+          </div>
+        </div>
+      </div>
+    )}
     <div className="features-panel-overlay" onClick={onClose}>
       <div className="features-panel" onClick={e => e.stopPropagation()}>
         <div className="features-panel-header">
           <h3>Features</h3>
-          <button className="features-panel-reset" onClick={resetFeatures}>Reset</button>
+          <button className="features-panel-reset" onClick={() => { resetFeatures(); setShowRefreshConfirm(true); }}>Reset</button>
           <button className="features-panel-close" onClick={onClose}>✕</button>
         </div>
         <div className="features-panel-body">
@@ -100,5 +113,6 @@ export default function FeaturesPanel({ onClose }: FeaturesPanelProps) {
         )}
       </div>
     </div>
+    </>
   );
 }
