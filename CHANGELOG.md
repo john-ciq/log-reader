@@ -2,6 +2,12 @@
 
 All notable changes to the Log Reader project will be documented in this file.
 
+## [1.0.57] - 2026-03-16
+
+### Fixed
+- **Log source bars** — bar widths are now normalized to the busiest source so the chart always has a full-width reference bar; previously bars were divided by total entry count making them very narrow when many sources were present
+- **Source bar height in scrollable mode** — removed excess vertical padding from the bar container in the scrollable sources grid so bars render at the correct `14px` height
+
 ## [1.0.56] - 2026-03-16
 
 ### Added
