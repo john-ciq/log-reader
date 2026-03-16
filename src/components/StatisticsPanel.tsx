@@ -30,6 +30,14 @@ export default function StatisticsPanel({
   });
   const [sourceFilter, setSourceFilter] = useState(() => loadSourcesState().filter);
   const [sourceSort, setSourceSort] = useState<'name' | 'count'>(() => loadSourcesState().sort);
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>(() => loadSourcesState().dir);
+
+  const handleSortClick = (key: 'name' | 'count') => {
+    const newDir = sourceSort === key && sortDir === 'asc' ? 'desc' : 'asc';
+    setSourceSort(key);
+    setSortDir(newDir);
+    saveSourcesState(sourceFilter, key, newDir);
+  };
 
   const { features } = useFeatures();
   const stats = useMemo(() => calculateStatistics(entries), [entries]);
@@ -173,31 +181,33 @@ export default function StatisticsPanel({
             <input
               type="text"
               value={sourceFilter}
-              onChange={e => { setSourceFilter(e.target.value); saveSourcesState(e.target.value, sourceSort); }}
+              onChange={e => { setSourceFilter(e.target.value); saveSourcesState(e.target.value, sourceSort, sortDir); }}
               placeholder="Filter sources…"
               className="source-filter-input"
             />
             <div className="source-sort-btns">
               <button
                 className={`source-sort-btn${sourceSort === 'name' ? ' active' : ''}`}
-                onClick={() => { setSourceSort('name'); saveSourcesState(sourceFilter, 'name'); }}
-                title="Sort by name"
-              >A–Z</button>
+                onClick={() => handleSortClick('name')}
+                title={`Sort by name${sourceSort === 'name' ? (sortDir === 'asc' ? ' (A→Z)' : ' (Z→A)') : ''}`}
+              >{sourceSort === 'name' ? (sortDir === 'asc' ? 'A↓Z' : 'Z↓A') : 'A–Z'}</button>
               <button
                 className={`source-sort-btn${sourceSort === 'count' ? ' active' : ''}`}
-                onClick={() => { setSourceSort('count'); saveSourcesState(sourceFilter, 'count'); }}
-                title="Sort by count"
-              >#</button>
+                onClick={() => handleSortClick('count')}
+                title={`Sort by count${sourceSort === 'count' ? (sortDir === 'asc' ? ' (low→high)' : ' (high→low)') : ''}`}
+              >{sourceSort === 'count' ? (sortDir === 'asc' ? '#↑' : '#↓') : '#'}</button>
             </div>
           </div>
           <div className={`stats-breakdown${features.scrollLogSources ? ' stats-breakdown--scrollable' : ''}`}>
             {availableSources
               .slice()
               .filter(s => s.toLowerCase().includes(sourceFilter.toLowerCase()))
-              .sort((a, b) => sourceSort === 'name'
-                ? a.toLowerCase().localeCompare(b.toLowerCase())
-                : (stats.sourceCounts[b] ?? 0) - (stats.sourceCounts[a] ?? 0)
-              )
+              .sort((a, b) => {
+                const asc = sortDir === 'asc' ? 1 : -1;
+                return sourceSort === 'name'
+                  ? asc * a.toLowerCase().localeCompare(b.toLowerCase())
+                  : asc * ((stats.sourceCounts[a] ?? 0) - (stats.sourceCounts[b] ?? 0));
+              })
               .map(source => {
                 const count = stats.sourceCounts[source] ?? 0;
                 return (

@@ -307,25 +307,26 @@ export function loadPanelCollapsed(panelId: string): boolean {
   }
 }
 
-export function saveSourcesState(filter: string, sort: 'name' | 'count'): void {
+export function saveSourcesState(filter: string, sort: 'name' | 'count', dir: 'asc' | 'desc' = 'asc'): void {
   try {
-    localStorage.setItem(`${STORAGE_PREFIX}sources-state`, JSON.stringify({ filter, sort }));
+    localStorage.setItem(`${STORAGE_PREFIX}sources-state`, JSON.stringify({ filter, sort, dir }));
   } catch (error) {
     console.error('Failed to save sources state:', error);
   }
 }
 
-export function loadSourcesState(): { filter: string; sort: 'name' | 'count' } {
+export function loadSourcesState(): { filter: string; sort: 'name' | 'count'; dir: 'asc' | 'desc' } {
   try {
     const stored = localStorage.getItem(`${STORAGE_PREFIX}sources-state`);
-    if (!stored) return { filter: '', sort: 'name' };
+    if (!stored) return { filter: '', sort: 'name', dir: 'asc' };
     const parsed = JSON.parse(stored);
     return {
       filter: typeof parsed.filter === 'string' ? parsed.filter : '',
       sort: parsed.sort === 'count' ? 'count' : 'name',
+      dir: parsed.dir === 'desc' ? 'desc' : 'asc',
     };
   } catch {
-    return { filter: '', sort: 'name' };
+    return { filter: '', sort: 'name', dir: 'asc' };
   }
 }
 
