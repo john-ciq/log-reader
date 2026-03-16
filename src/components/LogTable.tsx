@@ -411,20 +411,15 @@ export default function LogTable({
 
   return (
     <div className="log-table">
-      <div className="table-control">
-        <span className="entry-count">
-          {features.deduplication && displayEntries.length !== entries.length
-            ? `${displayEntries.length} entries (${entries.length} total, ${entries.length - displayEntries.length} deduplicated)`
-            : `${entries.length} entries`}
-        </span>
-        {selectedIds.size > 0 && (
+      {selectedIds.size > 0 && (
+        <div className="table-control">
           <span className="copy-selection-info">
             {selectedIds.size} selected
             <button className="copy-rows-btn" onClick={copySelectedRows}>Copy {selectedIds.size}</button>
             <button className="clear-selection-btn" onClick={() => setSelectedIds(new Set())}>✕</button>
           </span>
-        )}
-      </div>
+        </div>
+      )}
       <div
         className="table-wrapper"
         ref={setScrollEl}

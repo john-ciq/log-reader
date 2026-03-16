@@ -1858,7 +1858,7 @@ html, body {
 }
 
 .table-control {
-  padding: 1.25rem;
+  padding: 0.35rem 0.75rem;
   border-bottom: 1px solid var(--border);
   display: flex;
   justify-content: space-between;
@@ -1867,7 +1867,7 @@ html, body {
 }
 
 .entry-count {
-  font-size: 0.9rem;
+  font-size: 0.75rem;
   color: var(--text-muted);
   font-weight: 600;
   text-transform: uppercase;
@@ -1893,14 +1893,14 @@ thead {
 }
 
 th {
-  padding: 1rem 1.25rem;
+  padding: 0.3rem 0.75rem;
   text-align: left;
   font-weight: 700;
   color: var(--text-muted);
   white-space: nowrap;
   user-select: none;
   text-transform: uppercase;
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   letter-spacing: 0.5px;
   position: relative;
   overflow: hidden;
