@@ -24,40 +24,66 @@ async function processZipFile(file: File): Promise<{ entries: LogEntry[]; rawChi
   const rawChildren: Array<{ name: string; content: string }> = [];
   const timestamp = Date.now();
 
-  for (const [filename, fileObj] of Object.entries(extractedZip.files)) {
-    if (fileObj.dir || filename === 'log_state.json' || !filename.endsWith('.json')) {
-      continue;
-    }
+  const isCentralLoggerArchive = 'log_state.json' in extractedZip.files;
 
-    try {
-      const fileContent = await fileObj.async('text');
-      rawChildren.push({ name: filename, content: fileContent });
-
-      const jsonData = JSON.parse(fileContent);
-
-      let entries: unknown[];
-      if (Array.isArray(jsonData)) {
-        entries = jsonData;
-      } else if (typeof jsonData === 'object' && jsonData !== null) {
-        const nested = Object.values(jsonData).find(Array.isArray);
-        if (!nested) {
-          console.warn(`Warning: ${filename} contains no array to parse`);
-          continue;
-        }
-        entries = nested as unknown[];
-      } else {
-        console.warn(`Warning: ${filename} is not a JSON array or object`);
+  if (isCentralLoggerArchive) {
+  // Known format: JSON log files alongside log_state.json
+    for (const [filename, fileObj] of Object.entries(extractedZip.files)) {
+      if (fileObj.dir || filename === 'log_state.json' || !filename.endsWith('.json')) {
         continue;
       }
 
-      entries.forEach((entry, idx) => {
-        const id = `${timestamp}-${allEntries.length}-${idx}`;
-        const jsonStr = JSON.stringify(entry);
-        const parsed = parseLogLine(jsonStr, id, filename);
-        if (parsed) allEntries.push(parsed);
-      });
-    } catch (err) {
-      console.error(`Error processing ${filename}:`, err);
+      try {
+        const fileContent = await fileObj.async('text');
+        rawChildren.push({ name: filename, content: fileContent });
+
+        const jsonData = JSON.parse(fileContent);
+
+        let entries: unknown[];
+        if (Array.isArray(jsonData)) {
+          entries = jsonData;
+        } else if (typeof jsonData === 'object' && jsonData !== null) {
+          const nested = Object.values(jsonData).find(Array.isArray);
+          if (!nested) {
+            console.warn(`Warning: ${filename} contains no array to parse`);
+            continue;
+          }
+          entries = nested as unknown[];
+        } else {
+          console.warn(`Warning: ${filename} is not a JSON array or object`);
+          continue;
+        }
+
+        entries.forEach((entry, idx) => {
+          const id = `${timestamp}-${allEntries.length}-${idx}`;
+          const jsonStr = JSON.stringify(entry);
+          const parsed = parseLogLine(jsonStr, id, filename);
+          if (parsed) allEntries.push(parsed);
+        });
+      } catch (err) {
+        console.error(`Error processing ${filename}:`, err);
+      }
+    }
+  } else {
+    // Generic ZIP: process each file the same way as a normal upload
+    for (const [filename, fileObj] of Object.entries(extractedZip.files)) {
+      if (fileObj.dir) continue;
+      try {
+        if (filename.endsWith('.zip')) {
+          const nestedBuffer = await fileObj.async('arraybuffer');
+          const nestedFile = new File([nestedBuffer], filename, { type: 'application/zip' });
+          const { entries: nestedEntries, rawChildren: nestedChildren } = await processZipFile(nestedFile);
+          allEntries = allEntries.concat(nestedEntries);
+          rawChildren.push(...nestedChildren);
+        } else {
+          const content = await fileObj.async('text');
+          rawChildren.push({ name: filename, content });
+          const entries = parseLogContent(content, filename);
+          allEntries = allEntries.concat(entries);
+        }
+      } catch (err) {
+        console.error(`Error processing ${filename}:`, err);
+      }
     }
   }
 
