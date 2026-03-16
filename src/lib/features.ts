@@ -1,6 +1,6 @@
 const STORAGE_KEY = 'log-reader-features';
 
-export type FeatureKey = 'autoSizeColumns' | 'advancedFilters' | 'deduplication' | 'savedPresets' | 'timeRange' | 'persistTimeRange' | 'importExportStorage';
+export type FeatureKey = 'autoSizeColumns' | 'advancedFilters' | 'deduplication' | 'savedPresets' | 'timeRange' | 'persistTimeRange' | 'importExportStorage' | 'scrollLogSources';
 
 export interface FeatureDefinition {
   defaultValue: boolean;
@@ -42,6 +42,11 @@ export const featureDefinitions: Record<FeatureKey, FeatureDefinition> = {
   importExportStorage: {
     defaultValue: false,
     description: 'Allow import and export of all settings to share with others or across devices',
+    visible: true,
+  },
+  scrollLogSources: {
+    defaultValue: true,
+    description: 'Scroll in Log Sources — limit the sources list height and add a scrollbar',
     visible: true,
   },
 };

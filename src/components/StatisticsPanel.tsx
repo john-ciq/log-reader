@@ -1,6 +1,7 @@
 import { calculateStatistics, savePanelCollapsed, loadPanelCollapsed, saveSourcesState, loadSourcesState } from '../lib/statistics';
 import { LogEntry } from '../lib/parser';
 import { useState, useMemo } from 'react';
+import { useFeatures } from '../lib/FeaturesContext';
 
 interface StatisticsPanelProps {
   entries: LogEntry[];
@@ -30,6 +31,7 @@ export default function StatisticsPanel({
   const [sourceFilter, setSourceFilter] = useState(() => loadSourcesState().filter);
   const [sourceSort, setSourceSort] = useState<'name' | 'count'>(() => loadSourcesState().sort);
 
+  const { features } = useFeatures();
   const stats = useMemo(() => calculateStatistics(entries), [entries]);
 
   const getLevelColor = (level: string): string => {
@@ -188,7 +190,7 @@ export default function StatisticsPanel({
               >#</button>
             </div>
           </div>
-          <div className="stats-breakdown stats-breakdown--scrollable">
+          <div className={`stats-breakdown${features.scrollLogSources ? ' stats-breakdown--scrollable' : ''}`}>
             {availableSources
               .slice()
               .filter(s => s.toLowerCase().includes(sourceFilter.toLowerCase()))
