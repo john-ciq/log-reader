@@ -1407,7 +1407,7 @@ html, body {
 }
 
 .stats-breakdown--scrollable {
-  overflow-y: auto;
+  /* overflow-y: auto; */
   max-height: 17rem;
   padding-right: 4px;
   display: grid;
