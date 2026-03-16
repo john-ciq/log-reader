@@ -152,17 +152,22 @@ html, body {
 
 .app-header {
   background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-  padding: 2.5rem 2rem;
+  padding: 0.6rem 1.25rem;
   color: white;
   box-shadow: var(--shadow-lg);
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.app-header p {
+  display: none;
 }
 
 .features-toggle-btn {
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
+  margin-left: auto;
+  flex-shrink: 0;
   background: rgba(255,255,255,0.15);
   border: 1px solid rgba(255,255,255,0.3);
   border-radius: 6px;
@@ -351,7 +356,7 @@ html, body {
 }
 
 .app-header h1 {
-  font-size: 2.5rem;
+  font-size: 1rem;
   font-weight: 700;
   margin: 0;
   letter-spacing: -0.5px;
@@ -368,11 +373,6 @@ html, body {
   opacity: 0.75;
   font-weight: 400;
   margin-left: 0.5rem;
-}
-.app-header p {
-  font-size: 0.95rem;
-  opacity: 0.95;
-  font-weight: 400;
 }
 
 .app-container {
@@ -1191,6 +1191,9 @@ html, body {
   padding: 1.75rem;
   border: 1px solid var(--border);
   box-shadow: var(--shadow-sm);
+  max-height: 40vh;
+  overflow-y: auto;
+  flex-shrink: 0;
 }
 
 .stats-header {

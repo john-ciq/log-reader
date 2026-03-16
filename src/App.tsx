@@ -492,7 +492,6 @@ function App() {
           <h1>📋 Full View</h1>
           <span className="app-version">v{pkg.version}</span>
         </div>
-        <p>Parse, filter, and analyze log files with ease</p>
         <button className="features-toggle-btn" onClick={() => setFeaturesPanelOpen(true)} title="Features">⚙</button>
       </header>
       {featuresPanelOpen && <FeaturesPanel onClose={() => setFeaturesPanelOpen(false)} />}
