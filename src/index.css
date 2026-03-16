@@ -1756,16 +1756,46 @@ html, body {
 }
 
 .split-pane__divider {
-  height: 5px;
+  height: 12px;
   flex-shrink: 0;
   cursor: row-resize;
-  background: var(--border);
-  transition: background 0.15s;
-  margin: 2px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  position: relative;
 }
 
-.split-pane__divider:hover,
-.split-pane__divider:active {
+.split-pane__divider::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 2px;
+  background: var(--border);
+  transition: background 0.15s;
+}
+
+.split-pane__handle {
+  position: relative;
+  z-index: 1;
+  width: 48px;
+  height: 8px;
+  border-radius: 4px;
+  background: var(--border);
+  transition: background 0.15s;
+  box-shadow: 0 -2px 0 var(--bg-secondary) inset, 0 2px 0 var(--bg-secondary) inset;
+}
+
+.split-pane__divider:hover .split-pane__handle,
+.split-pane__divider:active .split-pane__handle {
+  background: var(--primary);
+}
+
+.split-pane__divider:hover::before,
+.split-pane__divider:active::before {
   background: var(--primary);
 }
 

@@ -692,7 +692,9 @@ function App() {
                   onSourceChange={handleSourceCheckbox}
                 />
               </div>
-              <div className="split-pane__divider" onMouseDown={handleSplitMouseDown} />
+              <div className="split-pane__divider" onMouseDown={handleSplitMouseDown}>
+                <div className="split-pane__handle" />
+              </div>
               <div className="split-pane__bottom">
                 {features.timeRange && (
                   <LogDensityHistogram
