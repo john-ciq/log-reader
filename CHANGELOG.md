@@ -2,6 +2,17 @@
 
 All notable changes to the Log Reader project will be documented in this file.
 
+## [1.0.57] - 2026-03-16
+
+### Added
+- **PWA support** — app can be installed to the home screen / desktop; service worker pre-caches all assets for offline use; includes full icon set (64×64, 192×192, 512×512, maskable, Apple touch icon)
+- **Feature names in settings** — each feature row in the settings dialog now shows a bold name above the description
+- **`name` field on `FeatureDefinition`** — feature definitions now carry a human-readable name alongside the existing description
+
+### Changed
+- **Split pane drag handle** — the divider now shows a pill-shaped handle in the centre for a clearer drag affordance
+- **Wrap checkbox** — the "Wrap" checkbox in the raw file viewer now uses the shared `app-checkbox` style
+
 ## [1.0.55] - 2026-03-16
 
 ### Added
