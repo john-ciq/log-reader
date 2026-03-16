@@ -1334,16 +1334,16 @@ html, body {
 
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 1rem;
-  margin-bottom: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 0.4rem;
+  margin-bottom: 0.5rem;
 }
 
 .stat-item {
   background: var(--bg-tertiary);
   border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 1.25rem;
+  border-radius: 6px;
+  padding: 0.5rem 0.6rem;
   transition: all 0.2s ease;
 }
 
@@ -1353,12 +1353,12 @@ html, body {
 }
 
 .stat-label {
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   color: var(--text-muted);
   text-transform: uppercase;
   font-weight: 700;
   letter-spacing: 0.5px;
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.2rem;
 }
 
 .stat-filtered {
@@ -1370,11 +1370,11 @@ html, body {
 
 .stat-value {
   font-weight: 700;
-  font-size: 1.75rem;
+  font-size: 1rem;
   color: var(--primary);
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: 0.1rem;
 }
 
 .stats-section {
@@ -1406,10 +1406,11 @@ html, body {
 .stats-breakdown {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 0.3rem;
 }
 
 .stats-breakdown--scrollable {
+  overflow-y: auto;
   max-height: 17rem;
   padding-right: 4px;
   display: grid;
@@ -1499,11 +1500,11 @@ html, body {
 .stats-row {
   display: grid;
   grid-template-columns: auto 1fr auto;
-  gap: 1rem;
+  gap: 0.5rem;
   align-items: center;
-  font-size: 0.9rem;
-  padding: 0.75rem;
-  border-radius: 6px;
+  font-size: 0.8rem;
+  padding: 0.2rem 0.3rem;
+  border-radius: 4px;
   transition: all 0.2s ease;
 }
 
@@ -1514,7 +1515,7 @@ html, body {
 .stats-label {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.4rem;
   font-weight: 500;
 }
 
@@ -1525,17 +1526,17 @@ html, body {
 }
 
 .color-indicator {
-  width: 14px;
-  height: 14px;
-  border-radius: 4px;
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
   flex-shrink: 0;
 }
 
 .stats-bar-container {
   display: flex;
-  height: 28px;
+  height: 14px;
   background: var(--bg-secondary);
-  border-radius: 6px;
+  border-radius: 4px;
   overflow: hidden;
   border: 1px solid var(--border);
 }
@@ -2680,7 +2681,7 @@ tbody tr:last-child td {
 .time-range-clear {
   background: transparent;
   border: none;
-  color: #6c7086;
+  color: var(--text-muted);
   cursor: pointer;
   font-size: 0.85rem;
   padding: 0 4px;
@@ -2688,7 +2689,7 @@ tbody tr:last-child td {
 }
 
 .time-range-clear:hover {
-  color: #cdd6f4;
+  color: var(--text-primary);
 }
 
 .time-range-inputs {
@@ -2699,9 +2700,9 @@ tbody tr:last-child td {
 }
 
 .time-range-input {
-  background: #181825;
-  border: 1px solid #3a3a5c;
-  color: #cdd6f4;
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
   padding: 4px 6px;
   border-radius: 4px;
   font-size: 0.75rem;
@@ -2711,11 +2712,11 @@ tbody tr:last-child td {
 
 .time-range-input:focus {
   outline: none;
-  border-color: #89b4fa;
+  border-color: var(--primary);
 }
 
 .time-range-sep {
-  color: #6c7086;
+  color: var(--text-muted);
   font-size: 0.85rem;
   flex-shrink: 0;
 }
@@ -2731,18 +2732,20 @@ tbody tr:last-child td {
   display: block;
   width: 100%;
   height: 60px;
-  background: #181825;
-  border-bottom: 1px solid #313244;
+  background: var(--bg-primary);
+  border-bottom: 1px solid var(--border);
   user-select: none;
+  --histogram-sel-fill: rgba(59,130,246,0.2);
+  --histogram-sel-stroke: rgba(59,130,246,0.7);
 }
 
 .histogram-clear-btn {
   position: absolute;
   top: 4px;
   right: 6px;
-  background: rgba(24, 24, 37, 0.8);
-  border: 1px solid #45475a;
-  color: #6c7086;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-light);
+  color: var(--text-muted);
   cursor: pointer;
   font-size: 0.75rem;
   padding: 1px 5px;
@@ -2751,7 +2754,7 @@ tbody tr:last-child td {
 }
 
 .histogram-clear-btn:hover {
-  color: #cdd6f4;
+  color: var(--text-primary);
 }
 
 /* ── Presets panel ───────────────────────────────────────────────────────────── */
@@ -2767,9 +2770,9 @@ tbody tr:last-child td {
 }
 
 .presets-save-btn {
-  background: #313244;
-  border: 1px solid #45475a;
-  color: #a6e3a1;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-light);
+  color: var(--success);
   width: 22px;
   height: 22px;
   border-radius: 4px;
@@ -2782,7 +2785,7 @@ tbody tr:last-child td {
 }
 
 .presets-save-btn:hover {
-  background: #45475a;
+  background: var(--bg-hover);
 }
 
 .presets-save-form {
@@ -2794,9 +2797,9 @@ tbody tr:last-child td {
 
 .presets-name-input {
   flex: 1;
-  background: #181825;
-  border: 1px solid #3a3a5c;
-  color: #cdd6f4;
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
   padding: 4px 6px;
   border-radius: 4px;
   font-size: 0.78rem;
@@ -2805,13 +2808,13 @@ tbody tr:last-child td {
 
 .presets-name-input:focus {
   outline: none;
-  border-color: #89b4fa;
+  border-color: var(--primary);
 }
 
 .presets-confirm-btn {
-  background: #313244;
-  border: 1px solid #45475a;
-  color: #a6e3a1;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-light);
+  color: var(--success);
   padding: 3px 8px;
   border-radius: 4px;
   font-size: 0.75rem;
@@ -2826,7 +2829,7 @@ tbody tr:last-child td {
 .presets-cancel-btn {
   background: transparent;
   border: none;
-  color: #6c7086;
+  color: var(--text-muted);
   cursor: pointer;
   padding: 3px 4px;
   font-size: 0.85rem;
@@ -2834,7 +2837,7 @@ tbody tr:last-child td {
 
 .presets-empty {
   font-size: 0.78rem;
-  color: #45475a;
+  color: var(--text-muted);
   margin: 0;
   text-align: center;
   padding: 0.5rem 0;
@@ -2853,8 +2856,8 @@ tbody tr:last-child td {
   display: flex;
   align-items: center;
   gap: 0.25rem;
-  background: #181825;
-  border: 1px solid #313244;
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
   border-radius: 4px;
   padding: 4px 6px;
 }
@@ -2863,7 +2866,7 @@ tbody tr:last-child td {
   flex: 1;
   background: transparent;
   border: none;
-  color: #cdd6f4;
+  color: var(--text-primary);
   font-size: 0.8rem;
   text-align: left;
   cursor: pointer;
@@ -2874,19 +2877,19 @@ tbody tr:last-child td {
 }
 
 .preset-apply-btn:hover {
-  color: #89b4fa;
+  color: var(--primary);
 }
 
 .preset-meta {
   font-size: 0.7rem;
-  color: #45475a;
+  color: var(--text-muted);
   flex-shrink: 0;
 }
 
 .preset-delete-btn {
   background: transparent;
   border: none;
-  color: #45475a;
+  color: var(--text-muted);
   cursor: pointer;
   font-size: 0.8rem;
   padding: 0 4px;
@@ -2895,5 +2898,5 @@ tbody tr:last-child td {
 }
 
 .preset-delete-btn:hover {
-  color: #f38ba8;
+  color: var(--error);
 }
