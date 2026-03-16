@@ -151,8 +151,8 @@ export default function LogDensityHistogram({ entries, timeRange, onTimeRangeCha
             y={0}
             width={Math.max(0, selRight - selLeft)}
             height={HEIGHT}
-            fill="rgba(255,255,255,0.15)"
-            stroke="rgba(255,255,255,0.6)"
+            fill="var(--histogram-sel-fill, rgba(99,130,220,0.2))"
+            stroke="var(--histogram-sel-stroke, rgba(99,130,220,0.8))"
             strokeWidth={0.5}
           />
         )}
