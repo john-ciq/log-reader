@@ -199,7 +199,21 @@ export default function FilterPanel({
                   </div>
 
                   <div className={`filter-patterns${hasCriteria && !hasPatterns ? ' section-inactive' : ''}`}>
-                    <h5>Include Patterns {hasCriteria && !hasPatterns && <span className="inactive-note">inactive — level/file criteria in use</span>}</h5>
+                    <div className="pattern-section-header">
+                      <h5>Include Patterns {hasCriteria && !hasPatterns && <span className="inactive-note">inactive — level/file criteria in use</span>}</h5>
+                      <div className="operator-toggle">
+                        <button
+                          className={`operator-btn${(filter.includeOperator ?? 'or') === 'or' ? ' active' : ''}`}
+                          onClick={() => onUpdateFilter(filter.id, { includeOperator: 'or' })}
+                          title="Match any pattern (OR)"
+                        >OR</button>
+                        <button
+                          className={`operator-btn${(filter.includeOperator ?? 'or') === 'and' ? ' active' : ''}`}
+                          onClick={() => onUpdateFilter(filter.id, { includeOperator: 'and' })}
+                          title="Match all patterns (AND)"
+                        >AND</button>
+                      </div>
+                    </div>
                     <div className="patterns-list">
                       {filter.includePatterns.map((pattern, i) => (
                         <div key={i} className="pattern-tag">
@@ -221,7 +235,21 @@ export default function FilterPanel({
                   </div>
 
                   <div className={`filter-patterns${hasCriteria && !hasPatterns ? ' section-inactive' : ''}`}>
-                    <h5>Exclude Patterns {hasCriteria && !hasPatterns && <span className="inactive-note">inactive — level/file criteria in use</span>}</h5>
+                    <div className="pattern-section-header">
+                      <h5>Exclude Patterns {hasCriteria && !hasPatterns && <span className="inactive-note">inactive — level/file criteria in use</span>}</h5>
+                      <div className="operator-toggle">
+                        <button
+                          className={`operator-btn${(filter.excludeOperator ?? 'or') === 'or' ? ' active' : ''}`}
+                          onClick={() => onUpdateFilter(filter.id, { excludeOperator: 'or' })}
+                          title="Exclude if any pattern matches (OR)"
+                        >OR</button>
+                        <button
+                          className={`operator-btn${(filter.excludeOperator ?? 'or') === 'and' ? ' active' : ''}`}
+                          onClick={() => onUpdateFilter(filter.id, { excludeOperator: 'and' })}
+                          title="Exclude only if all patterns match (AND)"
+                        >AND</button>
+                      </div>
+                    </div>
                     <div className="patterns-list">
                       {filter.excludePatterns.map((pattern, i) => (
                         <div key={i} className="pattern-tag">

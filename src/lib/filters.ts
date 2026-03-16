@@ -7,8 +7,10 @@ export interface FilterConfig {
   id: string;
   name: string;
   enabled: boolean; // Whether this filter is active
-  includePatterns: string[]; // Regex patterns - entry must match at least one
-  excludePatterns: string[]; // Regex patterns - entry must not match any
+  includePatterns: string[]; // Regex patterns for inclusion
+  includeOperator: 'and' | 'or'; // 'or' = any must match, 'and' = all must match
+  excludePatterns: string[]; // Regex patterns for exclusion
+  excludeOperator: 'and' | 'or'; // 'or' = any match excludes, 'and' = all must match to exclude
   levelFilters: string[]; // Log levels to include (empty = all)
   sourceFilters: string[]; // Sources to include (empty = all)
   fileFilters: string[]; // Filenames to include (empty = all)
@@ -27,7 +29,9 @@ export function createEmptyFilterConfig(): FilterConfig {
     name: 'New Filter',
     enabled: true,
     includePatterns: [],
+    includeOperator: 'or',
     excludePatterns: [],
+    excludeOperator: 'or',
     levelFilters: [],
     sourceFilters: [],
     fileFilters: [],
@@ -63,19 +67,13 @@ function compilePatterns(patterns: string[]): RegExp[] {
 }
 
 /**
- * Check if an entry matches any of the given patterns
+ * Check if text matches patterns using the given operator
  */
-function matchesAnyPattern(text: string, patterns: RegExp[]): boolean {
-  if (patterns.length === 0) return true;
-  return patterns.some(p => p.test(text));
-}
-
-/**
- * Check if an entry matches none of the given patterns
- */
-function matchesNoPatterns(text: string, patterns: RegExp[]): boolean {
-  if (patterns.length === 0) return true;
-  return !patterns.some(p => p.test(text));
+function matchesPatterns(text: string, patterns: RegExp[], operator: 'and' | 'or'): boolean {
+  if (patterns.length === 0) return false;
+  return operator === 'and'
+    ? patterns.every(p => p.test(text))
+    : patterns.some(p => p.test(text));
 }
 
 /**
@@ -99,13 +97,13 @@ export function getFilterDecision(entry: LogEntry, filter: FilterConfig): boolea
   // Include patterns — match → include; no match → no opinion (not exclude)
   if (filter.includePatterns.length > 0) {
     const includePatterns = compilePatterns(filter.includePatterns);
-    return matchesAnyPattern(searchText, includePatterns) ? true : null;
+    return matchesPatterns(searchText, includePatterns, filter.includeOperator ?? 'or') ? true : null;
   }
 
   // Exclude patterns — match → exclude; no match → no opinion (not include)
   if (filter.excludePatterns.length > 0) {
     const excludePatterns = compilePatterns(filter.excludePatterns);
-    return matchesNoPatterns(searchText, excludePatterns) ? null : false;
+    return matchesPatterns(searchText, excludePatterns, filter.excludeOperator ?? 'or') ? false : null;
   }
 
   // No patterns: level/source/file criteria determine applicability.
@@ -138,12 +136,12 @@ export function matchesFilter(entry: LogEntry, filter: FilterConfig): boolean {
   // Include patterns — a match forces inclusion, bypassing all other criteria
   const includePatterns = compilePatterns(filter.includePatterns);
   if (includePatterns.length > 0) {
-    return matchesAnyPattern(searchText, includePatterns);
+    return matchesPatterns(searchText, includePatterns, filter.includeOperator ?? 'or');
   }
 
-  // Exclude patterns - entry must not match any
+  // Exclude patterns — a match forces exclusion
   const excludePatterns = compilePatterns(filter.excludePatterns);
-  if (!matchesNoPatterns(searchText, excludePatterns)) {
+  if (excludePatterns.length > 0 && matchesPatterns(searchText, excludePatterns, filter.excludeOperator ?? 'or')) {
     return false;
   }
 

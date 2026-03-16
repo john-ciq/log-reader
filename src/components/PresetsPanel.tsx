@@ -72,7 +72,7 @@ export default function PresetsPanel({ presets, onApply, onDelete, onSaveCurrent
             onKeyDown={e => { if (e.key === 'Enter') handleSave(); if (e.key === 'Escape') { setSaving(false); setName(''); } }}
             autoFocus
           />
-          <button className="presets-confirm-btn" onClick={handleSave} disabled={!name.trim()}>Save</button>
+          <button className="config-action-btn" onClick={handleSave} disabled={!name.trim()}>Save</button>
           <button className="presets-cancel-btn" onClick={() => { setSaving(false); setName(''); }}>✕</button>
         </div>
       )}
