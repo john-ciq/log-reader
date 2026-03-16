@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react';
 import { FilterPreset } from '../lib/statistics';
+import { downloadTimestamp } from '../lib/utils';
 
 interface PresetsPanelProps {
   presets: FilterPreset[];
@@ -20,7 +21,7 @@ export default function PresetsPanel({ presets, onApply, onDelete, onSaveCurrent
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'log-reader-presets.json';
+    a.download = `full-view-filter-presets-${downloadTimestamp()}.json`;
     a.click();
     URL.revokeObjectURL(url);
   };

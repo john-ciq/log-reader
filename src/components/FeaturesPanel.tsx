@@ -2,6 +2,7 @@ import { useRef, useState, useEffect } from 'react';
 import { useFeatures } from '../lib/FeaturesContext';
 import { FeatureKey, featureDefinitions } from '../lib/features';
 import { Theme, loadTheme, saveTheme, applyTheme } from '../lib/theme';
+import { downloadTimestamp } from '../lib/utils';
 
 interface FeaturesPanelProps {
   onClose: () => void;
@@ -17,7 +18,7 @@ function exportStorage() {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = 'log-reader-settings.json';
+  a.download = `full-view-settings-${downloadTimestamp()}.json`;
   a.click();
   URL.revokeObjectURL(url);
 }

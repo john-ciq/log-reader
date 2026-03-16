@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { downloadTimestamp } from './lib/utils';
 import { LogEntry } from './lib/parser';
 import { FilterConfig, getFilterDecision } from './lib/filters';
 import {
@@ -384,7 +385,7 @@ function App() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `full-view-config-${new Date().toISOString().split('T')[0]}.json`;
+    link.download = `full-view-config-${downloadTimestamp()}.json`;
     link.click();
     URL.revokeObjectURL(url);
   }, [filters, searchQuery, useRegexSearch]);
@@ -417,7 +418,7 @@ function App() {
     const url = URL.createObjectURL(dataBlob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `logs-${new Date().toISOString().split('T')[0]}.json`;
+    link.download = `logs-filtered-${downloadTimestamp()}.json`;
     link.click();
     URL.revokeObjectURL(url);
   }, [filteredEntries]);
@@ -428,7 +429,7 @@ function App() {
     const url = URL.createObjectURL(dataBlob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `logs-all-${new Date().toISOString().split('T')[0]}.json`;
+    link.download = `logs-all-${downloadTimestamp()}.json`;
     link.click();
     URL.revokeObjectURL(url);
   }, [entries]);
