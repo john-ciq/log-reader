@@ -130,6 +130,7 @@ export default function RawFileViewer({ content }: RawFileViewerProps) {
         <label className="raw-file-wrap-toggle">
           <input
             type="checkbox"
+            className="app-checkbox"
             checked={wrap}
             onChange={e => setWrap(e.target.checked)}
           />
