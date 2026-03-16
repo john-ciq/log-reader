@@ -100,7 +100,10 @@ export default function FeaturesPanel({ onClose }: FeaturesPanelProps) {
                   checked={features[key]}
                   onChange={e => setFeature(key, e.target.checked)}
                 />
-                <span className="feature-description">{featureDefinitions[key].description}</span>
+                <span className="feature-text">
+                  <span className="feature-name">{featureDefinitions[key].name}</span>
+                  <span className="feature-description">{featureDefinitions[key].description}</span>
+                </span>
               </label>
             ))}
         </div>

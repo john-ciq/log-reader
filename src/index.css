@@ -457,7 +457,24 @@ html, body {
 }
 
 .feature-row input[type="checkbox"] {
-  margin-top: 2px;
+  margin-top: 3px;
+}
+
+.feature-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.feature-name {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.feature-description {
+  font-size: 0.8rem;
+  color: var(--text-muted);
 }
 
 .app-header h1 {
