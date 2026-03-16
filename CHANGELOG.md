@@ -2,6 +2,31 @@
 
 All notable changes to the Log Reader project will be documented in this file.
 
+## [10.054] - 2026-03-16
+
+### Added
+- **Update preset** button on each saved preset — overwrites the preset's filters, search, and time range with the current state without renaming it
+- **AND/OR operator toggle** on Include and Exclude pattern sections — each pattern group has an OR/AND pill toggle; OR (default) matches if any pattern matches, AND requires all patterns to match; backwards-compatible with existing saved filters
+- **Escape key closes settings panel** — pressing Escape while the settings dialog is open dismisses it
+- **Gilding log parser** — parses `gilding.log` files produced by Tick42/io.Connect Desktop (format: `YYYY-MM-DD HH:MM:SS,mmm [thread][LEVELrocessid][pid] LEVEL Source - message`); thread and PID stored as metadata; non-matching banner lines are silently skipped
+- **ZIP file support for generic archives** — ZIP files without `log_state.json` are now unpacked and each contained file is processed normally; nested ZIP files are handled recursively; ZIP files containing `log_state.json` continue to use the existing structured format
+- **"No parser found" shown in red** in the Log Files panel when no parser matches a loaded file
+- **Theme-aware datetime pickers** — all hard-coded dark colors replaced with CSS variables so the calendar popup follows the light/dark/system theme
+- **Resizable split pane** in the main content area — the statistics panel occupies the top section and the histogram + log table occupy the bottom section; drag the divider to resize; position persists in localStorage
+- **Light/dark/system theme selector** in the settings panel
+
+### Changed
+- Download file name timestamp format has changed
+- Settings panel now closes on Escape key
+- All checkboxes across the app (log levels, feature toggles, file list, statistics sources) now use the same custom styled appearance as the filter panel checkboxes
+- Preset confirm button styled to match the Save/Export/Import action buttons
+- UI made more compact: reduced padding on app container, sidebar sections, file uploader, statistics panel, tab content, stats grid cards, log level rows, and bar heights
+- Log table rows reduced to 28 px height with tighter cell padding and smaller font
+- Table header control bar (entry count) removed; selection/copy toolbar only shown when rows are selected
+- Statistics panel summary cards and log level rows made more compact
+- Histogram, time range filter, and presets panel colors converted from hard-coded dark-theme hex values to CSS variables for correct light/dark theming
+- App header reduced to a single compact row: title and version left-aligned, settings button right-aligned; subtitle paragraph hidden
+
 ## [1.0.53] - 2026-03-13
 
 ### Added
