@@ -7,6 +7,7 @@ import { json } from './parsers/json.ts';
 import { finsembleJson } from './parsers/finsembleJson.ts';
 import { icgDesktopNativeBridge } from './parsers/icgDesktopNativeBridge.ts';
 import { genericBracketed } from './parsers/genericBracketed.ts';
+import { gilding } from './parsers/gilding.ts';
 
 /**
  * Common log entry format after parsing
@@ -41,6 +42,7 @@ export const PARSER_CONFIGS: ParserConfig[] = [
   isoWithLevel,
   bracketedWithId,
   fea,
+  gilding,
   ncsa,
   finsembleJson,
   json,
