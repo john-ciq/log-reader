@@ -2,7 +2,7 @@
 
 All notable changes to the Log Reader project will be documented in this file.
 
-## [1.0.57] - 2026-03-16
+## [1.0.56] - 2026-03-16
 
 ### Added
 - **PWA support** — app can be installed to the home screen / desktop; service worker pre-caches all assets for offline use; includes full icon set (64×64, 192×192, 512×512, maskable, Apple touch icon)
