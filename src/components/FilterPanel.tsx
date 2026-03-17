@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
 import { FilterConfig } from '../lib/filters';
 import { saveExpandedFilters, loadExpandedFilters } from '../lib/statistics';
 import { useFeatures } from '../lib/FeaturesContext';
@@ -29,21 +29,6 @@ export default function FilterPanel({
   const [patternErrors, setPatternErrors] = useState<Record<string, string>>({});
   const [dragOverId, setDragOverId] = useState<string | null>(null);
   const dragIdRef = useRef<string | null>(null);
-  const prevFilterIdsRef = useRef<Set<string>>(new Set(filters.map(f => f.id)));
-
-  useEffect(() => {
-    const newIds = filters.map(f => f.id).filter(id => !prevFilterIdsRef.current.has(id));
-    if (newIds.length > 0) {
-      setExpandedFilters(prev => {
-        const next = new Set(prev);
-        newIds.forEach(id => next.add(id));
-        saveExpandedFilters([...next]);
-        return next;
-      });
-    }
-    prevFilterIdsRef.current = new Set(filters.map(f => f.id));
-  }, [filters]);
-
   const validatePattern = (pattern: string): boolean => {
     try {
       new RegExp(pattern);
