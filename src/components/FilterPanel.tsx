@@ -102,11 +102,19 @@ export default function FilterPanel({
                   <div className="filter-title-group">
                     <label htmlFor={`filter-${filter.id}`}>
                       <span className="filter-name-text">{filter.name || 'Unnamed Filter'}</span>
-                      <span className={`filter-mode-badge filter-mode-badge--${filter.mode ?? 'include'}`}>
+                      <span
+                        className={`filter-mode-badge filter-mode-badge--${filter.mode ?? 'include'} filter-mode-badge--clickable`}
+                        onClick={e => { e.preventDefault(); onUpdateFilter(filter.id, { mode: filter.mode === 'exclude' ? 'include' : 'exclude' }); }}
+                        title="Click to toggle include/exclude"
+                      >
                         {filter.mode ?? 'include'}
                       </span>
                       {(filter.patterns?.length ?? 0) > 0 && (
-                        <span className="filter-mode-badge filter-mode-badge--operator">
+                        <span
+                          className="filter-mode-badge filter-mode-badge--operator filter-mode-badge--clickable"
+                          onClick={e => { e.preventDefault(); onUpdateFilter(filter.id, { operator: filter.operator === 'and' ? 'or' : 'and' }); }}
+                          title="Click to toggle and/or"
+                        >
                           {filter.operator ?? 'or'}
                         </span>
                       )}
