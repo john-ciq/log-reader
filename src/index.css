@@ -589,6 +589,23 @@ html, body {
   gap: 0.4rem;
 }
 
+.heading-actions {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.heading-actions .config-action-btn {
+  width: 3rem;
+}
+
+.heading-count {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
 .filter-config-actions {
   margin-left: auto;
   display: flex;
