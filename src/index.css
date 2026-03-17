@@ -2301,6 +2301,13 @@ tbody tr:last-child td {
   color: var(--text-secondary);
 }
 
+.table-empty-cell {
+  text-align: center;
+  padding: 3rem 2rem !important;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
 /* Messages */
 .empty-message {
   padding: 3rem 2rem;

@@ -401,14 +401,6 @@ export default function LogTable({
     }
   };
 
-  if (entries.length === 0) {
-    return (
-      <div className="log-table">
-        <p className="empty-message">No log entries to display</p>
-      </div>
-    );
-  }
-
   return (
     <div className="log-table">
       {selectedIds.size > 0 && (
@@ -474,6 +466,9 @@ export default function LogTable({
             </tr>
           </thead>
           <tbody>
+            {entries.length === 0 && (
+              <tr><td colSpan={colOrder.length} className="table-empty-cell">No log entries to display</td></tr>
+            )}
             {paddingTop > 0 && <tr style={{ height: paddingTop }}><td colSpan={colOrder.length} /></tr>}
             {visibleEntries.map((displayEntry, i) => {
               const { entry, count } = displayEntry;
