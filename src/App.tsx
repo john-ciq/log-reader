@@ -233,7 +233,7 @@ function App() {
       sourceFilters: [],
       fileFilters: [],
     };
-    setFilters([...filters, newFilter]);
+    setFilters([newFilter, ...filters]);
   }, [filters]);
 
   // keep track of available levels when entries change
@@ -483,7 +483,7 @@ function App() {
       sourceFilters: [],
       fileFilters: [],
     };
-    setFilters(prev => [...prev, newFilter]);
+    setFilters(prev => [newFilter, ...prev]);
     setSearchQuery('');
   }, [searchQuery, useRegexSearch]);
 
