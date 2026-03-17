@@ -146,27 +146,37 @@ export default function LogTable({
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    ctx.font = window.getComputedStyle(tsCell).font;
-    const pad2 = (n: number) => String(n).padStart(2, '0');
-    const pad3 = (n: number) => String(n).padStart(3, '0');
-    const t = entries[0].timestamp;
-    const tsStr = `${t.getFullYear()}${pad2(t.getMonth()+1)}${pad2(t.getDate())} ${pad2(t.getHours())}:${pad2(t.getMinutes())}:${pad2(t.getSeconds())}.${pad3(t.getMilliseconds())}`;
     const tsCellStyle = window.getComputedStyle(tsCell);
+    ctx.font = `${tsCellStyle.fontWeight} ${tsCellStyle.fontSize} ${tsCellStyle.fontFamily}`;
+    const tsStr = '20001208 08:08:08.888';
     const tsPadH = parseFloat(tsCellStyle.paddingLeft) + parseFloat(tsCellStyle.paddingRight);
-    const tsWidth = Math.ceil(ctx.measureText(tsStr).width) + tsPadH + 2;
+    const tsTarget = Math.ceil(ctx.measureText(tsStr).width) + tsPadH + 4;
 
     const longestLevel = [...new Set(entries.map(e => e.level.toUpperCase()))]
       .reduce((a, b) => (a.length >= b.length ? a : b), '');
     const badge = levelCell.querySelector<HTMLElement>('.level-badge');
     const badgeStyle = badge ? window.getComputedStyle(badge) : null;
-    ctx.font = badgeStyle ? badgeStyle.font : window.getComputedStyle(levelCell).font;
+    const badgeFontBase = badgeStyle ?? window.getComputedStyle(levelCell);
+    ctx.font = `${badgeFontBase.fontWeight} ${badgeFontBase.fontSize} ${badgeFontBase.fontFamily}`;
     const badgePadH = badgeStyle ? parseFloat(badgeStyle.paddingLeft) + parseFloat(badgeStyle.paddingRight) : 0;
     const levelCellStyle = window.getComputedStyle(levelCell);
     const levelPadH = parseFloat(levelCellStyle.paddingLeft) + parseFloat(levelCellStyle.paddingRight);
-    const levelWidth = Math.ceil(ctx.measureText(longestLevel).width) + badgePadH + levelPadH + 2;
+    const lvlTarget = Math.ceil(ctx.measureText(longestLevel).width) + badgePadH + levelPadH + 4;
 
-    setColWidths(prev => ({ ...prev, timestamp: tsWidth, level: levelWidth }));
-  }, [entries]);
+    // table { width: 100% } with table-layout: fixed scales all columns proportionally when
+    // their sum < table width. Setting both columns simultaneously, the correction is:
+    //   T = target * sumOther / (tableWidth - tsTarget - lvlTarget)
+    const tableWidth = (tsCell.closest('table') as HTMLElement)?.getBoundingClientRect().width ?? 0;
+    const sumOther = colOrder
+      .filter(col => col !== 'timestamp' && col !== 'level')
+      .reduce((sum, col) => sum + (collapsedCols.has(col) ? 28 : colWidths[col]), 0);
+    const denom = tableWidth - tsTarget - lvlTarget;
+    const tsWidth  = tableWidth > 0 && denom > 0 ? (tsTarget  * sumOther) / denom : tsTarget;
+    const lvlWidth = tableWidth > 0 && denom > 0 ? (lvlTarget * sumOther) / denom : lvlTarget;
+
+    setColWidths(prev => ({ ...prev, timestamp: tsWidth, level: lvlWidth }));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [entries, colWidths.file, colWidths.source, colWidths.message, collapsedCols]);
 
   // ── Column resize ────────────────────────────────────────────────────────────
   const startResize = (col: SortColumn, e: React.MouseEvent) => {
