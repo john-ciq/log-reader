@@ -102,6 +102,14 @@ export default function FilterPanel({
                   <div className="filter-title-group">
                     <label htmlFor={`filter-${filter.id}`}>
                       {filter.name || 'Unnamed Filter'}
+                      <span className={`filter-mode-badge filter-mode-badge--${filter.mode ?? 'include'}`}>
+                        {filter.mode ?? 'include'}
+                      </span>
+                      {(filter.patterns?.length ?? 0) > 0 && (
+                        <span className="filter-mode-badge filter-mode-badge--operator">
+                          {filter.operator ?? 'or'}
+                        </span>
+                      )}
                     </label>
                     <div className="filter-actions">
                       <button

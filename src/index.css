@@ -970,6 +970,33 @@ html, body {
   gap: 0.75rem;
 }
 
+.filter-mode-badge {
+  font-size: 0.6rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  padding: 0.1rem 0.35rem;
+  border-radius: 3px;
+  margin-left: 0.4rem;
+  vertical-align: middle;
+}
+
+.filter-mode-badge--include {
+  background: color-mix(in srgb, var(--success) 15%, transparent);
+  color: var(--success);
+}
+
+.filter-mode-badge--exclude {
+  background: color-mix(in srgb, var(--error) 15%, transparent);
+  color: var(--error);
+}
+
+.filter-mode-badge--operator {
+  background: color-mix(in srgb, var(--text-muted) 12%, transparent);
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
 .filter-item {
   background: var(--bg-tertiary);
   border: 1px solid var(--border);
