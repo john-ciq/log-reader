@@ -2,6 +2,29 @@
 
 All notable changes to the Log Reader project will be documented in this file.
 
+## [1.0.58] - 2026-03-17
+
+### Added
+- **CLI tool (`fv`)** — command-line filter tool; reads exported filter configs, accepts log files as arguments or piped via stdin, outputs filtered results as sorted JSON to a file or stdout; supports ZIP files including Central Logger archives
+- **"Only Matches" toggle** — new `showOnlyMatches` feature (default on) in the Filters panel header; when enabled only log entries matched by at least one active filter are displayed
+- **Select All / None in Log Files panel** — "All" and "None" buttons in the Log Files heading select or deselect all files at once; a `x/y files` count label shows how many are currently selected
+- **Filter mode/operator badges** — collapsed filter headers show a green "include" or red "exclude" badge and an "and"/"or" operator badge; clicking either badge toggles it inline without opening the editor
+- **Column resize affordance** — resize handles on table column headers now show a staggered dot grip pattern to make them more discoverable
+
+### Changed
+- **Filters unified to include-or-exclude** — each filter is now either an include filter or an exclude filter (not both); legacy saved filters with separate `includePatterns`/`excludePatterns` are automatically migrated on load
+- **New filters added at top** — clicking "+ New" prepends the new filter to the top of the list; the filter is added collapsed so the list doesn't jump
+- **Filter "Edit" action button** — the expand/collapse control is now an "Edit" button styled consistently with the other action buttons and placed next to "Remove"
+- **Up/Down buttons** — move buttons highlight with the primary (blue) color on hover, consistent with Duplicate
+- **Browse button visibility** — the "Browse" button in the Upload panel is only shown when the panel is collapsed
+- **Table headers always visible** — column headers are rendered even when no log entries are loaded
+- **Badge alignment** — include/exclude and and/or badges are right-justified in the filter header and each pair is a fixed equal width so they always align
+
+### Fixed
+- **Auto-size timestamp and level columns** — canvas font measurement now uses individual font properties instead of the shorthand to avoid values the canvas API cannot parse; a scale-correction formula compensates for the browser's proportional column-scaling behavior so the columns land at the correct pixel width; level column is included in the same correction pass
+- **Timestamp/level columns stable on manual resize** — resizing message, source, or file columns no longer causes timestamp or level to shrink or grow
+- **Filter name truncation** — long filter names are now correctly truncated with an ellipsis in the collapsed header; `min-width: 0` added to all flex ancestors in the header chain
+
 ## [1.0.57] - 2026-03-16
 
 ### Fixed
