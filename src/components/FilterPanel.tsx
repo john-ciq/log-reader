@@ -125,15 +125,15 @@ export default function FilterPanel({
                         title="Move up"
                         disabled={filters.indexOf(filter) === 0}
                       >
-                        ↑
+                          ↑ Up
                       </button>
                       <button
                         onClick={() => onMoveFilter(filter.id, 'down')}
                         className="move-btn"
                         title="Move down"
                         disabled={filters.indexOf(filter) === filters.length - 1}
-                      >
-                        ↓
+                        >
+                          ↓ Down
                       </button>
                       <button
                         onClick={() => onDuplicateFilter(filter.id)}
