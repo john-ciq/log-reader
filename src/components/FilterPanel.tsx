@@ -103,7 +103,7 @@ export default function FilterPanel({
                     <label htmlFor={`filter-${filter.id}`}>
                       <span className="filter-name-text">{filter.name || 'Unnamed Filter'}</span>
                       <span
-                        className={`filter-mode-badge filter-mode-badge--${filter.mode ?? 'include'} filter-mode-badge--clickable`}
+                        className={`filter-mode-badge filter-mode-badge--${filter.mode ?? 'include'} filter-mode-badge--clickable filter-mode-badge--first`}
                         onClick={e => { e.preventDefault(); onUpdateFilter(filter.id, { mode: filter.mode === 'exclude' ? 'include' : 'exclude' }); }}
                         title="Click to toggle include/exclude"
                       >
