@@ -39,55 +39,16 @@ export default function FilterPanel({
     }
   };
 
-  const handleAddPattern = (
-    filterId: string,
-    type: 'include' | 'exclude',
-    pattern: string
-  ) => {
+  const handleAddPattern = (filterId: string, pattern: string) => {
     if (!pattern.trim()) return;
-
     if (!validatePattern(pattern)) {
-      setPatternErrors({
-        ...patternErrors,
-        [`${filterId}-${type}`]: 'Invalid regex pattern',
-      });
+      setPatternErrors({ ...patternErrors, [filterId]: 'Invalid regex pattern' });
       return;
     }
-
-    setPatternErrors({
-      ...patternErrors,
-      [`${filterId}-${type}`]: '',
-    });
-
+    setPatternErrors({ ...patternErrors, [filterId]: '' });
     const filter = filters.find(f => f.id === filterId);
     if (!filter) return;
-
-    if (type === 'include') {
-      onUpdateFilter(filterId, {
-        includePatterns: [...filter.includePatterns, pattern],
-      });
-    } else {
-      onUpdateFilter(filterId, {
-        excludePatterns: [...filter.excludePatterns, pattern],
-      });
-    }
-  };
-
-  const handleRemovePattern = (
-    filterId: string,
-    type: 'include' | 'exclude',
-    index: number
-  ) => {
-    const filter = filters.find(f => f.id === filterId);
-    if (!filter) return;
-
-    if (type === 'include') {
-      const newPatterns = filter.includePatterns.filter((_, i) => i !== index);
-      onUpdateFilter(filterId, { includePatterns: newPatterns });
-    } else {
-      const newPatterns = filter.excludePatterns.filter((_, i) => i !== index);
-      onUpdateFilter(filterId, { excludePatterns: newPatterns });
-    }
+    onUpdateFilter(filterId, { patterns: [...(filter.patterns ?? []), pattern] });
   };
 
   const commonLevels = ['error', 'warn', 'info', 'log', 'debug'];
@@ -111,7 +72,7 @@ export default function FilterPanel({
       ) : (
         <div className="filters-list">
           {filters.map(filter => {
-            const hasPatterns = filter.includePatterns.length > 0 || filter.excludePatterns.length > 0;
+            const hasPatterns = (filter.patterns?.length ?? 0) > 0;
             const hasCriteria = filter.levelFilters.length > 0 || filter.fileFilters.length > 0;
             return (
             <div
@@ -205,26 +166,38 @@ export default function FilterPanel({
 
                   <div className={`filter-patterns${hasCriteria && !hasPatterns ? ' section-inactive' : ''}`}>
                     <div className="pattern-section-header">
-                      <h5>Include Patterns {hasCriteria && !hasPatterns && <span className="inactive-note">inactive — level/file criteria in use</span>}</h5>
+                      <h5>Patterns {hasCriteria && !hasPatterns && <span className="inactive-note">inactive — level/file criteria in use</span>}</h5>
                       <div className="operator-toggle">
                         <button
-                          className={`operator-btn${(filter.includeOperator ?? 'or') === 'or' ? ' active' : ''}`}
-                          onClick={() => onUpdateFilter(filter.id, { includeOperator: 'or' })}
+                          className={`operator-btn${(filter.mode ?? 'include') === 'include' ? ' active' : ''}`}
+                          onClick={() => onUpdateFilter(filter.id, { mode: 'include' })}
+                          title="Include matching entries"
+                        >Include</button>
+                        <button
+                          className={`operator-btn${(filter.mode ?? 'include') === 'exclude' ? ' active' : ''}`}
+                          onClick={() => onUpdateFilter(filter.id, { mode: 'exclude' })}
+                          title="Exclude matching entries"
+                        >Exclude</button>
+                      </div>
+                      <div className="operator-toggle">
+                        <button
+                          className={`operator-btn${(filter.operator ?? 'or') === 'or' ? ' active' : ''}`}
+                          onClick={() => onUpdateFilter(filter.id, { operator: 'or' })}
                           title="Match any pattern (OR)"
                         >OR</button>
                         <button
-                          className={`operator-btn${(filter.includeOperator ?? 'or') === 'and' ? ' active' : ''}`}
-                          onClick={() => onUpdateFilter(filter.id, { includeOperator: 'and' })}
+                          className={`operator-btn${(filter.operator ?? 'or') === 'and' ? ' active' : ''}`}
+                          onClick={() => onUpdateFilter(filter.id, { operator: 'and' })}
                           title="Match all patterns (AND)"
                         >AND</button>
                       </div>
                     </div>
                     <div className="patterns-list">
-                      {filter.includePatterns.map((pattern, i) => (
+                      {(filter.patterns ?? []).map((pattern, i) => (
                         <div key={i} className="pattern-tag">
                           <span title={pattern}>{pattern}</span>
                           <button
-                            onClick={() => handleRemovePattern(filter.id, 'include', i)}
+                            onClick={() => onUpdateFilter(filter.id, { patterns: (filter.patterns ?? []).filter((_, j) => j !== i) })}
                             className="remove-pattern"
                           >
                             ×
@@ -233,45 +206,9 @@ export default function FilterPanel({
                       ))}
                     </div>
                     <PatternInput
-                      onAdd={pattern => handleAddPattern(filter.id, 'include', pattern)}
-                      error={patternErrors[`${filter.id}-include`]}
-                      placeholder="Pattern to include..."
-                    />
-                  </div>
-
-                  <div className={`filter-patterns${hasCriteria && !hasPatterns ? ' section-inactive' : ''}`}>
-                    <div className="pattern-section-header">
-                      <h5>Exclude Patterns {hasCriteria && !hasPatterns && <span className="inactive-note">inactive — level/file criteria in use</span>}</h5>
-                      <div className="operator-toggle">
-                        <button
-                          className={`operator-btn${(filter.excludeOperator ?? 'or') === 'or' ? ' active' : ''}`}
-                          onClick={() => onUpdateFilter(filter.id, { excludeOperator: 'or' })}
-                          title="Exclude if any pattern matches (OR)"
-                        >OR</button>
-                        <button
-                          className={`operator-btn${(filter.excludeOperator ?? 'or') === 'and' ? ' active' : ''}`}
-                          onClick={() => onUpdateFilter(filter.id, { excludeOperator: 'and' })}
-                          title="Exclude only if all patterns match (AND)"
-                        >AND</button>
-                      </div>
-                    </div>
-                    <div className="patterns-list">
-                      {filter.excludePatterns.map((pattern, i) => (
-                        <div key={i} className="pattern-tag">
-                          <span title={pattern}>{pattern}</span>
-                          <button
-                            onClick={() => handleRemovePattern(filter.id, 'exclude', i)}
-                            className="remove-pattern"
-                          >
-                            ×
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                    <PatternInput
-                      onAdd={pattern => handleAddPattern(filter.id, 'exclude', pattern)}
-                      error={patternErrors[`${filter.id}-exclude`]}
-                      placeholder="Pattern to exclude..."
+                      onAdd={pattern => handleAddPattern(filter.id, pattern)}
+                      error={patternErrors[filter.id]}
+                      placeholder={`Pattern to ${filter.mode ?? 'include'}...`}
                     />
                   </div>
 

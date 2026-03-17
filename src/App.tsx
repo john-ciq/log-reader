@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { downloadTimestamp } from './lib/utils';
 import { LogEntry } from './lib/parser';
-import { FilterConfig, getFilterDecision } from './lib/filters';
+import { FilterConfig, getFilterDecision, migrateFilter } from './lib/filters';
 import {
   loadFilterConfigs, saveFilterConfigs,
   saveHiddenLevels, loadHiddenLevels,
@@ -36,7 +36,7 @@ function App() {
   const { features } = useFeatures();
   const [entries, setEntries] = useState<LogEntry[]>([]);
   const [filteredEntries, setFilteredEntries] = useState<LogEntry[]>([]);
-  const [filters, setFilters] = useState<FilterConfig[]>(() => loadFilterConfigs());
+  const [filters, setFilters] = useState<FilterConfig[]>(() => loadFilterConfigs().map(migrateFilter));
   const [searchQuery, setSearchQuery] = useState(() => loadSearchState().query);
   const [useRegexSearch, setUseRegexSearch] = useState(() => loadSearchState().useRegex);
 
@@ -226,8 +226,9 @@ function App() {
       id: `filter-${Date.now()}`,
       name: `Filter ${filters.length + 1}`,
       enabled: true,
-      includePatterns: [],
-      excludePatterns: [],
+      mode: 'include',
+      patterns: [],
+      operator: 'or',
       levelFilters: [],
       sourceFilters: [],
       fileFilters: [],
@@ -475,8 +476,9 @@ function App() {
       id: `filter-${Date.now()}`,
       name: searchQuery.slice(0, 30),
       enabled: true,
-      includePatterns: [pattern],
-      excludePatterns: [],
+      mode: 'include',
+      patterns: [pattern],
+      operator: 'or',
       levelFilters: [],
       sourceFilters: [],
       fileFilters: [],

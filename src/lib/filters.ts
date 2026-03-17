@@ -7,10 +7,14 @@ export interface FilterConfig {
   id: string;
   name: string;
   enabled: boolean; // Whether this filter is active
-  includePatterns: string[]; // Regex patterns for inclusion
-  includeOperator: 'and' | 'or'; // 'or' = any must match, 'and' = all must match
-  excludePatterns: string[]; // Regex patterns for exclusion
-  excludeOperator: 'and' | 'or'; // 'or' = any match excludes, 'and' = all must match to exclude
+  mode: 'include' | 'exclude'; // Whether patterns include or exclude matching entries
+  patterns: string[]; // Regex patterns
+  operator: 'and' | 'or'; // 'or' = any must match, 'and' = all must match
+  // Legacy fields — kept for backward compatibility with saved filters
+  includePatterns?: string[];
+  includeOperator?: 'and' | 'or';
+  excludePatterns?: string[];
+  excludeOperator?: 'and' | 'or';
   levelFilters: string[]; // Log levels to include (empty = all)
   sourceFilters: string[]; // Sources to include (empty = all)
   fileFilters: string[]; // Filenames to include (empty = all)
@@ -28,13 +32,29 @@ export function createEmptyFilterConfig(): FilterConfig {
     id: `filter-${Date.now()}`,
     name: 'New Filter',
     enabled: true,
-    includePatterns: [],
-    includeOperator: 'or',
-    excludePatterns: [],
-    excludeOperator: 'or',
+    mode: 'include',
+    patterns: [],
+    operator: 'or',
     levelFilters: [],
     sourceFilters: [],
     fileFilters: [],
+  };
+}
+
+/** Migrate a legacy filter (includePatterns/excludePatterns) to the unified model */
+export function migrateFilter(f: FilterConfig): FilterConfig {
+  if (f.patterns !== undefined) return f; // already migrated
+  const hasInclude = (f.includePatterns?.length ?? 0) > 0;
+  const hasExclude = (f.excludePatterns?.length ?? 0) > 0;
+  return {
+    ...f,
+    mode: hasExclude && !hasInclude ? 'exclude' : 'include',
+    patterns: hasExclude && !hasInclude
+      ? (f.excludePatterns ?? [])
+      : (f.includePatterns ?? []),
+    operator: hasExclude && !hasInclude
+      ? (f.excludeOperator ?? 'or')
+      : (f.includeOperator ?? 'or'),
   };
 }
 
@@ -91,19 +111,15 @@ function matchesPatterns(text: string, patterns: RegExp[], operator: 'and' | 'or
  *   - No patterns, a criterion doesn't apply to entry  → null (no opinion)
  *   - No criteria at all            → true  (empty filter, include everything)
  */
-export function getFilterDecision(entry: LogEntry, filter: FilterConfig): boolean | null {
+export function getFilterDecision(entry: LogEntry, rawFilter: FilterConfig): boolean | null {
+  const filter = migrateFilter(rawFilter);
   const searchText = `${entry.timestamp.toISOString()} ${entry.level} ${entry.source} ${entry.filename || ''} ${entry.message}`;
 
-  // Include patterns — match → include; no match → no opinion (not exclude)
-  if (filter.includePatterns.length > 0) {
-    const includePatterns = compilePatterns(filter.includePatterns);
-    return matchesPatterns(searchText, includePatterns, filter.includeOperator ?? 'or') ? true : null;
-  }
-
-  // Exclude patterns — match → exclude; no match → no opinion (not include)
-  if (filter.excludePatterns.length > 0) {
-    const excludePatterns = compilePatterns(filter.excludePatterns);
-    return matchesPatterns(searchText, excludePatterns, filter.excludeOperator ?? 'or') ? false : null;
+  if (filter.patterns.length > 0) {
+    const compiled = compilePatterns(filter.patterns);
+    const matched = matchesPatterns(searchText, compiled, filter.operator ?? 'or');
+    if (filter.mode === 'include') return matched ? true : null;
+    else                          return matched ? false : null;
   }
 
   // No patterns: level/source/file criteria determine applicability.
@@ -130,19 +146,15 @@ export function getFilterDecision(entry: LogEntry, filter: FilterConfig): boolea
 /**
  * Apply filters to a log entry
  */
-export function matchesFilter(entry: LogEntry, filter: FilterConfig): boolean {
+export function matchesFilter(entry: LogEntry, rawFilter: FilterConfig): boolean {
+  const filter = migrateFilter(rawFilter);
   const searchText = `${entry.timestamp.toISOString()} ${entry.level} ${entry.source} ${entry.filename || ''} ${entry.message}`;
 
-  // Include patterns — a match forces inclusion, bypassing all other criteria
-  const includePatterns = compilePatterns(filter.includePatterns);
-  if (includePatterns.length > 0) {
-    return matchesPatterns(searchText, includePatterns, filter.includeOperator ?? 'or');
-  }
-
-  // Exclude patterns — a match forces exclusion
-  const excludePatterns = compilePatterns(filter.excludePatterns);
-  if (excludePatterns.length > 0 && matchesPatterns(searchText, excludePatterns, filter.excludeOperator ?? 'or')) {
-    return false;
+  if (filter.patterns.length > 0) {
+    const compiled = compilePatterns(filter.patterns);
+    const matched = matchesPatterns(searchText, compiled, filter.operator ?? 'or');
+    if (filter.mode === 'include') return matched;
+    else return !matched;
   }
 
   // Level filters
