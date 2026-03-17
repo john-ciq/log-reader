@@ -2023,15 +2023,35 @@ th {
   right: 0;
   top: 0;
   bottom: 0;
-  width: 6px;
+  width: 10px;
   cursor: col-resize;
   user-select: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.resize-handle:hover,
-.resize-handle:active {
-  background: var(--primary);
-  opacity: 0.6;
+.resize-handle::after {
+  content: '';
+  display: block;
+  width: 6px;
+  height: 14px;
+  background-image:
+    radial-gradient(circle, var(--text-muted) 1px, transparent 1px),
+    radial-gradient(circle, var(--text-muted) 1px, transparent 1px);
+  background-size: 3px 3.5px;
+  background-position: 0 0, 3px 1.75px;
+  background-repeat: repeat-y;
+  opacity: 0.35;
+  transition: opacity 0.15s, background-image 0.15s;
+}
+
+.resize-handle:hover::after,
+.resize-handle:active::after {
+  background-image:
+    radial-gradient(circle, var(--primary) 1px, transparent 1px),
+    radial-gradient(circle, var(--primary) 1px, transparent 1px);
+  opacity: 0.9;
 }
 
 th.col-drag-over {
