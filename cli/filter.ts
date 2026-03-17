@@ -11,7 +11,8 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
-import { parseLogContent, LogEntry } from '../src/lib/parser.ts';
+import JSZip from 'jszip';
+import { parseLogContent, parseLogLine, LogEntry } from '../src/lib/parser.ts';
 import { FilterConfig, getFilterDecision, searchEntries, regexSearchEntries } from '../src/lib/filters.ts';
 
 // ── Types ──────────────────────────────────────────────────────────────────────
@@ -107,6 +108,73 @@ function readStdin(): Promise<string> {
   });
 }
 
+// ── ZIP processing ─────────────────────────────────────────────────────────────
+
+async function processZip(
+  buffer: Buffer,
+  zipName: string,
+): Promise<{ entries: LogEntry[]; count: number }> {
+  const zip = await JSZip.loadAsync(buffer);
+
+  // Central Logger archive (has log_state.json + logN.json files)
+  if (zip.files['log_state.json']) {
+    let allEntries: LogEntry[] = [];
+    let idx = 0;
+    const logFiles = Object.keys(zip.files)
+      .filter(f => !zip.files[f].dir && f !== 'log_state.json' && f.endsWith('.json'));
+
+    for (const filename of logFiles) {
+      const name = path.basename(filename);
+      const content = await zip.files[filename].async('string');
+      const jsonData = JSON.parse(content);
+
+      let rawEntries: unknown[];
+      if (Array.isArray(jsonData)) {
+        rawEntries = jsonData;
+      } else if (typeof jsonData === 'object' && jsonData !== null) {
+        const nested = Object.values(jsonData).find(Array.isArray);
+        if (!nested) { warn(`${zipName}/${name}: no array found, skipping`); continue; }
+        rawEntries = nested as unknown[];
+      } else {
+        warn(`${zipName}/${name}: unexpected format, skipping`);
+        continue;
+      }
+
+      let fileEntries = 0;
+      for (const entry of rawEntries) {
+        const parsed = parseLogLine(JSON.stringify(entry), `zip-${idx++}`, name);
+        if (parsed) { allEntries.push(parsed); fileEntries++; }
+      }
+      log(`  ${zipName}/${name}: ${fileEntries} entries`);
+    }
+    log(`  ${zipName}: ${allEntries.length} total entries`);
+    return { entries: allEntries, count: allEntries.length };
+  }
+
+  // Generic ZIP — process each file, recurse into nested ZIPs
+  let allEntries: LogEntry[] = [];
+  let total = 0;
+
+  const fileList = Object.values(zip.files).filter(f => !f.dir);
+  for (const file of fileList) {
+    const name = path.basename(file.name);
+    if (name.endsWith('.zip')) {
+      const nested = Buffer.from(await file.async('arraybuffer'));
+      const result = await processZip(nested, name);
+      allEntries = allEntries.concat(result.entries);
+      total += result.count;
+    } else {
+      const content = await file.async('string');
+      const entries = parseLogContent(content, name);
+      log(`  ${zipName}/${name}: ${entries.length} entries`);
+      total += entries.length;
+      allEntries = allEntries.concat(entries);
+    }
+  }
+
+  return { entries: allEntries, count: total };
+}
+
 // ── Filtering ──────────────────────────────────────────────────────────────────
 
 function applyFilterChain(entries: LogEntry[], filters: FilterConfig[]): LogEntry[] {
@@ -126,7 +194,7 @@ function applyFilterChain(entries: LogEntry[], filters: FilterConfig[]): LogEntr
 
 async function main(): Promise<void> {
   const { files, configFile, outputFile } = parseArgs(process.argv);
-  const hasStdin = !process.stdin.isTTY;
+  const hasStdin = process.stdin.isTTY === false;
 
   if (files.length === 0 && !hasStdin) {
     printHelp();
@@ -172,10 +240,16 @@ async function main(): Promise<void> {
       continue;
     }
     const filename = path.basename(filePath);
-    const entries = parseLogContent(fs.readFileSync(filePath, 'utf-8'), filename);
-    log(`  ${filename}: ${entries.length} entries`);
-    totalParsed += entries.length;
-    allEntries = allEntries.concat(entries);
+    if (filename.endsWith('.zip')) {
+      const result = await processZip(fs.readFileSync(filePath), filename);
+      allEntries = allEntries.concat(result.entries);
+      totalParsed += result.count;
+    } else {
+      const entries = parseLogContent(fs.readFileSync(filePath, 'utf-8'), filename);
+      log(`  ${filename}: ${entries.length} entries`);
+      totalParsed += entries.length;
+      allEntries = allEntries.concat(entries);
+    }
     sourceCount++;
   }
 
