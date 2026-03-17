@@ -1135,7 +1135,7 @@ html, body {
 }
 
 .move-btn:not(:disabled):hover {
-  color: var(--error);
+  color: var(--primary);
   transform: scale(1.1);
 }
 
