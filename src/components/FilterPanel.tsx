@@ -101,7 +101,7 @@ export default function FilterPanel({
                   />
                   <div className="filter-title-group">
                     <label htmlFor={`filter-${filter.id}`}>
-                      {filter.name || 'Unnamed Filter'}
+                      <span className="filter-name-text">{filter.name || 'Unnamed Filter'}</span>
                       <span className={`filter-mode-badge filter-mode-badge--${filter.mode ?? 'include'}`}>
                         {filter.mode ?? 'include'}
                       </span>
@@ -142,20 +142,20 @@ export default function FilterPanel({
                       >
                         ✕ Remove
                       </button>
+                      <button
+                        onClick={() => setExpandedFilters(prev => {
+                          const next = new Set(prev);
+                          if (next.has(filter.id)) next.delete(filter.id); else next.add(filter.id);
+                          saveExpandedFilters([...next]);
+                          return next;
+                        })}
+                        className="duplicate-btn"
+                      >
+                        {expandedFilters.has(filter.id) ? '✕ Close' : '✎ Edit'}
+                      </button>
                     </div>
                   </div>
                 </div>
-                <button
-                  onClick={() => setExpandedFilters(prev => {
-                    const next = new Set(prev);
-                    if (next.has(filter.id)) next.delete(filter.id); else next.add(filter.id);
-                    saveExpandedFilters([...next]);
-                    return next;
-                  })}
-                  className="expand-btn"
-                >
-                  {expandedFilters.has(filter.id) ? '▼' : '▶'}
-                </button>
               </div>
 
               {expandedFilters.has(filter.id) && (
