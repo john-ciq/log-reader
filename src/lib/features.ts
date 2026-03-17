@@ -1,6 +1,6 @@
 const STORAGE_KEY = 'log-reader-features';
 
-export type FeatureKey = 'autoSizeColumns' | 'advancedFilters' | 'deduplication' | 'savedPresets' | 'timeRange' | 'persistTimeRange' | 'importExportStorage' | 'scrollLogSources';
+export type FeatureKey = 'autoSizeColumns' | 'advancedFilters' | 'deduplication' | 'savedPresets' | 'timeRange' | 'persistTimeRange' | 'importExportStorage' | 'scrollLogSources' | 'showOnlyMatches';
 
 // The "visible" property allows us to hide features that are still in development or not
 // ready/intended for users, without removing their definitions from the code.
@@ -59,6 +59,12 @@ export const featureDefinitions: Record<FeatureKey, FeatureDefinition> = {
     defaultValue: true,
     description: 'Scroll in Log Sources — limit the sources list height and add a scrollbar',
     visible: true,
+  },
+  showOnlyMatches: {
+    name: 'Show Only Matches',
+    defaultValue: true,
+    description: 'Only show log entries that match at least one enabled filter',
+    visible: false,
   },
 };
 

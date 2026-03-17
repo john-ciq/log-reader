@@ -135,7 +135,7 @@ function App() {
           const decision = getFilterDecision(entry, filter);
           if (decision !== null) return decision;
         }
-        return true; // no filter claimed this entry → include by default
+        return !features.showOnlyMatches; // no filter claimed this entry → include unless "must match" is on
       });
     }
 
@@ -159,7 +159,7 @@ function App() {
     }
 
     setFilteredEntries(result);
-  }, [entries, filters, displayLevels, displayFiles, displaySources, timeRange]);
+  }, [entries, filters, features.showOnlyMatches, displayLevels, displayFiles, displaySources, timeRange]);
 
   // Global keyboard shortcuts
   useEffect(() => {

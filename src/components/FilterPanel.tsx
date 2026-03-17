@@ -24,7 +24,7 @@ export default function FilterPanel({
   onReorderFilter,
   availableFiles,
 }: FilterPanelProps) {
-  const { features } = useFeatures();
+  const { features, setFeature } = useFeatures();
   const [expandedFilters, setExpandedFilters] = useState<Set<string>>(() => new Set(loadExpandedFilters()));
   const [patternErrors, setPatternErrors] = useState<Record<string, string>>({});
   const [dragOverId, setDragOverId] = useState<string | null>(null);
@@ -96,6 +96,11 @@ export default function FilterPanel({
     <div className="filter-panel">
       <div className="filter-header">
         <h4>🔍 Filters</h4>
+        <button
+          className={`require-match-btn${features.showOnlyMatches ? ' active' : ''}`}
+          onClick={() => setFeature('showOnlyMatches', !features.showOnlyMatches)}
+          title="Only show entries that match a filter"
+        >Only Matches</button>
         <button onClick={onAddFilter} className="add-filter-btn">
           + New
         </button>
