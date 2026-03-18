@@ -3005,14 +3005,14 @@ tbody tr:last-child td {
   align-items: center;
   gap: 0.4rem;
   font-size: 0.8rem;
-  color: #89b4fa;
+  color: var(--primary);
   margin-left: auto;
 }
 
 .copy-rows-btn {
-  background: #313244;
-  border: 1px solid #45475a;
-  color: #89b4fa;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  color: var(--primary);
   padding: 2px 8px;
   border-radius: 4px;
   font-size: 0.78rem;
@@ -3020,13 +3020,13 @@ tbody tr:last-child td {
 }
 
 .copy-rows-btn:hover {
-  background: #45475a;
+  background: var(--border);
 }
 
 .clear-selection-btn {
   background: transparent;
   border: none;
-  color: #6c7086;
+  color: var(--text-muted);
   cursor: pointer;
   font-size: 0.85rem;
   padding: 2px 4px;
@@ -3034,7 +3034,7 @@ tbody tr:last-child td {
 }
 
 .clear-selection-btn:hover {
-  color: #cdd6f4;
+  color: var(--text-primary);
 }
 
 /* ── Convert to filter button ────────────────────────────────────────────────── */

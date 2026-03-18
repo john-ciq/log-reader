@@ -76,18 +76,18 @@ export default function StatisticsPanel({
             Total: {totalEntries} | Filtered: {entries.length}
           </span>
           {entries.length > 0 && (
-            <button onClick={onExport} className="export-btn">
-              📥 Export Filtered
+            <button onClick={onExport} className="export-btn" title="Export filtered entries">
+              📥 Filtered
             </button>
           )}
           {totalEntries > 0 && (
-            <button onClick={onExportAll} className="export-btn">
-              📥 Export All
+            <button onClick={onExportAll} className="export-btn" title="Export all entries">
+              📥 All
             </button>
           )}
           {features.supportBundle && totalEntries > 0 && (
-            <button onClick={onExportBundle} className="export-btn">
-              📦 Download Bundle
+            <button onClick={onExportBundle} className="export-btn" title="Export support bundle">
+              📦 Export
             </button>
           )}
           {features.supportBundle && (
@@ -99,8 +99,8 @@ export default function StatisticsPanel({
                 style={{ display: 'none' }}
                 onChange={e => { const f = e.target.files?.[0]; if (f) onImportBundle(f); e.target.value = ''; }}
               />
-              <button onClick={() => bundleInputRef.current?.click()} className="export-btn">
-                📦 Import Bundle
+              <button onClick={() => bundleInputRef.current?.click()} className="export-btn" title="Import support bundle">
+                📦 Import
               </button>
             </>
           )}

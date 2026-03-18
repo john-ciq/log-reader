@@ -2,6 +2,12 @@
 
 All notable changes to the Log Reader project will be documented in this file.
 
+## [1.0.59] - 2026-03-18
+
+### Changed
+- **Compact export/import buttons** — statistics panel action buttons now use shorter labels ("Filtered", "All", "Export", "Import") with tooltips for clarity
+- **Copy rows button themed** — the "Copy N" selection toolbar button and related controls now use CSS theme variables instead of hardcoded dark-mode colors
+
 ## [1.0.58] - 2026-03-17
 
 ### Added
