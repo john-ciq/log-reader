@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { LogEntry } from '../lib/parser';
 import { useFeatures } from '../lib/FeaturesContext';
 
@@ -16,6 +16,19 @@ function formatTimestamp(t: Date): string {
   const pad2 = (n: number) => String(n).padStart(2, '0');
   const pad3 = (n: number) => String(n).padStart(3, '0');
   return `${t.getFullYear()}-${pad2(t.getMonth()+1)}-${pad2(t.getDate())} ${pad2(t.getHours())}:${pad2(t.getMinutes())}:${pad2(t.getSeconds())}.${pad3(t.getMilliseconds())}`;
+}
+
+function CollapsibleSection({ label, grow, children }: { label: string; grow?: boolean; children: React.ReactNode }) {
+  const [collapsed, setCollapsed] = useState(false);
+  return (
+    <div className={`detail-field detail-field--block${grow && !collapsed ? ' detail-field--grow' : ''}`}>
+      <button className="detail-section-toggle" onClick={() => setCollapsed(c => !c)}>
+        <span className="collapse-arrow">{collapsed ? '▶' : '▼'}</span>
+        <span className="detail-field-label">{label}</span>
+      </button>
+      {!collapsed && children}
+    </div>
+  );
 }
 
 function DetailBody({ entry, onClose, onPrev, onNext, hasPrev, hasNext, sidebar }: Omit<RowDetailPanelProps, 'dialog'> & { entry: LogEntry }) {
@@ -71,24 +84,21 @@ function DetailBody({ entry, onClose, onPrev, onNext, hasPrev, hasNext, sidebar 
           </div>
         )}
 
-        <div className="detail-field detail-field--block">
-          <span className="detail-field-label">Message</span>
+        <CollapsibleSection label="Message">
           <pre className="detail-message">{entry.message}</pre>
-        </div>
+        </CollapsibleSection>
 
         {hasMetadata && (
-          <div className="detail-field detail-field--block">
-            <span className="detail-field-label">Metadata</span>
+          <CollapsibleSection label="Metadata">
             <pre className="detail-message detail-monospace">
               {JSON.stringify(entry.metadata, null, 2)}
             </pre>
-          </div>
+          </CollapsibleSection>
         )}
 
-        <div className="detail-field detail-field--block detail-field--grow">
-          <span className="detail-field-label">Raw</span>
+        <CollapsibleSection label="Raw" grow>
           <pre className="detail-message detail-muted detail-monospace">{entry.raw}</pre>
-        </div>
+        </CollapsibleSection>
       </div>
     </>
   );
