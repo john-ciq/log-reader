@@ -2804,11 +2804,12 @@ tbody tr:last-child td {
 
 .detail-panel-body {
   flex: 1;
-  overflow-y: auto;
+  overflow: hidden;
   padding: 1rem;
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
+  min-height: 0;
 }
 
 .detail-field {
@@ -2820,6 +2821,18 @@ tbody tr:last-child td {
 .detail-field--block {
   flex-direction: column;
   gap: 0.25rem;
+}
+
+.detail-field--grow {
+  flex: 1;
+  overflow: hidden;
+  min-height: 0;
+}
+
+.detail-field--grow .detail-message {
+  flex: 1;
+  max-height: none;
+  overflow-y: auto;
 }
 
 .detail-field-label {
@@ -2857,7 +2870,7 @@ tbody tr:last-child td {
   word-break: break-all;
   color: var(--text-secondary);
   margin: 0;
-  max-height: 300px;
+  max-height: 200px;
   overflow-y: auto;
 }
 
@@ -2883,7 +2896,7 @@ tbody tr:last-child td {
 
 .row-detail-sidebar .detail-panel-body {
   flex: 1;
-  overflow-y: auto;
+  min-height: 0;
 }
 
 .detail-sidebar-empty {

@@ -76,7 +76,7 @@ function DetailBody({ entry, onClose, onPrev, onNext, hasPrev, hasNext }: Omit<R
           </div>
         )}
 
-        <div className="detail-field detail-field--block">
+        <div className="detail-field detail-field--block detail-field--grow">
           <span className="detail-field-label">Raw</span>
           <pre className="detail-message detail-muted detail-monospace">{entry.raw}</pre>
         </div>
