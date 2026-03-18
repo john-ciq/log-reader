@@ -18,11 +18,31 @@ function formatTimestamp(t: Date): string {
   return `${t.getFullYear()}-${pad2(t.getMonth()+1)}-${pad2(t.getDate())} ${pad2(t.getHours())}:${pad2(t.getMinutes())}:${pad2(t.getSeconds())}.${pad3(t.getMilliseconds())}`;
 }
 
+const DETAIL_SECTION_STORAGE_KEY = 'detail-section-collapsed';
+
+function loadSectionCollapsed(): Record<string, boolean> {
+  try { return JSON.parse(localStorage.getItem(DETAIL_SECTION_STORAGE_KEY) ?? '{}'); } catch { return {}; }
+}
+
+function saveSectionCollapsed(state: Record<string, boolean>): void {
+  try { localStorage.setItem(DETAIL_SECTION_STORAGE_KEY, JSON.stringify(state)); } catch { /* ignore */ }
+}
+
 function CollapsibleSection({ label, grow, children }: { label: string; grow?: boolean; children: React.ReactNode }) {
-  const [collapsed, setCollapsed] = useState(false);
+  const key = label.toLowerCase();
+  const [collapsed, setCollapsed] = useState(() => loadSectionCollapsed()[key] ?? false);
+
+  const toggle = () => setCollapsed(c => {
+    const next = !c;
+    const state = loadSectionCollapsed();
+    state[key] = next;
+    saveSectionCollapsed(state);
+    return next;
+  });
+
   return (
     <div className={`detail-field detail-field--block${grow && !collapsed ? ' detail-field--grow' : ''}`}>
-      <button className="detail-section-toggle" onClick={() => setCollapsed(c => !c)}>
+      <button className="detail-section-toggle" onClick={toggle}>
         <span className="collapse-arrow">{collapsed ? '▶' : '▼'}</span>
         <span className="detail-field-label">{label}</span>
       </button>
