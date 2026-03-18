@@ -5,7 +5,7 @@ import { useFeatures } from '../lib/FeaturesContext';
 
 interface FilterPanelProps {
   filters: FilterConfig[];
-  onAddFilter: () => void;
+  onAddFilter: () => string;
   onUpdateFilter: (filterId: string, updates: Partial<FilterConfig>) => void;
   onDeleteFilter: (filterId: string) => void;
   onDuplicateFilter: (filterId: string) => void;
@@ -61,7 +61,15 @@ export default function FilterPanel({
           onClick={() => setFeature('showOnlyMatches', !features.showOnlyMatches)}
           title="Only show entries that match a filter"
         >Only Matches</button>
-        <button onClick={onAddFilter} className="add-filter-btn">
+        <button onClick={() => {
+          const id = onAddFilter();
+          setExpandedFilters(prev => {
+            const next = new Set(prev);
+            next.add(id);
+            saveExpandedFilters([...next]);
+            return next;
+          });
+        }} className="add-filter-btn">
           + New
         </button>
       </div>

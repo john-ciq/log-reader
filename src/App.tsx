@@ -221,7 +221,7 @@ function App() {
     });
   }, []);
 
-  const handleAddFilter = useCallback(() => {
+  const handleAddFilter = useCallback((): string => {
     const newFilter: FilterConfig = {
       id: `filter-${Date.now()}`,
       name: `Filter ${filters.length + 1}`,
@@ -234,6 +234,7 @@ function App() {
       fileFilters: [],
     };
     setFilters([newFilter, ...filters]);
+    return newFilter.id;
   }, [filters]);
 
   // keep track of available levels when entries change
