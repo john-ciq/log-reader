@@ -145,8 +145,8 @@ function App() {
     // Apply global file visibility
     result = result.filter(entry => displayFiles.has(entry.filename || ''));
 
-    // Apply global source visibility
-    result = result.filter(entry => displaySources.has(entry.source));
+    // Apply global source visibility (entries with no source always pass through)
+    result = result.filter(entry => !entry.source || displaySources.has(entry.source));
 
     // Apply time range (only when feature is enabled)
     if (features.timeRange && timeRange) {

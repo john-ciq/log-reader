@@ -130,8 +130,27 @@ export function parseLogContent(content: string, filename?: string): LogEntry[] 
     );
   };
 
-  // Parse as line-delimited content, combining continuations
   const rawLines = content.split('\n');
+
+  // If no line matches any parser, treat each non-empty line as its own entry
+  const anyMatch = rawLines.some(isStartLine);
+  if (!anyMatch) {
+    rawLines.forEach((line, i) => {
+      if (!line.trim()) return;
+      entries.push({
+        id: `${Date.now()}-${i}`,
+        timestamp: new Date(entries.length * 1000),
+        level: 'log',
+        source: '',
+        filename,
+        message: line,
+        raw: line,
+      });
+    });
+    return entries;
+  }
+
+  // Parse as line-delimited content, combining continuations
   let buffer = '';
   rawLines.forEach((line) => {
     if (isStartLine(line)) {
