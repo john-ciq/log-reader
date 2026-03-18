@@ -85,21 +85,25 @@ export default function StatisticsPanel({
               📥 Export All
             </button>
           )}
-          {totalEntries > 0 && (
+          {features.supportBundle && totalEntries > 0 && (
             <button onClick={onExportBundle} className="export-btn">
               📦 Download Bundle
             </button>
           )}
-          <input
-            ref={bundleInputRef}
-            type="file"
-            accept=".json"
-            style={{ display: 'none' }}
-            onChange={e => { const f = e.target.files?.[0]; if (f) onImportBundle(f); e.target.value = ''; }}
-          />
-          <button onClick={() => bundleInputRef.current?.click()} className="export-btn">
-            📦 Import Bundle
-          </button>
+          {features.supportBundle && (
+            <>
+              <input
+                ref={bundleInputRef}
+                type="file"
+                accept=".json"
+                style={{ display: 'none' }}
+                onChange={e => { const f = e.target.files?.[0]; if (f) onImportBundle(f); e.target.value = ''; }}
+              />
+              <button onClick={() => bundleInputRef.current?.click()} className="export-btn">
+                📦 Import Bundle
+              </button>
+            </>
+          )}
         </div>
       </div>
 
