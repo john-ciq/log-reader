@@ -3,13 +3,14 @@ import { useFeatures } from '../lib/FeaturesContext';
 import { FeatureKey, featureDefinitions } from '../lib/features';
 import { Theme, loadTheme, saveTheme, applyTheme } from '../lib/theme';
 import { downloadTimestamp } from '../lib/utils';
+import pkg from '../../package.json';
 
 interface FeaturesPanelProps {
   onClose: () => void;
 }
 
 function exportStorage() {
-  const data: Record<string, string> = {};
+  const data: Record<string, string> = { __version: pkg.version };
   for (let i = 0; i < localStorage.length; i++) {
     const key = localStorage.key(i)!;
     data[key] = localStorage.getItem(key)!;
