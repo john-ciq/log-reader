@@ -32,7 +32,7 @@ export const featureDefinitions: Record<FeatureKey, FeatureDefinition> = {
   },
   savedPresets: {
     name: 'Preset Saving',
-    defaultValue: false,
+    defaultValue: true,
     description: 'Show a "Presets" panel in the sidebar to save and restore named filter + search configurations',
     visible: true,
   },
