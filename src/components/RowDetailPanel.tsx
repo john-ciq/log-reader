@@ -28,9 +28,10 @@ function saveSectionCollapsed(state: Record<string, boolean>): void {
   try { localStorage.setItem(DETAIL_SECTION_STORAGE_KEY, JSON.stringify(state)); } catch { /* ignore */ }
 }
 
-function CollapsibleSection({ label, grow, children }: { label: string; grow?: boolean; children: React.ReactNode }) {
+function CollapsibleSection({ label, grow, copyText, children }: { label: string; grow?: boolean; copyText?: string; children: React.ReactNode }) {
   const key = label.toLowerCase();
   const [collapsed, setCollapsed] = useState(() => loadSectionCollapsed()[key] ?? false);
+  const [copied, setCopied] = useState(false);
 
   const toggle = () => setCollapsed(c => {
     const next = !c;
@@ -40,11 +41,25 @@ function CollapsibleSection({ label, grow, children }: { label: string; grow?: b
     return next;
   });
 
+  const handleCopy = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!copyText) return;
+    navigator.clipboard.writeText(copyText).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    });
+  };
+
   return (
     <div className={`detail-field detail-field--block${grow && !collapsed ? ' detail-field--grow' : ''}`}>
       <button className="detail-section-toggle" onClick={toggle}>
         <span className="collapse-arrow">{collapsed ? '▶' : '▼'}</span>
         <span className="detail-field-label">{label}</span>
+        {copyText && (
+          <span className={`detail-copy-btn${copied ? ' detail-copy-btn--copied' : ''}`} onClick={handleCopy} title="Copy to clipboard">
+            {copied ? '✓' : '⎘'}
+          </span>
+        )}
       </button>
       {!collapsed && children}
     </div>
@@ -104,19 +119,19 @@ function DetailBody({ entry, onClose, onPrev, onNext, hasPrev, hasNext, sidebar 
           </div>
         )}
 
-        <CollapsibleSection label="Message">
+        <CollapsibleSection label="Message" copyText={entry.message}>
           <pre className="detail-message">{entry.message}</pre>
         </CollapsibleSection>
 
         {hasMetadata && (
-          <CollapsibleSection label="Metadata">
+          <CollapsibleSection label="Metadata" copyText={JSON.stringify(entry.metadata, null, 2)}>
             <pre className="detail-message detail-monospace">
               {JSON.stringify(entry.metadata, null, 2)}
             </pre>
           </CollapsibleSection>
         )}
 
-        <CollapsibleSection label="Raw" grow>
+        <CollapsibleSection label="Raw" grow copyText={entry.raw}>
           <pre className="detail-message detail-muted detail-monospace">{entry.raw}</pre>
         </CollapsibleSection>
       </div>

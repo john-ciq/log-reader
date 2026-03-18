@@ -2,6 +2,11 @@
 
 All notable changes to the Log Reader project will be documented in this file.
 
+## [1.0.60] - 2026-03-18
+
+### Added
+- **Copy to clipboard in detail panel** — Message, Metadata, and Raw sub-panels show a copy icon (⎘) on hover; clicking it copies the content to the clipboard and briefly shows a ✓ confirmation
+
 ## [1.0.59] - 2026-03-18
 
 ### Changed

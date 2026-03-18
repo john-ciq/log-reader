@@ -2886,6 +2886,30 @@ tbody tr:last-child td {
   color: var(--text-primary);
 }
 
+.detail-copy-btn {
+  margin-left: auto;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  padding: 0 2px;
+  opacity: 0;
+  transition: opacity 0.15s, color 0.15s;
+  pointer-events: auto;
+  line-height: 1;
+}
+
+.detail-field--block:hover .detail-copy-btn {
+  opacity: 1;
+}
+
+.detail-copy-btn:hover {
+  color: var(--text-primary);
+}
+
+.detail-copy-btn--copied {
+  color: var(--success);
+  opacity: 1;
+}
+
 .detail-section-toggle .collapse-arrow {
   font-size: 0.5rem;
   color: var(--text-muted);
