@@ -75,7 +75,7 @@ export default function FeaturesPanel({ onClose }: FeaturesPanelProps) {
       <div className="features-panel" onClick={e => e.stopPropagation()}>
         <div className="features-panel-header">
           <h3>Features</h3>
-          <button className="features-panel-reset" onClick={() => { resetFeatures(); setShowRefreshConfirm(true); }}>Reset</button>
+            <button className="features-panel-reset" onClick={() => { resetFeatures(); handleThemeChange('system'); setShowRefreshConfirm(true); }}>Reset</button>
           <button className="features-panel-close" onClick={onClose}>✕</button>
         </div>
         <div className="features-panel-body">
