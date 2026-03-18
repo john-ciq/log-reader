@@ -87,7 +87,7 @@ export default function StatisticsPanel({
           )}
           {totalEntries > 0 && (
             <button onClick={onExportBundle} className="export-btn">
-              📦 Support Bundle
+              📦 Download Bundle
             </button>
           )}
           <input
