@@ -110,6 +110,9 @@ export default function FilterPanel({
                   <div className="filter-title-group">
                     <label htmlFor={`filter-${filter.id}`}>
                       <span className="filter-name-text">{filter.name || 'Unnamed Filter'}</span>
+                      {features.filterComments && filter.comment && (
+                        <span className="filter-comment-preview" title={filter.comment}>{filter.comment}</span>
+                      )}
                       <span
                         className={`filter-mode-badge filter-mode-badge--${filter.mode ?? 'include'} filter-mode-badge--clickable filter-mode-badge--first`}
                         onClick={e => { e.preventDefault(); onUpdateFilter(filter.id, { mode: filter.mode === 'exclude' ? 'include' : 'exclude' }); }}
@@ -184,6 +187,19 @@ export default function FilterPanel({
                       placeholder="My Filter"
                     />
                   </div>
+
+                  {features.filterComments && (
+                    <div className="filter-name-group">
+                      <label>Comment:</label>
+                      <textarea
+                        value={filter.comment ?? ''}
+                        onChange={e => onUpdateFilter(filter.id, { comment: e.target.value })}
+                        className="filter-comment-input"
+                        placeholder="Optional note about this filter..."
+                        rows={2}
+                      />
+                    </div>
+                  )}
 
                   <div className={`filter-patterns${hasCriteria && !hasPatterns ? ' section-inactive' : ''}`}>
                     <div className="pattern-section-header">

@@ -15,6 +15,7 @@ export interface FilterConfig {
   includeOperator?: 'and' | 'or';
   excludePatterns?: string[];
   excludeOperator?: 'and' | 'or';
+  comment?: string; // Optional free-text note about this filter
   levelFilters: string[]; // Log levels to include (empty = all)
   sourceFilters: string[]; // Sources to include (empty = all)
   fileFilters: string[]; // Filenames to include (empty = all)
