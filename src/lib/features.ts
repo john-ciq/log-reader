@@ -13,9 +13,9 @@ export interface FeatureDefinition {
 
 export const featureDefinitions: Record<FeatureKey, FeatureDefinition> = {
   autoSizeColumns: {
-    name: 'Auto-size Columns',
-    defaultValue: false,
-    description: 'Auto-size "Timestamp" and "Level" columns to fit their content when entries are loaded',
+    name: 'Auto-size Columns on Log Import',
+    defaultValue: true,
+    description: 'Auto-size "Timestamp" and "Level" columns to fit log files are loaded',
     visible: true,
   },
   advancedFilters: {
