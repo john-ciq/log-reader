@@ -542,6 +542,7 @@ function App() {
         onNext={handleDetailNext}
         hasPrev={hasPrev}
         hasNext={hasNext}
+        dialog={features.entryDetailDialog}
       />
 
       <div className="app-container">

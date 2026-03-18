@@ -8,6 +8,7 @@ interface RowDetailPanelProps {
   onNext: () => void;
   hasPrev: boolean;
   hasNext: boolean;
+  dialog?: boolean;
 }
 
 function formatTimestamp(t: Date): string {
@@ -16,7 +17,7 @@ function formatTimestamp(t: Date): string {
   return `${t.getFullYear()}-${pad2(t.getMonth()+1)}-${pad2(t.getDate())} ${pad2(t.getHours())}:${pad2(t.getMinutes())}:${pad2(t.getSeconds())}.${pad3(t.getMilliseconds())}`;
 }
 
-export default function RowDetailPanel({ entry, onClose, onPrev, onNext, hasPrev, hasNext }: RowDetailPanelProps) {
+export default function RowDetailPanel({ entry, onClose, onPrev, onNext, hasPrev, hasNext, dialog }: RowDetailPanelProps) {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
@@ -33,8 +34,8 @@ export default function RowDetailPanel({ entry, onClose, onPrev, onNext, hasPrev
 
   return (
     <>
-      <div className="detail-panel-overlay" onClick={onClose} />
-      <div className="row-detail-panel">
+      <div className={dialog ? 'detail-dialog-overlay' : 'detail-panel-overlay'} onClick={onClose} />
+      <div className={dialog ? 'row-detail-dialog' : 'row-detail-panel'}>
         <div className="detail-panel-header">
           <span className="detail-panel-title">Entry Detail</span>
           <div className="detail-panel-nav">
