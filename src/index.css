@@ -1511,8 +1511,9 @@ html, body {
 .stats-actions {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 0.4rem;
   font-size: 0.9rem;
+  margin-left: auto;
   flex-wrap: wrap;
 }
 
@@ -1522,18 +1523,19 @@ html, body {
 }
 
 .export-btn {
-  padding: 0.65rem 1.25rem;
+  padding: 2px 7px;
   background: var(--primary);
   color: white;
   border: none;
-  border-radius: 8px;
+  border-radius: 4px;
   cursor: pointer;
-  font-size: 0.85rem;
-  font-weight: 600;
+  font-size: 0.72rem;
+  font-weight: 500;
   transition: all 0.2s ease;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.25rem;
+  white-space: nowrap;
 }
 
 .export-btn:hover {
