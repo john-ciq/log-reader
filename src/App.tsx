@@ -343,6 +343,11 @@ function App() {
     setFilters(filters.filter(f => f.id !== filterId));
   }, [filters]);
 
+  const handleRemoveAllFilters = useCallback(() => {
+    setFilters([]);
+    saveFilterConfigs([]);
+  }, []);
+
   const handleMoveFilter = useCallback((filterId: string, direction: 'up' | 'down') => {
     setFilters(prev => {
       const idx = prev.findIndex(f => f.id === filterId);
@@ -676,6 +681,7 @@ function App() {
                       onAddFilter={handleAddFilter}
                       onUpdateFilter={handleUpdateFilter}
                       onDeleteFilter={handleDeleteFilter}
+                      onRemoveAllFilters={handleRemoveAllFilters}
                       onMoveFilter={handleMoveFilter}
                       onDuplicateFilter={handleDuplicateFilter}
                       onReorderFilter={handleReorderFilter}

@@ -8,6 +8,7 @@ interface FilterPanelProps {
   onAddFilter: () => string;
   onUpdateFilter: (filterId: string, updates: Partial<FilterConfig>) => void;
   onDeleteFilter: (filterId: string) => void;
+  onRemoveAllFilters: () => void;
   onDuplicateFilter: (filterId: string) => void;
   onMoveFilter: (filterId: string, direction: 'up' | 'down') => void;
   onReorderFilter: (fromId: string, toId: string) => void;
@@ -19,6 +20,7 @@ export default function FilterPanel({
   onAddFilter,
   onUpdateFilter,
   onDeleteFilter,
+  onRemoveAllFilters,
   onDuplicateFilter,
   onMoveFilter,
   onReorderFilter,
@@ -56,11 +58,16 @@ export default function FilterPanel({
     <div className="filter-panel">
       <div className="filter-header">
         <h4>🔍 Filters</h4>
+        {filters.length > 0 && (
+          <button onClick={onRemoveAllFilters} className="delete-btn" title="Remove all filters">
+            ✕ All
+          </button>
+        )}
         <button
           className={`require-match-btn${features.showOnlyMatches ? ' active' : ''}`}
           onClick={() => setFeature('showOnlyMatches', !features.showOnlyMatches)}
           title="Only show entries that match a filter"
-        >Only Matches</button>
+        >Matches</button>
         <button onClick={() => {
           const id = onAddFilter();
           setExpandedFilters(prev => {
