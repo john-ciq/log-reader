@@ -2,14 +2,33 @@
 
 All notable changes to the Log Reader project will be documented in this file.
 
-## [1.0.60] - 2026-03-18
+## [1.0.61] - 2026-03-18
 
 ### Added
+- **Support bundle export** — "Export Bundle" button (gated by `supportBundle` feature, on by default) downloads a JSON file containing all filters, log entries, log file metadata, active level filters, filename filters, and the "show only matches" state
+- **Support bundle import** — "Import Bundle" button restores all of the above from a previously exported bundle, including source/file visibility
+- **Entry detail sidebar mode** — new `entryDetailSidebar` feature shows the Entry Detail panel as a persistent right-hand sidebar instead of a floating overlay; a toggle button in the panel header switches between the two modes
+- **Collapsible Message / Metadata / Raw sub-panels** — each sub-panel in the Entry Detail panel can be collapsed independently; collapse state is saved to localStorage
+- **Plaintext file fallback** — files that match no known parser are now loaded line-by-line, treating each non-empty line as a log message; timestamps increment by one second per line to preserve original order
+- **Time histogram max-count label** — a small "↑N" label in the top-left corner of the histogram shows the peak message count across all time buckets
+- **`window.__features` dev console API** — `list()`, `pick()`, `set(key, value)`, `toggle(key)`, `reset()`, and `help()` functions available in the browser console for inspecting and toggling feature flags without opening the settings panel; pass `true` to `list`/`pick` to target hidden features
+- **Filter comments** — new `filterComments` feature adds an optional free-text comment field to each filter; the comment appears as a preview in the collapsed filter header
+- **Remove All Filters button** — new `removeAllFilters` feature adds a "✕ All" button to the Filters panel header that clears all filters at once
+- **New filter auto-expands** — clicking "+ New" in the Filters panel immediately opens the new filter for editing
+- **`exportStorage` includes app version** — the storage export JSON now contains a `__version` field with the current app version
 - **Copy to clipboard in detail panel** — Message, Metadata, and Raw sub-panels show a copy icon (⎘) on hover; clicking it copies the content to the clipboard and briefly shows a ✓ confirmation
 
-## [1.0.59] - 2026-03-18
 
 ### Changed
+- **Export/import storage includes version** — exported settings bundles now carry `__version` for diagnostics
+- **Operator badge always visible** — the "and"/"or" operator badge on filter headers is shown even when no patterns have been added yet
+- **Reset settings resets theme** — the Reset button in the settings panel now also resets the theme to "System"
+- **Smaller export/import buttons** — statistics panel action buttons further reduced in size (smaller padding, font-size, and border-radius) to take less space in the header
+- **Right-aligned export/import buttons** — statistics panel action buttons are now flush to the right of the header
+
+### Fixed
+- **Copy rows button theming** — the "Copy N" selection toolbar and clear-selection button now use CSS theme variables instead of hardcoded dark-mode colors
+- **Plaintext entries not appearing** — source filter no longer excludes entries with an empty source (as produced by plaintext files)
 - **Compact export/import buttons** — statistics panel action buttons now use shorter labels ("Filtered", "All", "Export", "Import") with tooltips for clarity
 - **Copy rows button themed** — the "Copy N" selection toolbar button and related controls now use CSS theme variables instead of hardcoded dark-mode colors
 
