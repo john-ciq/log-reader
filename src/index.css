@@ -2861,38 +2861,41 @@ tbody tr:last-child td {
   overflow-y: auto;
 }
 
-/* ── Entry detail dialog mode ────────────────────────────────────────────────── */
-.detail-dialog-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.5);
-  z-index: 200;
-}
 
-.row-detail-dialog {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 640px;
-  max-width: 92vw;
-  max-height: 85vh;
-  background: var(--bg-secondary);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  z-index: 201;
+/* ── Entry detail sidebar mode ───────────────────────────────────────────────── */
+.row-detail-sidebar {
+  width: 380px;
+  flex-shrink: 0;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.35);
+  background: var(--bg-secondary);
+  _border-left: 1px solid var(--border);
+    border: 1px solid var(--border);
+  border-radius: 10px;
+
+  max-height: 100%;
   overflow: hidden;
 }
 
-.row-detail-dialog .detail-panel-header {
-  border-bottom: 1px solid var(--border);
+.row-detail-sidebar .detail-panel-header {
+  flex-shrink: 0;
 }
 
-.row-detail-dialog .detail-panel-body {
+.row-detail-sidebar .detail-panel-body {
+  flex: 1;
   overflow-y: auto;
+}
+
+.detail-sidebar-empty {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  font-style: italic;
+  padding: 2rem;
+  text-align: center;
 }
 
 /* ── Active / selected row highlight ─────────────────────────────────────────── */

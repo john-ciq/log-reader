@@ -535,15 +535,16 @@ function App() {
       </header>
       {featuresPanelOpen && <FeaturesPanel onClose={() => setFeaturesPanelOpen(false)} />}
 
-      <RowDetailPanel
-        entry={detailEntry}
-        onClose={handleCloseDetail}
-        onPrev={handleDetailPrev}
-        onNext={handleDetailNext}
-        hasPrev={hasPrev}
-        hasNext={hasNext}
-        dialog={features.entryDetailDialog}
-      />
+      {!features.entryDetailSidebar && (
+        <RowDetailPanel
+          entry={detailEntry}
+          onClose={handleCloseDetail}
+          onPrev={handleDetailPrev}
+          onNext={handleDetailNext}
+          hasPrev={hasPrev}
+          hasNext={hasNext}
+        />
+      )}
 
       <div className="app-container">
         <aside className={`sidebar${sidebarCollapsed ? ' sidebar--collapsed' : ''}`}>
@@ -766,6 +767,17 @@ function App() {
             );
           })()}
         </main>
+        {features.entryDetailSidebar && (
+          <RowDetailPanel
+            entry={detailEntry}
+            onClose={handleCloseDetail}
+            onPrev={handleDetailPrev}
+            onNext={handleDetailNext}
+            hasPrev={hasPrev}
+            hasNext={hasNext}
+            sidebar
+          />
+        )}
       </div>
     </div>
   );
