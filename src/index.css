@@ -2733,12 +2733,12 @@ tbody tr:last-child td {
   bottom: 0;
   width: 480px;
   max-width: 90vw;
-  background: #1e1e2e;
-  border-left: 1px solid #3a3a5c;
+  background: var(--bg-secondary);
+  border-left: 1px solid var(--border);
   z-index: 201;
   display: flex;
   flex-direction: column;
-  box-shadow: -4px 0 24px rgba(0, 0, 0, 0.5);
+  box-shadow: -4px 0 24px rgba(0, 0, 0, 0.3);
   overflow: hidden;
 }
 
@@ -2746,7 +2746,7 @@ tbody tr:last-child td {
   display: flex;
   align-items: center;
   padding: 0.75rem 1rem;
-  border-bottom: 1px solid #3a3a5c;
+  border-bottom: 1px solid var(--border);
   gap: 0.5rem;
   flex-shrink: 0;
 }
@@ -2754,7 +2754,7 @@ tbody tr:last-child td {
 .detail-panel-title {
   font-weight: 600;
   font-size: 0.9rem;
-  color: #cdd6f4;
+  color: var(--text-primary);
   flex: 1;
 }
 
@@ -2764,9 +2764,9 @@ tbody tr:last-child td {
 }
 
 .detail-panel-nav button {
-  background: #313244;
-  border: 1px solid #45475a;
-  color: #cdd6f4;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-light);
+  color: var(--text-primary);
   width: 28px;
   height: 28px;
   border-radius: 4px;
@@ -2779,7 +2779,7 @@ tbody tr:last-child td {
 }
 
 .detail-panel-nav button:hover:not(:disabled) {
-  background: #45475a;
+  background: var(--bg-hover);
 }
 
 .detail-panel-nav button:disabled {
@@ -2790,7 +2790,7 @@ tbody tr:last-child td {
 .detail-panel-close {
   background: transparent;
   border: none;
-  color: #6c7086;
+  color: var(--text-muted);
   cursor: pointer;
   font-size: 1rem;
   padding: 4px 6px;
@@ -2798,8 +2798,8 @@ tbody tr:last-child td {
 }
 
 .detail-panel-close:hover {
-  color: #cdd6f4;
-  background: #313244;
+  color: var(--text-primary);
+  background: var(--bg-tertiary);
 }
 
 .detail-panel-body {
@@ -2827,14 +2827,14 @@ tbody tr:last-child td {
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: #6c7086;
+  color: var(--text-muted);
   min-width: 70px;
   flex-shrink: 0;
 }
 
 .detail-field-value {
   font-size: 0.85rem;
-  color: #cdd6f4;
+  color: var(--text-primary);
 }
 
 .detail-monospace {
@@ -2843,19 +2843,19 @@ tbody tr:last-child td {
 }
 
 .detail-muted {
-  color: #585b70;
+  color: var(--text-muted);
 }
 
 .detail-message {
-  background: #181825;
-  border: 1px solid #313244;
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
   border-radius: 6px;
   padding: 0.75rem;
   font-size: 0.82rem;
   font-family: 'Fira Code', 'Cascadia Code', monospace;
   white-space: pre-wrap;
   word-break: break-all;
-  color: #cdd6f4;
+  color: var(--text-secondary);
   margin: 0;
   max-height: 300px;
   overflow-y: auto;
