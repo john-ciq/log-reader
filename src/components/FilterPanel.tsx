@@ -58,7 +58,7 @@ export default function FilterPanel({
     <div className="filter-panel">
       <div className="filter-header">
         <h4>🔍 Filters</h4>
-        {filters.length > 0 && (
+        {features.removeAllFilters && filters.length > 0 && (
           <button onClick={onRemoveAllFilters} className="delete-btn" title="Remove all filters">
             ✕ All
           </button>

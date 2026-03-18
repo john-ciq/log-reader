@@ -1,6 +1,6 @@
 const STORAGE_KEY = 'log-reader-features';
 
-export type FeatureKey = 'autoSizeColumns' | 'advancedFilters' | 'deduplication' | 'savedPresets' | 'timeRange' | 'persistTimeRange' | 'importExportStorage' | 'scrollLogSources' | 'showOnlyMatches' | 'entryDetailSidebar' | 'filterComments' | 'supportBundle';
+export type FeatureKey = 'autoSizeColumns' | 'advancedFilters' | 'deduplication' | 'savedPresets' | 'timeRange' | 'persistTimeRange' | 'importExportStorage' | 'scrollLogSources' | 'showOnlyMatches' | 'entryDetailSidebar' | 'filterComments' | 'supportBundle' | 'removeAllFilters';
 
 // The "visible" property allows us to hide features that are still in development or not
 // ready/intended for users, without removing their definitions from the code.
@@ -82,6 +82,12 @@ export const featureDefinitions: Record<FeatureKey, FeatureDefinition> = {
     name: 'Support Bundle',
     defaultValue: true,
     description: 'Show buttons to download and import a support bundle (filters, log entries, and settings)',
+    visible: true,
+  },
+  removeAllFilters: {
+    name: 'Remove All Filters',
+    defaultValue: false,
+    description: 'Show a "Remove All" button in the Filters panel to clear all filters at once',
     visible: true,
   },
 };
