@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { LogEntry } from '../lib/parser';
+import { useFeatures } from '../lib/FeaturesContext';
 
 interface RowDetailPanelProps {
   entry: LogEntry | null;
@@ -17,7 +18,8 @@ function formatTimestamp(t: Date): string {
   return `${t.getFullYear()}-${pad2(t.getMonth()+1)}-${pad2(t.getDate())} ${pad2(t.getHours())}:${pad2(t.getMinutes())}:${pad2(t.getSeconds())}.${pad3(t.getMilliseconds())}`;
 }
 
-function DetailBody({ entry, onClose, onPrev, onNext, hasPrev, hasNext }: Omit<RowDetailPanelProps, 'dialog' | 'sidebar'> & { entry: LogEntry }) {
+function DetailBody({ entry, onClose, onPrev, onNext, hasPrev, hasNext, sidebar }: Omit<RowDetailPanelProps, 'dialog'> & { entry: LogEntry }) {
+  const { features, setFeature } = useFeatures();
   const hasMetadata = entry.metadata && Object.keys(entry.metadata).length > 0;
   return (
     <>
@@ -27,7 +29,14 @@ function DetailBody({ entry, onClose, onPrev, onNext, hasPrev, hasNext }: Omit<R
           <button onClick={onPrev} disabled={!hasPrev} title="Previous entry (←)">‹</button>
           <button onClick={onNext} disabled={!hasNext} title="Next entry (→)">›</button>
         </div>
-        <button className="detail-panel-close" onClick={onClose} title="Close (Esc)">✕</button>
+        <button
+          className="detail-panel-close"
+          onClick={() => setFeature('entryDetailSidebar', !features.entryDetailSidebar)}
+          title={sidebar ? 'Switch to overlay mode' : 'Switch to sidebar mode'}
+        >{sidebar ? '⇥' : '⇤'}</button>
+        {!sidebar && (
+          <button className="detail-panel-close" onClick={onClose} title="Close (Esc)">✕</button>
+        )}
       </div>
 
       <div className="detail-panel-body">
@@ -101,7 +110,7 @@ export default function RowDetailPanel({ entry, onClose, onPrev, onNext, hasPrev
     return (
       <aside className="row-detail-sidebar">
         {entry ? (
-          <DetailBody entry={entry} onClose={onClose} onPrev={onPrev} onNext={onNext} hasPrev={hasPrev} hasNext={hasNext} />
+          <DetailBody entry={entry} onClose={onClose} onPrev={onPrev} onNext={onNext} hasPrev={hasPrev} hasNext={hasNext} sidebar />
         ) : (
           <div className="detail-sidebar-empty">
             <span>Select an entry to view details</span>
