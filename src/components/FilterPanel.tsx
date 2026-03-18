@@ -117,15 +117,13 @@ export default function FilterPanel({
                       >
                         {filter.mode ?? 'include'}
                       </span>
-                      {(filter.patterns?.length ?? 0) > 0 && (
-                        <span
-                          className="filter-mode-badge filter-mode-badge--operator filter-mode-badge--clickable"
-                          onClick={e => { e.preventDefault(); onUpdateFilter(filter.id, { operator: filter.operator === 'and' ? 'or' : 'and' }); }}
-                          title="Click to toggle and/or"
-                        >
-                          {filter.operator ?? 'or'}
-                        </span>
-                      )}
+                      <span
+                        className="filter-mode-badge filter-mode-badge--operator filter-mode-badge--clickable"
+                        onClick={e => { e.preventDefault(); onUpdateFilter(filter.id, { operator: filter.operator === 'and' ? 'or' : 'and' }); }}
+                        title="Click to toggle and/or"
+                      >
+                        {filter.operator ?? 'or'}
+                      </span>
                     </label>
                     <div className="filter-actions">
                       <button
