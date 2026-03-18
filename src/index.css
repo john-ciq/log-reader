@@ -3065,6 +3065,17 @@ tbody tr:last-child td {
   --histogram-sel-stroke: rgba(59,130,246,0.7);
 }
 
+.histogram-max-label {
+  position: absolute;
+  top: 3px;
+  left: 5px;
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  pointer-events: none;
+  z-index: 1;
+  line-height: 1;
+}
+
 .histogram-clear-btn {
   position: absolute;
   top: 4px;

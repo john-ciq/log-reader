@@ -106,6 +106,7 @@ export default function LogDensityHistogram({ entries, timeRange, onTimeRangeCha
 
   return (
     <div className="histogram-wrapper">
+      <span className="histogram-max-label" title="Peak messages in a single time bucket">↑{maxCount}</span>
       <svg
         ref={svgRef}
         className="log-density-histogram"
