@@ -1,6 +1,6 @@
 import { calculateStatistics, savePanelCollapsed, loadPanelCollapsed, saveSourcesState, loadSourcesState } from '../lib/statistics';
 import { LogEntry } from '../lib/parser';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef } from 'react';
 import { useFeatures } from '../lib/FeaturesContext';
 
 interface StatisticsPanelProps {
@@ -8,6 +8,8 @@ interface StatisticsPanelProps {
   totalEntries: number;
   onExport: () => void;
   onExportAll: () => void;
+  onExportBundle: () => void;
+  onImportBundle: (file: File) => void;
   availableSources: string[];
   displaySources: Set<string>;
   onSourceChange: (source: string, checked: boolean) => void;
@@ -18,10 +20,13 @@ export default function StatisticsPanel({
   totalEntries,
   onExport,
   onExportAll,
+  onExportBundle,
+  onImportBundle,
   availableSources,
   displaySources,
   onSourceChange,
 }: StatisticsPanelProps) {
+  const bundleInputRef = useRef<HTMLInputElement>(null);
   const [collapsed, setCollapsed] = useState(() => loadPanelCollapsed('statistics'));
   const [expanded, setExpanded] = useState({
     summary: !loadPanelCollapsed('stats-summary'),
@@ -80,6 +85,21 @@ export default function StatisticsPanel({
               📥 Export All
             </button>
           )}
+          {totalEntries > 0 && (
+            <button onClick={onExportBundle} className="export-btn">
+              📦 Support Bundle
+            </button>
+          )}
+          <input
+            ref={bundleInputRef}
+            type="file"
+            accept=".json"
+            style={{ display: 'none' }}
+            onChange={e => { const f = e.target.files?.[0]; if (f) onImportBundle(f); e.target.value = ''; }}
+          />
+          <button onClick={() => bundleInputRef.current?.click()} className="export-btn">
+            📦 Import Bundle
+          </button>
         </div>
       </div>
 

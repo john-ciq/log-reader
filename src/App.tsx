@@ -33,7 +33,7 @@ import pkg from '../package.json';
 import './App.css';
 
 function App() {
-  const { features } = useFeatures();
+  const { features, setFeature } = useFeatures();
   const [entries, setEntries] = useState<LogEntry[]>([]);
   const [filteredEntries, setFilteredEntries] = useState<LogEntry[]>([]);
   const [filters, setFilters] = useState<FilterConfig[]>(() => loadFilterConfigs().map(migrateFilter));
@@ -59,6 +59,7 @@ function App() {
   const [activeTab, setActiveTab] = useState<string>('viewer');
   const [activeSubTabs, setActiveSubTabs] = useState<Record<string, string>>({});
   const [subTabOrders, setSubTabOrders] = useState<Record<string, string[]>>({});
+  const pendingDisplayFilesRef = useRef<Set<string> | null>(null);
   const dragTabId = useRef<string | null>(null);
   const dragSubTabId = useRef<string | null>(null);
   const importConfigRef = useRef<HTMLInputElement>(null);
@@ -266,11 +267,16 @@ function App() {
   useEffect(() => {
     const unique = Array.from(new Set(entries.map(e => e.filename).filter((f): f is string => Boolean(f)))).sort();
     setAvailableFiles(unique);
-    setDisplayFiles(prev => {
-      const next = new Set(prev);
-      unique.forEach(f => next.add(f));
-      return next;
-    });
+    if (pendingDisplayFilesRef.current !== null) {
+      setDisplayFiles(pendingDisplayFilesRef.current);
+      pendingDisplayFilesRef.current = null;
+    } else {
+      setDisplayFiles(prev => {
+        const next = new Set(prev);
+        unique.forEach(f => next.add(f));
+        return next;
+      });
+    }
   }, [entries]);
 
   // keep track of available sources when entries change
@@ -435,6 +441,66 @@ function App() {
     link.click();
     URL.revokeObjectURL(url);
   }, [entries]);
+
+  const handleExportBundle = useCallback(() => {
+    const bundle = {
+      metadata: {
+        version: pkg.version,
+        exportedAt: new Date().toISOString(),
+        logFiles: [...new Set(entries.map(e => e.filename).filter((f): f is string => Boolean(f)))],
+      },
+      filters,
+      showOnlyMatches: features.showOnlyMatches,
+      hiddenLevels: [...hiddenLevels],
+      displayFiles: [...displayFiles],
+      entries,
+    };
+    const dataStr = JSON.stringify(bundle, null, 2);
+    const dataBlob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(dataBlob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `support-bundle-${downloadTimestamp()}.json`;
+    link.click();
+    URL.revokeObjectURL(url);
+  }, [entries, filters, features.showOnlyMatches, hiddenLevels, displayFiles]);
+
+  const handleImportBundle = useCallback((file: File) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const bundle = JSON.parse(reader.result as string);
+        const importedEntries: LogEntry[] = (bundle.entries ?? []).map((e: LogEntry & { timestamp: string }) => ({
+          ...e,
+          timestamp: new Date(e.timestamp),
+        }));
+        const importedFilters: FilterConfig[] = (bundle.filters ?? []).map((f: FilterConfig) => migrateFilter({
+          ...f,
+          dateRange: f.dateRange ? {
+            start: f.dateRange.start ? new Date(f.dateRange.start as unknown as string) : undefined,
+            end: f.dateRange.end ? new Date(f.dateRange.end as unknown as string) : undefined,
+          } : undefined,
+        }));
+        setEntries(importedEntries);
+        setFilters(importedFilters);
+        saveFilterConfigs(importedFilters);
+        if (typeof bundle.showOnlyMatches === 'boolean') {
+          setFeature('showOnlyMatches', bundle.showOnlyMatches);
+        }
+        if (Array.isArray(bundle.hiddenLevels)) {
+          const hidden = new Set<string>(bundle.hiddenLevels);
+          setHiddenLevels(hidden);
+          saveHiddenLevels([...hidden]);
+        }
+        if (Array.isArray(bundle.displayFiles)) {
+          pendingDisplayFilesRef.current = new Set<string>(bundle.displayFiles);
+        }
+      } catch {
+        alert('Failed to import support bundle: invalid file.');
+      }
+    };
+    reader.readAsText(file);
+  }, [setFeature, setHiddenLevels, setDisplayFiles]);
 
   // ── Row detail navigation ─────────────────────────────────────────────────────
   const handleRowClick = useCallback((entry: LogEntry) => {
@@ -692,6 +758,8 @@ function App() {
                   totalEntries={entries.length}
                   onExport={handleExportJSON}
                   onExportAll={handleExportAllJSON}
+                  onExportBundle={handleExportBundle}
+                  onImportBundle={handleImportBundle}
                   availableSources={availableSources}
                   displaySources={displaySources}
                   onSourceChange={handleSourceCheckbox}
