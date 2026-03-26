@@ -1,6 +1,6 @@
 import { useMemo, useRef, useState } from 'react';
 import { LogEntry } from '../lib/parser';
-import { TimeRange } from '../lib/statistics';
+import { TimeRange } from '../lib/storage';
 
 interface LogDensityHistogramProps {
   entries: LogEntry[];

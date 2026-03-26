@@ -1,4 +1,5 @@
-import { calculateStatistics, savePanelCollapsed, loadPanelCollapsed, saveSourcesState, loadSourcesState } from '../lib/statistics';
+import { calculateStatistics } from '../lib/statistics';
+import { storage } from '../lib/local-storage';
 import { LogEntry } from '../lib/parser';
 import { useState, useMemo, useRef } from 'react';
 import { useFeatures } from '../lib/FeaturesContext';
@@ -27,21 +28,21 @@ export default function StatisticsPanel({
   onSourceChange,
 }: StatisticsPanelProps) {
   const bundleInputRef = useRef<HTMLInputElement>(null);
-  const [collapsed, setCollapsed] = useState(() => loadPanelCollapsed('statistics'));
+  const [collapsed, setCollapsed] = useState(() => storage.loadPanelCollapsed('statistics'));
   const [expanded, setExpanded] = useState({
-    summary: !loadPanelCollapsed('stats-summary'),
-    levels: !loadPanelCollapsed('stats-levels'),
-    sources: !loadPanelCollapsed('stats-sources'),
+    summary: !storage.loadPanelCollapsed('stats-summary'),
+    levels: !storage.loadPanelCollapsed('stats-levels'),
+    sources: !storage.loadPanelCollapsed('stats-sources'),
   });
-  const [sourceFilter, setSourceFilter] = useState(() => loadSourcesState().filter);
-  const [sourceSort, setSourceSort] = useState<'name' | 'count'>(() => loadSourcesState().sort);
-  const [sortDir, setSortDir] = useState<'asc' | 'desc'>(() => loadSourcesState().dir);
+  const [sourceFilter, setSourceFilter] = useState(() => storage.loadSourcesState().filter);
+  const [sourceSort, setSourceSort] = useState<'name' | 'count'>(() => storage.loadSourcesState().sort);
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>(() => storage.loadSourcesState().dir);
 
   const handleSortClick = (key: 'name' | 'count') => {
     const newDir = sourceSort === key && sortDir === 'asc' ? 'desc' : 'asc';
     setSourceSort(key);
     setSortDir(newDir);
-    saveSourcesState(sourceFilter, key, newDir);
+    storage.saveSourcesState(sourceFilter, key, newDir);
   };
 
   const { features } = useFeatures();
@@ -67,7 +68,7 @@ export default function StatisticsPanel({
   return (
     <div className="statistics-panel">
       <div className="stats-header">
-        <h3 className="collapsible-heading" onClick={() => setCollapsed(c => { savePanelCollapsed('statistics', !c); return !c; })}>
+        <h3 className="collapsible-heading" onClick={() => setCollapsed(c => { storage.savePanelCollapsed('statistics', !c); return !c; })}>
           <span className="collapse-arrow">{collapsed ? '▶' : '▼'}</span>
           📊 Statistics
         </h3>
@@ -111,7 +112,7 @@ export default function StatisticsPanel({
       <div className="stats-section">
         <div
           className="stats-section-header"
-          onClick={() => { const v = !expanded.summary; savePanelCollapsed('stats-summary', !v); setExpanded({ ...expanded, summary: v }); }}
+          onClick={() => { const v = !expanded.summary; storage.savePanelCollapsed('stats-summary', !v); setExpanded({ ...expanded, summary: v }); }}
         >
           <h4>Summary {!expanded.summary && '▼'} {expanded.summary && '▲'}</h4>
         </div>
@@ -151,7 +152,7 @@ export default function StatisticsPanel({
       <div className="stats-section">
         <div
           className="stats-section-header"
-          onClick={() => { const v = !expanded.levels; savePanelCollapsed('stats-levels', !v); setExpanded({ ...expanded, levels: v }); }}
+          onClick={() => { const v = !expanded.levels; storage.savePanelCollapsed('stats-levels', !v); setExpanded({ ...expanded, levels: v }); }}
         >
           <h4>Log Levels {!expanded.levels && '▼'} {expanded.levels && '▲'}</h4>
         </div>
@@ -199,7 +200,7 @@ export default function StatisticsPanel({
       <div className="stats-section">
         <div
           className="stats-section-header"
-          onClick={() => { const v = !expanded.sources; savePanelCollapsed('stats-sources', !v); setExpanded({ ...expanded, sources: v }); }}
+          onClick={() => { const v = !expanded.sources; storage.savePanelCollapsed('stats-sources', !v); setExpanded({ ...expanded, sources: v }); }}
         >
           <h4>Logging Sources {!expanded.sources && '▼'} {expanded.sources && '▲'}</h4>
         </div>
@@ -209,7 +210,7 @@ export default function StatisticsPanel({
             <input
               type="text"
               value={sourceFilter}
-              onChange={e => { setSourceFilter(e.target.value); saveSourcesState(e.target.value, sourceSort, sortDir); }}
+              onChange={e => { setSourceFilter(e.target.value); storage.saveSourcesState(e.target.value, sourceSort, sortDir); }}
               placeholder="Filter sources…"
               className="source-filter-input"
             />

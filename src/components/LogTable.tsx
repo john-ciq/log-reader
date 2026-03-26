@@ -1,7 +1,7 @@
 import { useState, useMemo, useRef, useEffect, useLayoutEffect, ReactNode, useCallback } from 'react';
 import { LogEntry } from '../lib/parser';
 import MessageCell from './MessageCell';
-import { saveSortPreference, loadSortPreference, saveColumnPreferences, loadColumnPreferences } from '../lib/statistics';
+import { storage } from '../lib/local-storage';
 import { useFeatures } from '../lib/FeaturesContext';
 
 interface LogTableProps {
@@ -68,14 +68,14 @@ export default function LogTable({
   onRowClick,
 }: LogTableProps) {
   const { features } = useFeatures();
-  const saved = loadSortPreference();
+  const saved = storage.loadSortPreference();
   const [sortColumn, setSortColumn] = useState<SortColumn>(
     (saved?.column as SortColumn) || 'timestamp'
   );
   const [sortDirection, setSortDirection] = useState<SortDirection>(
     (saved?.direction as SortDirection) || 'desc'
   );
-  const savedCols = loadColumnPreferences();
+  const savedCols = storage.loadColumnPreferences();
   const [colWidths, setColWidths] = useState<Record<SortColumn, number>>(
     savedCols ? { ...DEFAULT_COL_WIDTHS, ...savedCols.widths } as Record<SortColumn, number> : DEFAULT_COL_WIDTHS
   );
@@ -89,7 +89,7 @@ export default function LogTable({
   });
   const [dragOverCol, setDragOverCol] = useState<SortColumn | null>(null);
   const [collapsedCols, setCollapsedCols] = useState<Set<SortColumn>>(() => {
-    const saved = loadColumnPreferences();
+    const saved = storage.loadColumnPreferences();
     if (!saved?.collapsed) return new Set();
     return new Set(saved.collapsed.filter(c => DEFAULT_COL_ORDER.includes(c as SortColumn)) as SortColumn[]);
   });
@@ -102,7 +102,7 @@ export default function LogTable({
     setCollapsedCols(prev => {
       const next = new Set(prev);
       if (next.has(col)) next.delete(col); else next.add(col);
-      saveColumnPreferences(colOrder, colWidths, [...next]);
+      storage.saveColumnPreferences(colOrder, colWidths, [...next]);
       return next;
     });
   };
@@ -131,7 +131,7 @@ export default function LogTable({
   }, [scrollEl]);
 
   useEffect(() => {
-    saveColumnPreferences(colOrder, colWidths, [...collapsedCols]);
+    storage.saveColumnPreferences(colOrder, colWidths, [...collapsedCols]);
   }, [colOrder, colWidths, collapsedCols]);
 
   // Auto-size timestamp and level columns to fit their content
@@ -278,11 +278,11 @@ export default function LogTable({
     if (sortColumn === column) {
       const dir = sortDirection === 'asc' ? 'desc' : 'asc';
       setSortDirection(dir);
-      saveSortPreference(column, dir);
+      storage.saveSortPreference(column, dir);
     } else {
       setSortColumn(column);
       setSortDirection('asc');
-      saveSortPreference(column, 'asc');
+      storage.saveSortPreference(column, 'asc');
     }
   };
 

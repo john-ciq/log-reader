@@ -1,4 +1,4 @@
-import { TimeRange } from '../lib/statistics';
+import { TimeRange } from '../lib/storage';
 import DateTimePicker from './DateTimePicker';
 
 interface TimeRangeFilterProps {

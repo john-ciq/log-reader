@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { Features, FeatureKey, featureDefaults, featureDefinitions, loadFeatureOverrides, saveFeatureOverrides } from './features';
-import { loadSourcesState, saveSourcesState } from './statistics';
+import { storage } from './local-storage';
 
 interface FeaturesContextValue {
   features: Features;
@@ -32,7 +32,7 @@ export function FeaturesProvider({ children }: { children: ReactNode }) {
   const resetFeatures = () => {
     saveFeatureOverrides({});
     setFeatures({ ...featureDefaults });
-    saveSourcesState('', 'name', 'asc');
+    storage.saveSourcesState('', 'name', 'asc');
   };
 
   useEffect(() => {

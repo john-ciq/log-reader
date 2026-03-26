@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react';
 import { FilterConfig } from '../lib/filters';
-import { saveExpandedFilters, loadExpandedFilters } from '../lib/statistics';
+import { storage } from '../lib/local-storage';
 import { useFeatures } from '../lib/FeaturesContext';
 
 interface FilterPanelProps {
@@ -27,7 +27,7 @@ export default function FilterPanel({
   availableFiles,
 }: FilterPanelProps) {
   const { features, setFeature } = useFeatures();
-  const [expandedFilters, setExpandedFilters] = useState<Set<string>>(() => new Set(loadExpandedFilters()));
+  const [expandedFilters, setExpandedFilters] = useState<Set<string>>(() => new Set(storage.loadExpandedFilters()));
   const [patternErrors, setPatternErrors] = useState<Record<string, string>>({});
   const [dragOverId, setDragOverId] = useState<string | null>(null);
   const dragIdRef = useRef<string | null>(null);
@@ -73,7 +73,7 @@ export default function FilterPanel({
           setExpandedFilters(prev => {
             const next = new Set(prev);
             next.add(id);
-            saveExpandedFilters([...next]);
+            storage.saveExpandedFilters([...next]);
             return next;
           });
         }} className="add-filter-btn">
@@ -170,7 +170,7 @@ export default function FilterPanel({
                         onClick={() => setExpandedFilters(prev => {
                           const next = new Set(prev);
                           if (next.has(filter.id)) next.delete(filter.id); else next.add(filter.id);
-                          saveExpandedFilters([...next]);
+                          storage.saveExpandedFilters([...next]);
                           return next;
                         })}
                         className="duplicate-btn"

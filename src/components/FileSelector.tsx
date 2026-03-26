@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { savePanelCollapsed, loadPanelCollapsed } from '../lib/statistics';
+import { storage } from '../lib/local-storage';
 
 interface FileSelectorProps {
   files: string[];
@@ -12,11 +12,11 @@ interface FileSelectorProps {
 }
 
 export default function FileSelector({ files, selected, onChange, onRemove, onOpenRaw, parsers = {}, counts = {} }: FileSelectorProps) {
-  const [collapsed, setCollapsed] = useState(() => loadPanelCollapsed('files'));
+  const [collapsed, setCollapsed] = useState(() => storage.loadPanelCollapsed('files'));
 
   return (
     <div className="file-selector">
-      <h3 className="collapsible-heading" onClick={() => setCollapsed(c => { savePanelCollapsed('files', !c); return !c; })}>
+      <h3 className="collapsible-heading" onClick={() => setCollapsed(c => { storage.savePanelCollapsed('files', !c); return !c; })}>
         <span className="collapse-arrow">{collapsed ? '▶' : '▼'}</span>
         Log Files
         {files.length > 0 && (

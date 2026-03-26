@@ -2,16 +2,8 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { downloadTimestamp } from './lib/utils';
 import { LogEntry } from './lib/parser';
 import { FilterConfig, getFilterDecision, migrateFilter } from './lib/filters';
-import {
-  loadFilterConfigs, saveFilterConfigs,
-  saveHiddenLevels, loadHiddenLevels,
-  saveHiddenSources, loadHiddenSources,
-  saveSearchState, loadSearchState,
-  savePanelCollapsed, loadPanelCollapsed,
-  TimeRange, FilterPreset,
-  saveTimeRange, loadTimeRange,
-  saveFilterPresets, loadFilterPresets,
-} from './lib/statistics';
+import { TimeRange, FilterPreset } from './lib/storage';
+import { storage } from './lib/local-storage';
 import { useFeatures } from './lib/FeaturesContext';
 import FileUploader, { RawFile } from './components/FileUploader';
 import FilterPanel from './components/FilterPanel';
@@ -36,21 +28,21 @@ function App() {
   const { features, setFeature } = useFeatures();
   const [entries, setEntries] = useState<LogEntry[]>([]);
   const [filteredEntries, setFilteredEntries] = useState<LogEntry[]>([]);
-  const [filters, setFilters] = useState<FilterConfig[]>(() => loadFilterConfigs().map(migrateFilter));
-  const [searchQuery, setSearchQuery] = useState(() => loadSearchState().query);
-  const [useRegexSearch, setUseRegexSearch] = useState(() => loadSearchState().useRegex);
+  const [filters, setFilters] = useState<FilterConfig[]>(() => storage.loadFilterConfigs().map(migrateFilter));
+  const [searchQuery, setSearchQuery] = useState(() => storage.loadSearchState().query);
+  const [useRegexSearch, setUseRegexSearch] = useState(() => storage.loadSearchState().useRegex);
 
   // level visibility controls
   const [availableLevels, setAvailableLevels] = useState<string[]>([]);
   const [displayLevels, setDisplayLevels] = useState<Set<string>>(new Set());
-  const [hiddenLevels, setHiddenLevels] = useState<Set<string>>(() => new Set(loadHiddenLevels()));
+  const [hiddenLevels, setHiddenLevels] = useState<Set<string>>(() => new Set(storage.loadHiddenLevels()));
 
   // file visibility controls
   const [availableFiles, setAvailableFiles] = useState<string[]>([]);
   const [displayFiles, setDisplayFiles] = useState<Set<string>>(new Set());
 
-  const [filtersCollapsed, setFiltersCollapsed] = useState(() => loadPanelCollapsed('filters'));
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(() => loadPanelCollapsed('sidebar'));
+  const [filtersCollapsed, setFiltersCollapsed] = useState(() => storage.loadPanelCollapsed('filters'));
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(() => storage.loadPanelCollapsed('sidebar'));
 
   // raw file tabs
   const [rawFiles, setRawFiles] = useState<RawFile[]>([]);
@@ -95,33 +87,33 @@ function App() {
   // source visibility controls
   const [availableSources, setAvailableSources] = useState<string[]>([]);
   const [displaySources, setDisplaySources] = useState<Set<string>>(new Set());
-  const [hiddenSources, setHiddenSources] = useState<Set<string>>(() => new Set(loadHiddenSources()));
+  const [hiddenSources, setHiddenSources] = useState<Set<string>>(() => new Set(storage.loadHiddenSources()));
 
   // new: time range, row detail, search ref, presets
-  const [timeRange, setTimeRange] = useState<TimeRange | null>(() => features.persistTimeRange ? loadTimeRange() : null);
+  const [timeRange, setTimeRange] = useState<TimeRange | null>(() => features.persistTimeRange ? storage.loadTimeRange() : null);
   const [activeEntryId, setActiveEntryId] = useState<string | null>(null);
   const [detailEntry, setDetailEntry] = useState<LogEntry | null>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
-  const [presets, setPresets] = useState<FilterPreset[]>(() => loadFilterPresets());
+  const [presets, setPresets] = useState<FilterPreset[]>(() => storage.loadFilterPresets());
 
   // Save filters whenever they change
   useEffect(() => {
-    saveFilterConfigs(filters);
+    storage.saveFilterConfigs(filters);
   }, [filters]);
 
   // Save search state
   useEffect(() => {
-    saveSearchState(searchQuery, useRegexSearch);
+    storage.saveSearchState(searchQuery, useRegexSearch);
   }, [searchQuery, useRegexSearch]);
 
   // Save time range (only when persistence is enabled; clear stored value when disabled)
   useEffect(() => {
-    saveTimeRange(features.persistTimeRange ? timeRange : null);
+    storage.saveTimeRange(features.persistTimeRange ? timeRange : null);
   }, [timeRange, features.persistTimeRange]);
 
   // Save presets
   useEffect(() => {
-    saveFilterPresets(presets);
+    storage.saveFilterPresets(presets);
   }, [presets]);
 
   // Apply filters, level visibility, file visibility, and time range
@@ -300,7 +292,7 @@ function App() {
     setHiddenLevels(prev => {
       const next = new Set(prev);
       if (!checked) next.add(level); else next.delete(level);
-      saveHiddenLevels([...next]);
+      storage.saveHiddenLevels([...next]);
       return next;
     });
   }, []);
@@ -330,7 +322,7 @@ function App() {
     setHiddenSources(prev => {
       const next = new Set(prev);
       if (!checked) next.add(source); else next.delete(source);
-      saveHiddenSources([...next]);
+      storage.saveHiddenSources([...next]);
       return next;
     });
   }, []);
@@ -345,7 +337,7 @@ function App() {
 
   const handleRemoveAllFilters = useCallback(() => {
     setFilters([]);
-    saveFilterConfigs([]);
+    storage.saveFilterConfigs([]);
   }, []);
 
   const handleMoveFilter = useCallback((filterId: string, direction: 'up' | 'down') => {
@@ -488,14 +480,14 @@ function App() {
         }));
         setEntries(importedEntries);
         setFilters(importedFilters);
-        saveFilterConfigs(importedFilters);
+        storage.saveFilterConfigs(importedFilters);
         if (typeof bundle.showOnlyMatches === 'boolean') {
           setFeature('showOnlyMatches', bundle.showOnlyMatches);
         }
         if (Array.isArray(bundle.hiddenLevels)) {
           const hidden = new Set<string>(bundle.hiddenLevels);
           setHiddenLevels(hidden);
-          saveHiddenLevels([...hidden]);
+          storage.saveHiddenLevels([...hidden]);
         }
         if (Array.isArray(bundle.displayFiles)) {
           pendingDisplayFilesRef.current = new Set<string>(bundle.displayFiles);
@@ -622,7 +614,7 @@ function App() {
         <aside className={`sidebar${sidebarCollapsed ? ' sidebar--collapsed' : ''}`}>
           <button
             className="sidebar-toggle-btn"
-            onClick={() => setSidebarCollapsed(c => { savePanelCollapsed('sidebar', !c); return !c; })}
+            onClick={() => setSidebarCollapsed(c => { storage.savePanelCollapsed('sidebar', !c); return !c; })}
             title={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
           >
             {sidebarCollapsed ? '›' : '‹'}
@@ -654,7 +646,7 @@ function App() {
                 />
               </div>
               <div className="sidebar-section">
-                <h3 className="collapsible-heading" onClick={() => setFiltersCollapsed(c => { savePanelCollapsed('filters', !c); return !c; })}>
+                <h3 className="collapsible-heading" onClick={() => setFiltersCollapsed(c => { storage.savePanelCollapsed('filters', !c); return !c; })}>
                   <span className="collapse-arrow">{filtersCollapsed ? '▶' : '▼'}</span>
                   Filters & Search
                   <span className="filter-config-actions" onClick={e => e.stopPropagation()}>

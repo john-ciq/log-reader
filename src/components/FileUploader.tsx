@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react';
 import { parseLogContent, parseLogLine, LogEntry } from '../lib/parser';
 import JSZip from 'jszip';
-import { savePanelCollapsed, loadPanelCollapsed } from '../lib/statistics';
+import { storage } from '../lib/local-storage';
 
 export interface RawFile {
   id: string;
@@ -93,7 +93,7 @@ async function processZipFile(file: File): Promise<{ entries: LogEntry[]; rawChi
 export default function FileUploader({ onUpload, onRawFiles }: FileUploaderProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [collapsed, setCollapsed] = useState(() => loadPanelCollapsed('uploader'));
+  const [collapsed, setCollapsed] = useState(() => storage.loadPanelCollapsed('uploader'));
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -178,7 +178,7 @@ export default function FileUploader({ onUpload, onRawFiles }: FileUploaderProps
 
   return (
     <div className="file-uploader">
-      <h3 className="collapsible-heading" onClick={() => setCollapsed(c => { savePanelCollapsed('uploader', !c); return !c; })}>
+      <h3 className="collapsible-heading" onClick={() => setCollapsed(c => { storage.savePanelCollapsed('uploader', !c); return !c; })}>
         <span className="collapse-arrow">{collapsed ? '▶' : '▼'}</span>
         📁 Upload Log File(s)
         {collapsed && (

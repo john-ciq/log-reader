@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { FilterPreset } from '../lib/statistics';
+import { FilterPreset } from '../lib/storage';
 import { downloadTimestamp } from '../lib/utils';
 
 interface PresetsPanelProps {

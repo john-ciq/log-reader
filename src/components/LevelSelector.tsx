@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { savePanelCollapsed, loadPanelCollapsed } from '../lib/statistics';
+import { storage } from '../lib/local-storage';
 
 interface LevelSelectorProps {
   levels: string[];
@@ -8,11 +8,11 @@ interface LevelSelectorProps {
 }
 
 export default function LevelSelector({ levels, selected, onChange }: LevelSelectorProps) {
-  const [collapsed, setCollapsed] = useState(() => loadPanelCollapsed('levels'));
+  const [collapsed, setCollapsed] = useState(() => storage.loadPanelCollapsed('levels'));
 
   return (
     <div className="level-selector">
-      <h3 className="collapsible-heading" onClick={() => setCollapsed(c => { savePanelCollapsed('levels', !c); return !c; })}>
+      <h3 className="collapsible-heading" onClick={() => setCollapsed(c => { storage.savePanelCollapsed('levels', !c); return !c; })}>
         <span className="collapse-arrow">{collapsed ? '▶' : '▼'}</span>
         Log Levels
       </h3>
