@@ -41,5 +41,15 @@ export interface Storage {
   loadTimeRange(): TimeRange | null;
   saveFilterPresets(presets: FilterPreset[]): void;
   loadFilterPresets(): FilterPreset[];
+  saveSplitPct(pct: number): void;
+  loadSplitPct(): number | null;
+  saveTheme(theme: string): void;
+  loadTheme(): string | null;
+  saveFeatureOverrides(overrides: Record<string, boolean>): void;
+  loadFeatureOverrides(): Record<string, boolean>;
+  saveDetailSectionCollapsed(state: Record<string, boolean>): void;
+  loadDetailSectionCollapsed(): Record<string, boolean>;
+  exportAllData(): Record<string, string>;
+  importAllData(data: Record<string, string>): void;
   clearAllStoredData(): void;
 }

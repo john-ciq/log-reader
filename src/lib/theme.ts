@@ -1,15 +1,15 @@
-const STORAGE_KEY = 'log-reader-theme';
+import { storage } from './local-storage';
 
 export type Theme = 'dark' | 'light' | 'system';
 
 export function loadTheme(): Theme {
-  const stored = localStorage.getItem(STORAGE_KEY);
+  const stored = storage.loadTheme();
   if (stored === 'dark' || stored === 'light' || stored === 'system') return stored;
   return 'system';
 }
 
 export function saveTheme(theme: Theme): void {
-  localStorage.setItem(STORAGE_KEY, theme);
+  storage.saveTheme(theme);
 }
 
 export function applyTheme(theme: Theme): void {

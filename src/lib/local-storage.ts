@@ -3,7 +3,7 @@ import { Storage, TimeRange, FilterPreset } from './storage';
 
 const STORAGE_PREFIX = 'log-reader-';
 
-export class LocalStorage implements Storage {
+export class BrowserStorage implements Storage {
   saveFilterConfigs(configs: FilterConfig[]): void {
     try {
       localStorage.setItem(`${STORAGE_PREFIX}filters`, JSON.stringify(configs));
@@ -257,6 +257,83 @@ export class LocalStorage implements Storage {
     }
   }
 
+  saveSplitPct(pct: number): void {
+    try {
+      localStorage.setItem('splitPct', String(pct));
+    } catch (error) {
+      console.error('Failed to save split pct:', error);
+    }
+  }
+
+  loadSplitPct(): number | null {
+    try {
+      const stored = localStorage.getItem('splitPct');
+      return stored ? parseFloat(stored) : null;
+    } catch {
+      return null;
+    }
+  }
+
+  saveTheme(theme: string): void {
+    try {
+      localStorage.setItem('log-reader-theme', theme);
+    } catch (error) {
+      console.error('Failed to save theme:', error);
+    }
+  }
+
+  loadTheme(): string | null {
+    try {
+      return localStorage.getItem('log-reader-theme');
+    } catch {
+      return null;
+    }
+  }
+
+  saveFeatureOverrides(overrides: Record<string, boolean>): void {
+    try {
+      localStorage.setItem('log-reader-features', JSON.stringify(overrides));
+    } catch (error) {
+      console.error('Failed to save feature overrides:', error);
+    }
+  }
+
+  loadFeatureOverrides(): Record<string, boolean> {
+    try {
+      const stored = localStorage.getItem('log-reader-features');
+      return stored ? JSON.parse(stored) : {};
+    } catch {
+      return {};
+    }
+  }
+
+  saveDetailSectionCollapsed(state: Record<string, boolean>): void {
+    try {
+      localStorage.setItem('detail-section-collapsed', JSON.stringify(state));
+    } catch { /* ignore */ }
+  }
+
+  loadDetailSectionCollapsed(): Record<string, boolean> {
+    try {
+      return JSON.parse(localStorage.getItem('detail-section-collapsed') ?? '{}');
+    } catch {
+      return {};
+    }
+  }
+
+  exportAllData(): Record<string, string> {
+    const data: Record<string, string> = {};
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i)!;
+      data[key] = localStorage.getItem(key)!;
+    }
+    return data;
+  }
+
+  importAllData(data: Record<string, string>): void {
+    Object.entries(data).forEach(([key, value]) => localStorage.setItem(key, value));
+  }
+
   clearAllStoredData(): void {
     try {
       const keys = Object.keys(localStorage).filter(k => k.startsWith(STORAGE_PREFIX));
@@ -267,4 +344,4 @@ export class LocalStorage implements Storage {
   }
 }
 
-export const storage: Storage = new LocalStorage();
+export const storage: Storage = new BrowserStorage();

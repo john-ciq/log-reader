@@ -3,6 +3,7 @@ import { useFeatures } from '../lib/FeaturesContext';
 import { FeatureKey, featureDefinitions } from '../lib/features';
 import { Theme, loadTheme, saveTheme, applyTheme } from '../lib/theme';
 import { downloadTimestamp } from '../lib/utils';
+import { storage } from '../lib/local-storage';
 import pkg from '../../package.json';
 
 interface FeaturesPanelProps {
@@ -10,11 +11,7 @@ interface FeaturesPanelProps {
 }
 
 function exportStorage() {
-  const data: Record<string, string> = { __version: pkg.version };
-  for (let i = 0; i < localStorage.length; i++) {
-    const key = localStorage.key(i)!;
-    data[key] = localStorage.getItem(key)!;
-  }
+  const data: Record<string, string> = { __version: pkg.version, ...storage.exportAllData() };
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
@@ -49,7 +46,7 @@ export default function FeaturesPanel({ onClose }: FeaturesPanelProps) {
     reader.onload = () => {
       try {
         const data = JSON.parse(reader.result as string) as Record<string, string>;
-        Object.entries(data).forEach(([key, value]) => localStorage.setItem(key, value));
+        storage.importAllData(data);
         window.location.reload();
       } catch {
         alert('Failed to import settings: invalid file.');

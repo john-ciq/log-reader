@@ -58,10 +58,7 @@ function App() {
   const [featuresPanelOpen, setFeaturesPanelOpen] = useState(false);
 
   // Split pane
-  const [splitPct, setSplitPct] = useState(() => {
-    const saved = localStorage.getItem('splitPct');
-    return saved ? parseFloat(saved) : 50;
-  });
+  const [splitPct, setSplitPct] = useState(() => storage.loadSplitPct() ?? 50);
   const splitDragging = useRef(false);
   const splitContainerRef = useRef<HTMLDivElement>(null);
 
@@ -73,7 +70,7 @@ function App() {
       const rect = splitContainerRef.current.getBoundingClientRect();
       const pct = Math.min(80, Math.max(10, ((ev.clientY - rect.top) / rect.height) * 100));
       setSplitPct(pct);
-      localStorage.setItem('splitPct', String(pct));
+      storage.saveSplitPct(pct);
     };
     const onUp = () => {
       splitDragging.current = false;

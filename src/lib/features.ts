@@ -1,4 +1,4 @@
-const STORAGE_KEY = 'log-reader-features';
+import { storage } from './local-storage';
 
 export type FeatureKey = 'autoSizeColumns' | 'advancedFilters' | 'deduplication' | 'savedPresets' | 'timeRange' | 'persistTimeRange' | 'importExportStorage' | 'scrollLogSources' | 'showOnlyMatches' | 'entryDetailSidebar' | 'filterComments' | 'supportBundle' | 'removeAllFilters';
 
@@ -99,18 +99,9 @@ export const featureDefaults: Features = Object.fromEntries(
 ) as Features;
 
 export function loadFeatureOverrides(): Partial<Features> {
-  try {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    return stored ? JSON.parse(stored) : {};
-  } catch {
-    return {};
-  }
+  return storage.loadFeatureOverrides();
 }
 
 export function saveFeatureOverrides(overrides: Partial<Features>): void {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(overrides));
-  } catch (error) {
-    console.error('Failed to save feature overrides:', error);
-  }
+  storage.saveFeatureOverrides(overrides);
 }

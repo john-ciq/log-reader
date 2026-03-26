@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { LogEntry } from '../lib/parser';
 import { useFeatures } from '../lib/FeaturesContext';
+import { storage } from '../lib/local-storage';
 
 interface RowDetailPanelProps {
   entry: LogEntry | null;
@@ -18,14 +19,12 @@ function formatTimestamp(t: Date): string {
   return `${t.getFullYear()}-${pad2(t.getMonth()+1)}-${pad2(t.getDate())} ${pad2(t.getHours())}:${pad2(t.getMinutes())}:${pad2(t.getSeconds())}.${pad3(t.getMilliseconds())}`;
 }
 
-const DETAIL_SECTION_STORAGE_KEY = 'detail-section-collapsed';
-
 function loadSectionCollapsed(): Record<string, boolean> {
-  try { return JSON.parse(localStorage.getItem(DETAIL_SECTION_STORAGE_KEY) ?? '{}'); } catch { return {}; }
+  return storage.loadDetailSectionCollapsed();
 }
 
 function saveSectionCollapsed(state: Record<string, boolean>): void {
-  try { localStorage.setItem(DETAIL_SECTION_STORAGE_KEY, JSON.stringify(state)); } catch { /* ignore */ }
+  storage.saveDetailSectionCollapsed(state);
 }
 
 function CollapsibleSection({ label, grow, copyText, children }: { label: string; grow?: boolean; copyText?: string; children: React.ReactNode }) {
