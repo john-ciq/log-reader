@@ -29,6 +29,7 @@ function App() {
   const [entries, setEntries] = useState<LogEntry[]>([]);
   const [filteredEntries, setFilteredEntries] = useState<LogEntry[]>([]);
   const [sortedFilteredEntries, setSortedFilteredEntries] = useState<LogEntry[]>([]);
+  const [centerOnActiveEntry, setCenterOnActiveEntry] = useState(0);
   const [filters, setFilters] = useState<FilterConfig[]>(() => storage.loadFilterConfigs().map(migrateFilter));
   const [searchQuery, setSearchQuery] = useState(() => storage.loadSearchState().query);
   const [useRegexSearch, setUseRegexSearch] = useState(() => storage.loadSearchState().useRegex);
@@ -512,6 +513,7 @@ function App() {
       const prev = sortedFilteredEntries[detailIdx - 1];
       setDetailEntry(prev);
       setActiveEntryId(prev.id);
+      setCenterOnActiveEntry(c => c + 1);
     }
   }, [detailIdx, sortedFilteredEntries]);
 
@@ -520,6 +522,7 @@ function App() {
       const next = sortedFilteredEntries[detailIdx + 1];
       setDetailEntry(next);
       setActiveEntryId(next.id);
+      setCenterOnActiveEntry(c => c + 1);
     }
   }, [detailIdx, sortedFilteredEntries]);
 
@@ -605,6 +608,8 @@ function App() {
           onNext={handleDetailNext}
           hasPrev={hasPrev}
           hasNext={hasNext}
+          entryIndex={detailIdx + 1}
+          totalEntries={sortedFilteredEntries.length}
         />
       )}
 
@@ -779,6 +784,7 @@ function App() {
                   activeEntryId={activeEntryId}
                   onRowClick={handleRowClick}
                   onSortedEntriesChange={setSortedFilteredEntries}
+                  centerOnActiveEntry={centerOnActiveEntry}
                 />
               </div>
             </div>
@@ -841,6 +847,8 @@ function App() {
             onNext={handleDetailNext}
             hasPrev={hasPrev}
             hasNext={hasNext}
+            entryIndex={detailIdx + 1}
+            totalEntries={sortedFilteredEntries.length}
             sidebar
           />
         )}

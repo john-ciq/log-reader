@@ -11,6 +11,7 @@ interface LogTableProps {
   activeEntryId?: string | null;
   onRowClick?: (entry: LogEntry) => void;
   onSortedEntriesChange?: (entries: LogEntry[]) => void;
+  centerOnActiveEntry?: number;
 }
 
 interface DisplayEntry {
@@ -68,6 +69,7 @@ export default function LogTable({
   activeEntryId,
   onRowClick,
   onSortedEntriesChange,
+  centerOnActiveEntry,
 }: LogTableProps) {
   const { features } = useFeatures();
   const saved = storage.loadSortPreference();
@@ -99,6 +101,7 @@ export default function LogTable({
   // ── Row selection (for copy) ──────────────────────────────────────────────────
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const lastClickedIdxRef = useRef<number>(-1);
+  const suppressScrollRef = useRef(false);
 
   const toggleCollapse = (col: SortColumn) => {
     setCollapsedCols(prev => {
@@ -308,6 +311,7 @@ export default function LogTable({
   // ── Scroll active entry into view ────────────────────────────────────────────
   useEffect(() => {
     if (!activeEntryId || !scrollEl) return;
+    if (suppressScrollRef.current) { suppressScrollRef.current = false; return; }
     const idx = displayEntries.findIndex(d => d.entry.id === activeEntryId);
     if (idx === -1) return;
     const rowTop = idx * ROW_HEIGHT;
@@ -318,6 +322,14 @@ export default function LogTable({
       scrollEl.scrollTop = rowBottom - scrollEl.clientHeight;
     }
   }, [activeEntryId, displayEntries, scrollEl]);
+
+  // ── Center active entry (triggered by prev/next navigation) ──────────────────
+  useEffect(() => {
+    if (!centerOnActiveEntry || !activeEntryId || !scrollEl) return;
+    const idx = displayEntries.findIndex(d => d.entry.id === activeEntryId);
+    if (idx === -1) return;
+    scrollEl.scrollTop = idx * ROW_HEIGHT;
+  }, [centerOnActiveEntry]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Row click / selection ────────────────────────────────────────────────────
   const handleRowClick = useCallback((displayEntry: DisplayEntry, idx: number, e: React.MouseEvent) => {
@@ -342,6 +354,7 @@ export default function LogTable({
     } else {
       setSelectedIds(new Set());
       lastClickedIdxRef.current = idx;
+      suppressScrollRef.current = true;
       onRowClick?.(entry);
     }
   }, [displayEntries, onRowClick]);
