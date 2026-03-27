@@ -2,7 +2,22 @@
 
 All notable changes to the Log Reader project will be documented in this file.
 
-## [1.0.61] - 2026-03-18
+## [1.0.60] - 2026-03-27
+
+### Added
+- Entry detail heading now shows position and total count, e.g. `(3/1,500)`
+
+### Fixed
+- Entry detail prev/next buttons now navigate in table sort order instead of timestamp order
+- Clicking a row in the table no longer causes it to shift position
+- Pressing prev/next in the entry detail panel scrolls the table to show the active row at the top
+
+### Internal
+- All `localStorage` access is now routed through a `Storage` interface with a `BrowserStorage` implementation (`src/lib/storage.ts`, `src/lib/local-storage.ts`)
+- `TimeRange` and `FilterPreset` types moved into `storage.ts`
+- Fea parser timestamp tests now use tolerance-based comparison
+
+## [1.0.59] - 2026-03-18
 
 ### Added
 - **Support bundle export** — "Export Bundle" button (gated by `supportBundle` feature, on by default) downloads a JSON file containing all filters, log entries, log file metadata, active level filters, filename filters, and the "show only matches" state
