@@ -116,7 +116,7 @@ export default function FilterPanel({
                   />
                   <div className="filter-title-group">
                     <label htmlFor={`filter-${filter.id}`}>
-                      <span className="filter-name-text">{filter.name || 'Unnamed Filter'}</span>
+                      <span className="filter-name-text" title={filter.name || 'Unnamed Filter'}>{filter.name || 'Unnamed Filter'}</span>
                       {features.filterComments && filter.comment && (
                         <span className="filter-comment-preview" title={filter.comment}>{filter.comment}</span>
                       )}
