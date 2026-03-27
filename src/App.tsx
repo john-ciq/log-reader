@@ -28,6 +28,7 @@ function App() {
   const { features, setFeature } = useFeatures();
   const [entries, setEntries] = useState<LogEntry[]>([]);
   const [filteredEntries, setFilteredEntries] = useState<LogEntry[]>([]);
+  const [sortedFilteredEntries, setSortedFilteredEntries] = useState<LogEntry[]>([]);
   const [filters, setFilters] = useState<FilterConfig[]>(() => storage.loadFilterConfigs().map(migrateFilter));
   const [searchQuery, setSearchQuery] = useState(() => storage.loadSearchState().query);
   const [useRegexSearch, setUseRegexSearch] = useState(() => storage.loadSearchState().useRegex);
@@ -502,25 +503,25 @@ function App() {
     setDetailEntry(entry);
   }, []);
 
-  const detailIdx = detailEntry ? filteredEntries.findIndex(e => e.id === detailEntry.id) : -1;
+  const detailIdx = detailEntry ? sortedFilteredEntries.findIndex(e => e.id === detailEntry.id) : -1;
   const hasPrev = detailIdx > 0;
-  const hasNext = detailIdx !== -1 && detailIdx < filteredEntries.length - 1;
+  const hasNext = detailIdx !== -1 && detailIdx < sortedFilteredEntries.length - 1;
 
   const handleDetailPrev = useCallback(() => {
     if (detailIdx > 0) {
-      const prev = filteredEntries[detailIdx - 1];
+      const prev = sortedFilteredEntries[detailIdx - 1];
       setDetailEntry(prev);
       setActiveEntryId(prev.id);
     }
-  }, [detailIdx, filteredEntries]);
+  }, [detailIdx, sortedFilteredEntries]);
 
   const handleDetailNext = useCallback(() => {
-    if (detailIdx !== -1 && detailIdx < filteredEntries.length - 1) {
-      const next = filteredEntries[detailIdx + 1];
+    if (detailIdx !== -1 && detailIdx < sortedFilteredEntries.length - 1) {
+      const next = sortedFilteredEntries[detailIdx + 1];
       setDetailEntry(next);
       setActiveEntryId(next.id);
     }
-  }, [detailIdx, filteredEntries]);
+  }, [detailIdx, sortedFilteredEntries]);
 
   const handleCloseDetail = useCallback(() => {
     setDetailEntry(null);
@@ -777,6 +778,7 @@ function App() {
                   useRegex={useRegexSearch}
                   activeEntryId={activeEntryId}
                   onRowClick={handleRowClick}
+                  onSortedEntriesChange={setSortedFilteredEntries}
                 />
               </div>
             </div>

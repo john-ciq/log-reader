@@ -10,6 +10,7 @@ interface LogTableProps {
   useRegex?: boolean;
   activeEntryId?: string | null;
   onRowClick?: (entry: LogEntry) => void;
+  onSortedEntriesChange?: (entries: LogEntry[]) => void;
 }
 
 interface DisplayEntry {
@@ -66,6 +67,7 @@ export default function LogTable({
   useRegex = false,
   activeEntryId,
   onRowClick,
+  onSortedEntriesChange,
 }: LogTableProps) {
   const { features } = useFeatures();
   const saved = storage.loadSortPreference();
@@ -251,6 +253,10 @@ export default function LogTable({
       return 0;
     });
   }, [entries, sortColumn, sortDirection]);
+
+  useEffect(() => {
+    onSortedEntriesChange?.(sortedEntries);
+  }, [sortedEntries, onSortedEntriesChange]);
 
   // ── Deduplication ────────────────────────────────────────────────────────────
   const displayEntries = useMemo((): DisplayEntry[] => {
