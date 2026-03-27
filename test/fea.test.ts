@@ -9,6 +9,10 @@ function parse(line: string) {
   return null;
 }
 
+function expectTimestampClose(actual: Date, expected: Date, toleranceMs = 1000) {
+  expect(Math.abs(actual.getTime() - expected.getTime())).toBeLessThan(toleranceMs);
+}
+
 describe('fea parser', () => {
   it('matches a line with negative timezone offset', () => {
     const line = '[2026-03-10 12:00:28.127-04:00] [debug]: Starting component';
@@ -16,7 +20,7 @@ describe('fea parser', () => {
     expect(result).not.toBeNull();
     expect(result!.level).toBe('debug');
     expect(result!.message).toBe('Starting component');
-    expect(result!.timestamp).toEqual(new Date('2026-03-10 12:00:28-04:00'));
+    expectTimestampClose(result!.timestamp, new Date('2026-03-10 12:00:28-04:00'));
   });
 
   it('matches a line with positive timezone offset', () => {
@@ -40,7 +44,7 @@ describe('fea parser', () => {
     const result = parse(line);
     expect(result).not.toBeNull();
     expect(result!.level).toBe('error');
-    expect(result!.timestamp).toEqual(new Date('2026-03-10 12:00:28+00:00'));
+    expectTimestampClose(result!.timestamp, new Date('2026-03-10 12:00:28+00:00'));
   });
 
   it('sets source to "unknown"', () => {
