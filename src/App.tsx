@@ -513,18 +513,18 @@ function App() {
       const prev = sortedFilteredEntries[detailIdx - 1];
       setDetailEntry(prev);
       setActiveEntryId(prev.id);
-      setCenterOnActiveEntry(c => c + 1);
+      if (features.autoScrollToEntry) setCenterOnActiveEntry(c => c + 1);
     }
-  }, [detailIdx, sortedFilteredEntries]);
+  }, [detailIdx, sortedFilteredEntries, features.autoScrollToEntry]);
 
   const handleDetailNext = useCallback(() => {
     if (detailIdx !== -1 && detailIdx < sortedFilteredEntries.length - 1) {
       const next = sortedFilteredEntries[detailIdx + 1];
       setDetailEntry(next);
       setActiveEntryId(next.id);
-      setCenterOnActiveEntry(c => c + 1);
+      if (features.autoScrollToEntry) setCenterOnActiveEntry(c => c + 1);
     }
-  }, [detailIdx, sortedFilteredEntries]);
+  }, [detailIdx, sortedFilteredEntries, features.autoScrollToEntry]);
 
   const handleCloseDetail = useCallback(() => {
     setDetailEntry(null);
@@ -606,6 +606,7 @@ function App() {
           onClose={handleCloseDetail}
           onPrev={handleDetailPrev}
           onNext={handleDetailNext}
+          onScrollToEntry={() => setCenterOnActiveEntry(c => c + 1)}
           hasPrev={hasPrev}
           hasNext={hasNext}
           entryIndex={detailIdx + 1}
@@ -845,6 +846,7 @@ function App() {
             onClose={handleCloseDetail}
             onPrev={handleDetailPrev}
             onNext={handleDetailNext}
+            onScrollToEntry={() => setCenterOnActiveEntry(c => c + 1)}
             hasPrev={hasPrev}
             hasNext={hasNext}
             entryIndex={detailIdx + 1}

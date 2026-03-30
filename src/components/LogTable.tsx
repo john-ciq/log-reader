@@ -323,9 +323,9 @@ export default function LogTable({
     }
   }, [activeEntryId, displayEntries, scrollEl]);
 
-  // ── Center active entry (triggered by prev/next navigation) ──────────────────
+  // ── Center active entry (triggered by prev/next navigation or scroll-to button) ──
   useEffect(() => {
-    if (!features.autoScrollToEntry || !centerOnActiveEntry || !activeEntryId || !scrollEl) return;
+    if (!centerOnActiveEntry || !activeEntryId || !scrollEl) return;
     const idx = displayEntries.findIndex(d => d.entry.id === activeEntryId);
     if (idx === -1) return;
     scrollEl.scrollTop = idx * ROW_HEIGHT;

@@ -94,7 +94,7 @@ export const featureDefinitions: Record<FeatureKey, FeatureDefinition> = {
     name: 'Auto-scroll to Active Entry',
     defaultValue: false,
     description: 'Automatically scroll the log table to keep the active entry in view when navigating',
-    visible: false,
+    visible: true,
   },
 };
 

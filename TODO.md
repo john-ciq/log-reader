@@ -7,10 +7,22 @@
 ## Planned
 
 ### Features
+- [ ] Add JSON time parsing
+- [ ] Persist expanded state out of table
+
+- [ ] Auto-sync/sync now button
+- [ ] Auto expand JSON on "show more"
+- [ ] Star log entries
+- [ ] Add a fixed "sequence" column
+- [ ] Add colors to filters
+- [ ] Normalize timestamps with respect to timezone info
+- [ ] Add log entry transforms
+- [ ] Allow for columns to be added or removed
+- [ ] Tests
 - [ ] Electron app
 
 ### Parsers
-- [ ]
+- [ ] Citi files (ICG_DESKTOP_BOOT_STRAP_20260218.log, ICG_DESKTOP_NATIVE_WATCHER_20260218.log)
 
 ### UI / UX
 - [ ]
@@ -19,7 +31,7 @@
 - [ ]
 
 ## Bugs
-- [ ]
+- [ ] Highlight does not work when a the highlight text is set and then a log entry containing that text is expanded
 
 ## Done
 - [x] Support bundle (download + import)
