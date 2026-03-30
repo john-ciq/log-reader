@@ -137,7 +137,7 @@ export default function MessageCell({ message, searchQuery = '', useRegex = fals
       <span>
         {highlightText(preview, searchQuery, useRegex)}
         <span className="message-ellipsis">…</span>
-        <button className="message-expand-btn" onClick={() => setTextExpanded(true)}>show more</button>
+        <button className="message-expand-btn" onClick={() => { setTextExpanded(true); setJsonExpanded(true); }}>show more</button>
       </span>
     );
   }
