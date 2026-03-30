@@ -98,6 +98,18 @@ export default function LogTable({
     return new Set(saved.collapsed.filter(c => DEFAULT_COL_ORDER.includes(c as SortColumn)) as SortColumn[]);
   });
 
+  // ── Message expanded state (persisted across virtual scroll) ─────────────────
+  const [expandedMessages, setExpandedMessages] = useState<Map<string, { text: boolean; json: boolean }>>(new Map());
+
+  const getMessageExpanded = (id: string) => expandedMessages.get(id) ?? { text: false, json: false };
+  const setMessageExpanded = (id: string, patch: Partial<{ text: boolean; json: boolean }>) => {
+    setExpandedMessages(prev => {
+      const next = new Map(prev);
+      next.set(id, { ...(prev.get(id) ?? { text: false, json: false }), ...patch });
+      return next;
+    });
+  };
+
   // ── Row selection (for copy) ──────────────────────────────────────────────────
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const lastClickedIdxRef = useRef<number>(-1);
@@ -423,7 +435,15 @@ export default function LogTable({
           <td key={col} className="message-cell">
             <div className="message-content">
               {count > 1 && <span className="dedup-count-badge">×{count}</span>}
-              <MessageCell message={entry.message} searchQuery={searchQuery} useRegex={useRegex} />
+              <MessageCell
+                message={entry.message}
+                searchQuery={searchQuery}
+                useRegex={useRegex}
+                textExpanded={getMessageExpanded(entry.id).text}
+                jsonExpanded={getMessageExpanded(entry.id).json}
+                onTextExpanded={(v) => setMessageExpanded(entry.id, { text: v })}
+                onJsonExpanded={(v) => setMessageExpanded(entry.id, { json: v })}
+              />
             </div>
           </td>
         );

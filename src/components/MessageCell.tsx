@@ -1,9 +1,13 @@
-import { useState, ReactNode } from 'react';
+import { ReactNode } from 'react';
 
 interface MessageCellProps {
   message: string;
   searchQuery?: string;
   useRegex?: boolean;
+  textExpanded: boolean;
+  jsonExpanded: boolean;
+  onTextExpanded: (v: boolean) => void;
+  onJsonExpanded: (v: boolean) => void;
 }
 
 function highlightText(text: string, query: string, useRegex: boolean): ReactNode {
@@ -124,9 +128,7 @@ function JsonTree({ data }: { data: any }) {
 
 const PREVIEW_CHARS = 300;
 
-export default function MessageCell({ message, searchQuery = '', useRegex = false }: MessageCellProps) {
-  const [jsonExpanded, setJsonExpanded] = useState(false);
-  const [textExpanded, setTextExpanded] = useState(false);
+export default function MessageCell({ message, searchQuery = '', useRegex = false, textExpanded, jsonExpanded, onTextExpanded, onJsonExpanded }: MessageCellProps) {
 
   const isLong = message.length > PREVIEW_CHARS;
 
@@ -137,7 +139,7 @@ export default function MessageCell({ message, searchQuery = '', useRegex = fals
       <span>
         {highlightText(preview, searchQuery, useRegex)}
         <span className="message-ellipsis">…</span>
-        <button className="message-expand-btn" onClick={() => { setTextExpanded(true); setJsonExpanded(true); }}>show more</button>
+        <button className="message-expand-btn" onClick={() => { onTextExpanded(true); onJsonExpanded(true); }}>show more</button>
       </span>
     );
   }
@@ -145,7 +147,7 @@ export default function MessageCell({ message, searchQuery = '', useRegex = fals
   const extraction = extractJson(message);
 
   const collapseOnDoubleClick = isLong ? (e: React.MouseEvent) => {
-    if (e.detail === 2) setTextExpanded(false);
+    if (e.detail === 2) onTextExpanded(false);
   } : undefined;
 
   if (extraction) {
@@ -157,7 +159,7 @@ export default function MessageCell({ message, searchQuery = '', useRegex = fals
         {before && <span className="json-before">{highlightText(before, searchQuery, useRegex)}</span>}
         <button
           className="json-toggle"
-          onClick={(e) => { e.stopPropagation(); setJsonExpanded((v) => !v); }}
+          onClick={(e) => { e.stopPropagation(); onJsonExpanded(!jsonExpanded); }}
           aria-label={jsonExpanded ? 'Collapse JSON' : 'Expand JSON'}
         >
           {jsonExpanded ? '▼' : '▶'}
@@ -166,7 +168,7 @@ export default function MessageCell({ message, searchQuery = '', useRegex = fals
         {after && <span className="json-after">{highlightText(after, searchQuery, useRegex)}</span>}
         {jsonExpanded && <div className="json-tree"><JsonTree data={json} /></div>}
         {isLong && (
-          <button className="message-expand-btn" onClick={(e) => { e.stopPropagation(); setTextExpanded(false); }}>show less</button>
+          <button className="message-expand-btn" onClick={(e) => { e.stopPropagation(); onTextExpanded(false); }}>show less</button>
         )}
       </div>
     );
@@ -176,7 +178,7 @@ export default function MessageCell({ message, searchQuery = '', useRegex = fals
     <span onClick={collapseOnDoubleClick}>
       {highlightText(message, searchQuery, useRegex)}
       {isLong && (
-        <button className="message-expand-btn" onClick={(e) => { e.stopPropagation(); setTextExpanded(false); }}>show less</button>
+        <button className="message-expand-btn" onClick={(e) => { e.stopPropagation(); onTextExpanded(false); }}>show less</button>
       )}
     </span>
   );
