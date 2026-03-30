@@ -469,10 +469,12 @@ export default function LogTable({
       >
         <table style={{ tableLayout: 'fixed' }}>
           <colgroup>
+            {features.showSequenceColumn && <col style={{ width: 52 }} />}
             {colOrder.map(col => <col key={col} style={{ width: collapsedCols.has(col) ? 28 : colWidths[col] }} />)}
           </colgroup>
           <thead>
             <tr>
+              {features.showSequenceColumn && <th className="seq-col-header">#</th>}
               {colOrder.map(col => {
                 const collapsed = collapsedCols.has(col);
                 return (
@@ -516,9 +518,9 @@ export default function LogTable({
           </thead>
           <tbody>
             {entries.length === 0 && (
-              <tr><td colSpan={colOrder.length} className="table-empty-cell">No log entries to display</td></tr>
+              <tr><td colSpan={colOrder.length + (features.showSequenceColumn ? 1 : 0)} className="table-empty-cell">No log entries to display</td></tr>
             )}
-            {paddingTop > 0 && <tr style={{ height: paddingTop }}><td colSpan={colOrder.length} /></tr>}
+            {paddingTop > 0 && <tr style={{ height: paddingTop }}><td colSpan={colOrder.length + (features.showSequenceColumn ? 1 : 0)} /></tr>}
             {visibleEntries.map((displayEntry, i) => {
               const { entry, count } = displayEntry;
               const globalIdx = startIdx + i;
@@ -531,11 +533,12 @@ export default function LogTable({
                   onClick={e => handleRowClick(displayEntry, globalIdx, e)}
                   style={{ cursor: 'pointer' }}
                 >
+                  {features.showSequenceColumn && <td className="seq-col-cell">{globalIdx + 1}</td>}
                   {colOrder.map(col => renderCell(entry, col, count))}
                 </tr>
               );
             })}
-            {paddingBottom > 0 && <tr style={{ height: paddingBottom }}><td colSpan={colOrder.length} /></tr>}
+            {paddingBottom > 0 && <tr style={{ height: paddingBottom }}><td colSpan={colOrder.length + (features.showSequenceColumn ? 1 : 0)} /></tr>}
           </tbody>
         </table>
       </div>

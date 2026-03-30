@@ -1,6 +1,6 @@
 import { storage } from './local-storage';
 
-export type FeatureKey = 'autoSizeColumns' | 'advancedFilters' | 'deduplication' | 'savedPresets' | 'timeRange' | 'persistTimeRange' | 'importExportStorage' | 'scrollLogSources' | 'showOnlyMatches' | 'entryDetailSidebar' | 'filterComments' | 'supportBundle' | 'removeAllFilters' | 'autoScrollToEntry';
+export type FeatureKey = 'autoSizeColumns' | 'advancedFilters' | 'deduplication' | 'savedPresets' | 'timeRange' | 'persistTimeRange' | 'importExportStorage' | 'scrollLogSources' | 'showOnlyMatches' | 'entryDetailSidebar' | 'filterComments' | 'supportBundle' | 'removeAllFilters' | 'autoScrollToEntry' | 'showSequenceColumn';
 
 // The "visible" property allows us to hide features that are still in development or not
 // ready/intended for users, without removing their definitions from the code.
@@ -94,6 +94,12 @@ export const featureDefinitions: Record<FeatureKey, FeatureDefinition> = {
     name: 'Auto-scroll to Active Entry',
     defaultValue: false,
     description: 'Automatically scroll the log table to keep the active entry in view when navigating',
+    visible: true,
+  },
+  showSequenceColumn: {
+    name: 'Sequence Column',
+    defaultValue: true,
+    description: 'Show a "#" column on the far left of the log table with a sequential row number',
     visible: true,
   },
 };
