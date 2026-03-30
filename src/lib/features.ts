@@ -1,6 +1,6 @@
 import { storage } from './local-storage';
 
-export type FeatureKey = 'autoSizeColumns' | 'advancedFilters' | 'deduplication' | 'savedPresets' | 'timeRange' | 'persistTimeRange' | 'importExportStorage' | 'scrollLogSources' | 'showOnlyMatches' | 'entryDetailSidebar' | 'filterComments' | 'supportBundle' | 'removeAllFilters';
+export type FeatureKey = 'autoSizeColumns' | 'advancedFilters' | 'deduplication' | 'savedPresets' | 'timeRange' | 'persistTimeRange' | 'importExportStorage' | 'scrollLogSources' | 'showOnlyMatches' | 'entryDetailSidebar' | 'filterComments' | 'supportBundle' | 'removeAllFilters' | 'autoScrollToEntry';
 
 // The "visible" property allows us to hide features that are still in development or not
 // ready/intended for users, without removing their definitions from the code.
@@ -89,6 +89,12 @@ export const featureDefinitions: Record<FeatureKey, FeatureDefinition> = {
     defaultValue: false,
     description: 'Show a "Remove All" button in the Filters panel to clear all filters at once',
     visible: true,
+  },
+  autoScrollToEntry: {
+    name: 'Auto-scroll to Active Entry',
+    defaultValue: false,
+    description: 'Automatically scroll the log table to keep the active entry in view when navigating',
+    visible: false,
   },
 };
 

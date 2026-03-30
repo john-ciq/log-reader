@@ -310,7 +310,7 @@ export default function LogTable({
 
   // ── Scroll active entry into view ────────────────────────────────────────────
   useEffect(() => {
-    if (!activeEntryId || !scrollEl) return;
+    if (!features.autoScrollToEntry || !activeEntryId || !scrollEl) return;
     if (suppressScrollRef.current) { suppressScrollRef.current = false; return; }
     const idx = displayEntries.findIndex(d => d.entry.id === activeEntryId);
     if (idx === -1) return;
@@ -325,7 +325,7 @@ export default function LogTable({
 
   // ── Center active entry (triggered by prev/next navigation) ──────────────────
   useEffect(() => {
-    if (!centerOnActiveEntry || !activeEntryId || !scrollEl) return;
+    if (!features.autoScrollToEntry || !centerOnActiveEntry || !activeEntryId || !scrollEl) return;
     const idx = displayEntries.findIndex(d => d.entry.id === activeEntryId);
     if (idx === -1) return;
     scrollEl.scrollTop = idx * ROW_HEIGHT;
