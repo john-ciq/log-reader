@@ -1,11 +1,13 @@
 import { useState, useMemo, useRef, useEffect, useLayoutEffect, ReactNode, useCallback } from 'react';
 import { LogEntry } from '../lib/parser';
+import { FilterConfig, getMatchingFilterColor } from '../lib/filters';
 import MessageCell from './MessageCell';
 import { storage } from '../lib/local-storage';
 import { useFeatures } from '../lib/FeaturesContext';
 
 interface LogTableProps {
   entries: LogEntry[];
+  filters?: FilterConfig[];
   searchQuery?: string;
   useRegex?: boolean;
   activeEntryId?: string | null;
@@ -64,6 +66,7 @@ const COL_LABELS: Record<SortColumn, string> = {
 
 export default function LogTable({
   entries,
+  filters = [],
   searchQuery = '',
   useRegex = false,
   activeEntryId,
@@ -531,7 +534,7 @@ export default function LogTable({
                   key={entry.id}
                   className={`level-${entry.level.toLowerCase()}${isActive ? ' row-active' : ''}${isSelected ? ' row-selected' : ''}`}
                   onClick={e => handleRowClick(displayEntry, globalIdx, e)}
-                  style={{ cursor: 'pointer' }}
+                  style={{ cursor: 'pointer', backgroundColor: features.filterColors ? getMatchingFilterColor(entry, filters) : undefined }}
                 >
                   {features.showSequenceColumn && <td className="seq-col-cell">{globalIdx + 1}</td>}
                   {colOrder.map(col => renderCell(entry, col, count))}

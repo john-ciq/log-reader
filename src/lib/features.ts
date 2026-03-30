@@ -1,6 +1,6 @@
 import { storage } from './local-storage';
 
-export type FeatureKey = 'autoSizeColumns' | 'advancedFilters' | 'deduplication' | 'savedPresets' | 'timeRange' | 'persistTimeRange' | 'importExportStorage' | 'scrollLogSources' | 'showOnlyMatches' | 'entryDetailSidebar' | 'filterComments' | 'supportBundle' | 'removeAllFilters' | 'autoScrollToEntry' | 'showSequenceColumn';
+export type FeatureKey = 'autoSizeColumns' | 'advancedFilters' | 'deduplication' | 'savedPresets' | 'timeRange' | 'persistTimeRange' | 'importExportStorage' | 'scrollLogSources' | 'showOnlyMatches' | 'entryDetailSidebar' | 'filterComments' | 'supportBundle' | 'removeAllFilters' | 'autoScrollToEntry' | 'showSequenceColumn' | 'filterColors';
 
 // The "visible" property allows us to hide features that are still in development or not
 // ready/intended for users, without removing their definitions from the code.
@@ -100,6 +100,12 @@ export const featureDefinitions: Record<FeatureKey, FeatureDefinition> = {
     name: 'Sequence Column',
     defaultValue: true,
     description: 'Show a "#" column on the far left of the log table with a sequential row number',
+    visible: true,
+  },
+  filterColors: {
+    name: 'Filter Colors',
+    defaultValue: true,
+    description: 'Allow filters to highlight matched log entries with a chosen color',
     visible: true,
   },
 };

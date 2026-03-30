@@ -107,6 +107,9 @@ export default function FilterPanel({
             >
               <div className="filter-header-bar">
                 <span className="filter-drag-handle" title="Drag to reorder">⠿</span>
+                {features.filterColors && filter.color && (
+                  <span className="filter-color-swatch" style={{ backgroundColor: filter.color }} title={`Color: ${filter.color}`} />
+                )}
                 <div className="filter-radio">
                   <input
                     type="checkbox"
@@ -194,6 +197,28 @@ export default function FilterPanel({
                       placeholder="My Filter"
                     />
                   </div>
+
+                  {features.filterColors && (
+                    <div className="filter-name-group">
+                      <label>Highlight Color:</label>
+                      <div className="filter-color-row">
+                        <input
+                          type="color"
+                          value={filter.color || '#ffffff'}
+                          onChange={e => onUpdateFilter(filter.id, { color: e.target.value })}
+                          className="filter-color-input"
+                          title="Pick a highlight color for matched entries"
+                        />
+                        {filter.color && (
+                          <button
+                            className="filter-color-clear"
+                            onClick={() => onUpdateFilter(filter.id, { color: undefined })}
+                            title="Remove color"
+                          >Clear</button>
+                        )}
+                      </div>
+                    </div>
+                  )}
 
                   {features.filterComments && (
                     <div className="filter-name-group">

@@ -16,6 +16,7 @@ export interface FilterConfig {
   excludePatterns?: string[];
   excludeOperator?: 'and' | 'or';
   comment?: string; // Optional free-text note about this filter
+  color?: string; // Optional highlight color for matched entries (hex, e.g. "#ff0000")
   levelFilters: string[]; // Log levels to include (empty = all)
   sourceFilters: string[]; // Sources to include (empty = all)
   fileFilters: string[]; // Filenames to include (empty = all)
@@ -213,6 +214,17 @@ export function searchEntries(entries: LogEntry[], query: string): LogEntry[] {
 
     return searchableText.includes(lowerQuery);
   });
+}
+
+/**
+ * Returns the color of the first enabled filter with a color that includes the entry,
+ * or undefined if no such filter exists.
+ */
+export function getMatchingFilterColor(entry: LogEntry, filters: FilterConfig[]): string | undefined {
+  for (const filter of filters) {
+    if (!filter.enabled || !filter.color) continue;
+    if (getFilterDecision(entry, filter) === true) return filter.color;
+  }
 }
 
 /**

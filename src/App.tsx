@@ -780,6 +780,7 @@ function App() {
                 )}
                 <LogTable
                   entries={filteredEntries}
+                  filters={filters}
                   searchQuery={searchQuery}
                   useRegex={useRegexSearch}
                   activeEntryId={activeEntryId}
