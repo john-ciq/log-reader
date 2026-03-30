@@ -71,4 +71,36 @@ describe('json parser', () => {
     const line = '[{"level":"info","message":"test"}]';
     expect(parse(line)).toBeNull();
   });
+
+  it('guesses timestamp from an arbitrary string field when no known timestamp field exists', () => {
+    const line = '{"level":"info","message":"test","created_at":"2026-03-10T15:30:00.000Z"}';
+    const result = parse(line);
+    expect(result!.timestamp).toEqual(new Date('2026-03-10T15:30:00.000Z'));
+  });
+
+  it('guesses timestamp with a space separator instead of T', () => {
+    const line = '{"level":"info","message":"test","logged":"2026-03-10 15:30:00"}';
+    const result = parse(line);
+    expect(result!.timestamp).toEqual(new Date('2026-03-10 15:30:00'));
+  });
+
+  it('guesses timestamp with fractional seconds and space-separated timezone offset', () => {
+    const line = '{"level":"info","message":"test","logged":"2026-02-18 13:14:54.384 -05:00"}';
+    const result = parse(line);
+    expect(result!.timestamp).toEqual(new Date('2026-02-18T13:14:54.384-05:00'));
+  });
+
+  it('prefers known timestamp fields over guessed ones', () => {
+    const line = '{"timestamp":"2026-01-01T00:00:00.000Z","other_date":"2026-03-10T15:30:00.000Z","level":"info","message":"test"}';
+    const result = parse(line);
+    expect(result!.timestamp).toEqual(new Date('2026-01-01T00:00:00.000Z'));
+  });
+
+  it('does not guess a non-timestamp string as timestamp', () => {
+    const line = '{"level":"info","message":"not a date","name":"foobar"}';
+    const result = parse(line);
+    // Falls back to current time — just verify it's a valid Date
+    expect(result!.timestamp).toBeInstanceOf(Date);
+    expect(isNaN((result!.timestamp as Date).getTime())).toBe(false);
+  });
 });
