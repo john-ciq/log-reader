@@ -2622,10 +2622,14 @@ th.star-col-header.sortable {
 }
 
 .table-empty-cell {
+  position: sticky;
+  left: 0;
   text-align: center;
-  padding: 3rem 2rem !important;
+  padding: 3rem 2rem;
   color: var(--text-muted);
   font-style: italic;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 /* Messages */

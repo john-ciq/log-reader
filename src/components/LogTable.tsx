@@ -483,106 +483,112 @@ export default function LogTable({
         tabIndex={0}
         onKeyDown={handleKeyDown}
       >
-        <table style={{ tableLayout: 'fixed' }}>
-          <colgroup>
-            {features.showSequenceColumn && <col style={{ width: 52 }} />}
-            {features.starredEntries && <col style={{ width: 32 }} />}
-            {features.entryComments && <col style={{ width: 26 }} />}
-            {colOrder.map(col => <col key={col} style={{ width: collapsedCols.has(col) ? 28 : colWidths[col] }} />)}
-          </colgroup>
-          <thead>
-            <tr>
-              {features.showSequenceColumn && <th className="seq-col-header">#</th>}
-              {features.starredEntries && (
-                <th className="star-col-header sortable" onClick={() => handleSort('starred')} title="Sort by starred">
-                  {sortColumn === 'starred' ? (sortDirection === 'asc' ? '☆▲' : '★▼') : '☆⇅'}
-                </th>
-              )}
-              {features.entryComments && (
-                <th className="star-col-header sortable" onClick={() => handleSort('commented')} title="Sort by commented">
-                  {sortColumn === 'commented' ? (sortDirection === 'asc' ? '✎▲' : '✎▼') : '✎⇅'}
-                </th>
-              )}
-              {colOrder.map(col => {
-                const collapsed = collapsedCols.has(col);
-                return (
-                  <th
-                    key={col}
-                    draggable={!collapsed}
-                    onDragStart={e => !collapsed && handleDragStart(col, e)}
-                    onDragOver={e => !collapsed && handleDragOver(col, e)}
-                    onDrop={() => !collapsed && handleDrop(col)}
-                    onDragEnd={handleDragEnd}
-                    onClick={() => !collapsed && handleSort(col)}
-                    className={`sortable${dragOverCol === col ? ' col-drag-over' : ''}${collapsed ? ' col-collapsed-header' : ''}`}
-                    title={collapsed ? `Expand ${COL_LABELS[col]}` : undefined}
-                  >
-                    {collapsed ? (
-                      <button
-                        className="col-expand-btn"
-                        onClick={e => { e.stopPropagation(); toggleCollapse(col); }}
-                        title={`Expand ${COL_LABELS[col]}`}
-                      >›</button>
-                    ) : (
-                      <>
-                        <button
-                          className="col-collapse-btn"
-                          onClick={e => { e.stopPropagation(); toggleCollapse(col); }}
-                          title={`Collapse ${COL_LABELS[col]}`}
-                        >‹</button>
-                        {COL_LABELS[col]}{getSortIndicator(col)}
-                        <div
-                          className="resize-handle"
-                          onMouseDown={e => startResize(col, e)}
-                          draggable={false}
-                          onDragStart={e => e.preventDefault()}
-                        />
-                      </>
-                    )}
+        {entries.length === 0 && (
+          <div className="table-empty-cell">No log entries to display</div>
+        )}
+        {entries.length !== 0 && (
+          <table style={{ tableLayout: 'fixed' }}>
+            <colgroup>
+              {features.showSequenceColumn && <col style={{ width: 52 }} />}
+              {features.starredEntries && <col style={{ width: 32 }} />}
+              {features.entryComments && <col style={{ width: 26 }} />}
+              {colOrder.map(col => <col key={col} style={{ width: collapsedCols.has(col) ? 28 : colWidths[col] }} />)}
+            </colgroup>
+            <thead>
+              <tr>
+                {features.showSequenceColumn && <th className="seq-col-header">#</th>}
+                {features.starredEntries && (
+                  <th className="star-col-header sortable" onClick={() => handleSort('starred')} title="Sort by starred">
+                    {sortColumn === 'starred' ? (sortDirection === 'asc' ? '☆▲' : '★▼') : '☆⇅'}
                   </th>
+                )}
+                {features.entryComments && (
+                  <th className="star-col-header sortable" onClick={() => handleSort('commented')} title="Sort by commented">
+                    {sortColumn === 'commented' ? (sortDirection === 'asc' ? '✎▲' : '✎▼') : '✎⇅'}
+                  </th>
+                )}
+                {colOrder.map(col => {
+                  const collapsed = collapsedCols.has(col);
+                  return (
+                    <th
+                      key={col}
+                      draggable={!collapsed}
+                      onDragStart={e => !collapsed && handleDragStart(col, e)}
+                      onDragOver={e => !collapsed && handleDragOver(col, e)}
+                      onDrop={() => !collapsed && handleDrop(col)}
+                      onDragEnd={handleDragEnd}
+                      onClick={() => !collapsed && handleSort(col)}
+                      className={`sortable${dragOverCol === col ? ' col-drag-over' : ''}${collapsed ? ' col-collapsed-header' : ''}`}
+                      title={collapsed ? `Expand ${COL_LABELS[col]}` : undefined}
+                    >
+                      {collapsed ? (
+                        <button
+                          className="col-expand-btn"
+                          onClick={e => { e.stopPropagation(); toggleCollapse(col); }}
+                          title={`Expand ${COL_LABELS[col]}`}
+                        >›</button>
+                      ) : (
+                        <>
+                          <button
+                            className="col-collapse-btn"
+                            onClick={e => { e.stopPropagation(); toggleCollapse(col); }}
+                            title={`Collapse ${COL_LABELS[col]}`}
+                          >‹</button>
+                          {COL_LABELS[col]}{getSortIndicator(col)}
+                          <div
+                            className="resize-handle"
+                            onMouseDown={e => startResize(col, e)}
+                            draggable={false}
+                            onDragStart={e => e.preventDefault()}
+                          />
+                        </>
+                      )}
+                    </th>
+                  );
+                })}
+              </tr>
+            </thead>
+            <tbody>
+              {entries.length === 0 && (
+                <tr><td colSpan={colOrder.length + (features.showSequenceColumn ? 1 : 0) + (features.starredEntries ? 1 : 0) + (features.entryComments ? 1 : 0)} /></tr>
+              )}
+              {paddingTop > 0 && <tr style={{ height: paddingTop }}><td colSpan={colOrder.length + (features.showSequenceColumn ? 1 : 0) + (features.starredEntries ? 1 : 0) + (features.entryComments ? 1 : 0)} /></tr>}
+              {visibleEntries.map((displayEntry, i) => {
+                const { entry, count } = displayEntry;
+                const globalIdx = startIdx + i;
+                const isActive = entry.id === activeEntryId;
+                const isSelected = selectedIds.has(entry.id);
+                return (
+                  <tr
+                    key={entry.id}
+                    className={`level-${entry.level.toLowerCase()}${isActive ? ' row-active' : ''}${isSelected ? ' row-selected' : ''}`}
+                    onClick={e => handleRowClick(displayEntry, globalIdx, e)}
+                    style={{ cursor: 'pointer', backgroundColor: features.filterColors ? getMatchingFilterColor(entry, filters) : undefined }}
+                  >
+                    {features.showSequenceColumn && <td className="seq-col-cell">{features.timestampSequence && timestampSequenceMap ? (timestampSequenceMap.get(entry.id) ?? globalIdx + 1) : globalIdx + 1}</td>}
+                    {features.starredEntries && (
+                      <td className="star-col-cell" onClick={e => { e.stopPropagation(); onToggleStar?.(entry.id); }}>
+                        <span className={`star-btn${starredEntryIds?.has(entry.id) ? ' star-btn--active' : ''}`}>
+                          {starredEntryIds?.has(entry.id) ? '★' : '☆'}
+                        </span>
+                      </td>
+                    )}
+                    {features.entryComments && (
+                      <td className="star-col-cell">
+                        {commentedEntryIds?.has(entry.id) && (
+                          <span className="comment-indicator" title="Has comment">✎</span>
+                        )}
+                      </td>
+                    )}
+                    {colOrder.map(col => renderCell(entry, col, count))}
+                  </tr>
                 );
               })}
-            </tr>
-          </thead>
-          <tbody>
-            {entries.length === 0 && (
-              <tr><td colSpan={colOrder.length + (features.showSequenceColumn ? 1 : 0) + (features.starredEntries ? 1 : 0) + (features.entryComments ? 1 : 0)} className="table-empty-cell">No log entries to display</td></tr>
-            )}
-            {paddingTop > 0 && <tr style={{ height: paddingTop }}><td colSpan={colOrder.length + (features.showSequenceColumn ? 1 : 0) + (features.starredEntries ? 1 : 0) + (features.entryComments ? 1 : 0)} /></tr>}
-            {visibleEntries.map((displayEntry, i) => {
-              const { entry, count } = displayEntry;
-              const globalIdx = startIdx + i;
-              const isActive = entry.id === activeEntryId;
-              const isSelected = selectedIds.has(entry.id);
-              return (
-                <tr
-                  key={entry.id}
-                  className={`level-${entry.level.toLowerCase()}${isActive ? ' row-active' : ''}${isSelected ? ' row-selected' : ''}`}
-                  onClick={e => handleRowClick(displayEntry, globalIdx, e)}
-                  style={{ cursor: 'pointer', backgroundColor: features.filterColors ? getMatchingFilterColor(entry, filters) : undefined }}
-                >
-                  {features.showSequenceColumn && <td className="seq-col-cell">{features.timestampSequence && timestampSequenceMap ? (timestampSequenceMap.get(entry.id) ?? globalIdx + 1) : globalIdx + 1}</td>}
-                  {features.starredEntries && (
-                    <td className="star-col-cell" onClick={e => { e.stopPropagation(); onToggleStar?.(entry.id); }}>
-                      <span className={`star-btn${starredEntryIds?.has(entry.id) ? ' star-btn--active' : ''}`}>
-                        {starredEntryIds?.has(entry.id) ? '★' : '☆'}
-                      </span>
-                    </td>
-                  )}
-                  {features.entryComments && (
-                    <td className="star-col-cell">
-                      {commentedEntryIds?.has(entry.id) && (
-                        <span className="comment-indicator" title="Has comment">✎</span>
-                      )}
-                    </td>
-                  )}
-                  {colOrder.map(col => renderCell(entry, col, count))}
-                </tr>
-              );
-            })}
-            {paddingBottom > 0 && <tr style={{ height: paddingBottom }}><td colSpan={colOrder.length + (features.showSequenceColumn ? 1 : 0) + (features.starredEntries ? 1 : 0) + (features.entryComments ? 1 : 0)} /></tr>}
-          </tbody>
-        </table>
+              {paddingBottom > 0 && <tr style={{ height: paddingBottom }}><td colSpan={colOrder.length + (features.showSequenceColumn ? 1 : 0) + (features.starredEntries ? 1 : 0) + (features.entryComments ? 1 : 0)} /></tr>}
+            </tbody>
+          </table>
+        )}
+
       </div>
     </div>
   );
