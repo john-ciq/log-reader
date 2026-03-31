@@ -17,6 +17,8 @@ export interface FilterConfig {
   excludeOperator?: 'and' | 'or';
   comment?: string; // Optional free-text note about this filter
   color?: string; // Optional highlight color for matched entries (hex, e.g. "#ff0000")
+  colorEnabled?: boolean; // Whether the highlight color is active (defaults to true when color is set)
+  colorOpacity?: number; // Opacity of the highlight color (0–1, defaults to 0.3)
   levelFilters: string[]; // Log levels to include (empty = all)
   sourceFilters: string[]; // Sources to include (empty = all)
   fileFilters: string[]; // Filenames to include (empty = all)
@@ -216,14 +218,24 @@ export function searchEntries(entries: LogEntry[], query: string): LogEntry[] {
   });
 }
 
+function hexToRgba(hex: string, opacity: number): string {
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  return `rgba(${r}, ${g}, ${b}, ${opacity})`;
+}
+
 /**
- * Returns the color of the first enabled filter with a color that includes the entry,
- * or undefined if no such filter exists.
+ * Returns an rgba() color string for the first enabled, color-highlighted filter
+ * that includes the entry, or undefined if none matches.
  */
 export function getMatchingFilterColor(entry: LogEntry, filters: FilterConfig[]): string | undefined {
   for (const filter of filters) {
     if (!filter.enabled || !filter.color) continue;
-    if (getFilterDecision(entry, filter) === true) return filter.color;
+    if ((filter.colorEnabled ?? true) === false) continue;
+    if (getFilterDecision(entry, filter) === true) {
+      return hexToRgba(filter.color, filter.colorOpacity ?? 0.3);
+    }
   }
 }
 

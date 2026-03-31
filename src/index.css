@@ -1039,7 +1039,7 @@ html, body {
   width: 12px;
   height: 12px;
   border-radius: 50%;
-  border: 1px solid rgba(0,0,0,0.2);
+  border: 1px solid var(--border-light);
   flex-shrink: 0;
 }
 
@@ -1223,11 +1223,16 @@ html, body {
 .filter-color-input {
   width: 2.5rem;
   height: 2rem;
-  padding: 0;
+  padding: 2px;
   border: 2px solid var(--border);
   border-radius: 6px;
-  background: none;
+  background: var(--bg-tertiary);
   cursor: pointer;
+  color-scheme: dark;
+}
+
+.filter-color-input:hover {
+  border-color: var(--border-light);
 }
 
 .filter-color-clear {
@@ -1238,10 +1243,39 @@ html, body {
   background: var(--bg-secondary);
   color: var(--text-muted);
   cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
 }
 
 .filter-color-clear:hover {
   color: var(--text-primary);
+  border-color: var(--border-light);
+}
+
+.filter-color-opacity-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.4rem;
+}
+
+.filter-color-opacity-label {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.filter-color-opacity-slider {
+  flex: 1;
+  accent-color: var(--primary);
+  cursor: pointer;
+}
+
+.filter-color-opacity-value {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  width: 2.5rem;
+  text-align: right;
+  flex-shrink: 0;
 }
 
 .filter-name-input {

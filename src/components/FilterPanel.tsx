@@ -92,8 +92,6 @@ export default function FilterPanel({
             <div
               key={filter.id}
               className={`filter-item${dragOverId === filter.id ? ' drag-over' : ''}`}
-              draggable
-              onDragStart={() => { dragIdRef.current = filter.id; }}
               onDragOver={e => { e.preventDefault(); setDragOverId(filter.id); }}
               onDragLeave={() => setDragOverId(null)}
               onDrop={() => {
@@ -103,10 +101,15 @@ export default function FilterPanel({
                 }
                 dragIdRef.current = null;
               }}
-              onDragEnd={() => { setDragOverId(null); dragIdRef.current = null; }}
             >
               <div className="filter-header-bar">
-                <span className="filter-drag-handle" title="Drag to reorder">⠿</span>
+                <span
+                  className="filter-drag-handle"
+                  title="Drag to reorder"
+                  draggable
+                  onDragStart={() => { dragIdRef.current = filter.id; }}
+                  onDragEnd={() => { setDragOverId(null); dragIdRef.current = null; }}
+                >⠿</span>
                 {features.filterColors && filter.color && (
                   <span className="filter-color-swatch" style={{ backgroundColor: filter.color }} title={`Color: ${filter.color}`} />
                 )}
@@ -203,8 +206,15 @@ export default function FilterPanel({
                       <label>Highlight Color:</label>
                       <div className="filter-color-row">
                         <input
+                          type="checkbox"
+                          className="app-checkbox"
+                          checked={filter.colorEnabled ?? true}
+                          onChange={e => onUpdateFilter(filter.id, { colorEnabled: e.target.checked })}
+                          title="Enable highlight color"
+                        />
+                        <input
                           type="color"
-                          value={filter.color || '#ffffff'}
+                          value={filter.color || '#3b82f6'}
                           onChange={e => onUpdateFilter(filter.id, { color: e.target.value })}
                           className="filter-color-input"
                           title="Pick a highlight color for matched entries"
@@ -212,11 +222,26 @@ export default function FilterPanel({
                         {filter.color && (
                           <button
                             className="filter-color-clear"
-                            onClick={() => onUpdateFilter(filter.id, { color: undefined })}
+                            onClick={() => onUpdateFilter(filter.id, { color: undefined, colorEnabled: undefined, colorOpacity: undefined })}
                             title="Remove color"
                           >Clear</button>
                         )}
                       </div>
+                      {filter.color && (
+                        <div className="filter-color-opacity-row">
+                          <label className="filter-color-opacity-label">Opacity:</label>
+                          <input
+                            type="range"
+                            min={5}
+                            max={100}
+                            step={5}
+                            value={Math.round((filter.colorOpacity ?? 0.3) * 100)}
+                            onChange={e => onUpdateFilter(filter.id, { colorOpacity: Number(e.target.value) / 100 })}
+                            className="filter-color-opacity-slider"
+                          />
+                          <span className="filter-color-opacity-value">{Math.round((filter.colorOpacity ?? 0.3) * 100)}%</span>
+                        </div>
+                      )}
                     </div>
                   )}
 
@@ -367,7 +392,7 @@ function PatternInput({ onAdd, error, placeholder }: PatternInputProps) {
         type="text"
         value={pattern}
         onChange={e => setPattern(e.target.value)}
-        onKeyPress={e => e.key === 'Enter' && handleAdd()}
+        onKeyDown={e => e.key === 'Enter' && handleAdd()}
         placeholder={placeholder}
         className={`pattern-input ${error || localError ? 'error' : ''}`}
       />
