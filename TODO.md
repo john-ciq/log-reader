@@ -7,6 +7,7 @@
 ## Planned
 
 ### Features
+- [ ] Add source file line number(s) to the Entry Detail panel
 - [ ] Normalize timestamps with respect to timezone info (implement a "timestamp resolver", as well)
 - [ ] Add log entry transforms
 - [ ] Allow table columns to be added or removed
