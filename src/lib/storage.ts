@@ -49,6 +49,8 @@ export interface Storage {
   loadFeatureOverrides(): Record<string, boolean>;
   saveDetailSectionCollapsed(state: Record<string, boolean>): void;
   loadDetailSectionCollapsed(): Record<string, boolean>;
+  saveStarredEntryIds(ids: string[]): void;
+  loadStarredEntryIds(): string[];
   exportAllData(): Record<string, string>;
   importAllData(data: Record<string, string>): void;
   clearAllStoredData(): void;

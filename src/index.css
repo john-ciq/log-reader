@@ -937,8 +937,37 @@ html, body {
   gap: 0.75rem;
 }
 
-.require-match-btn {
+.filter-header-right {
   margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.star-filter-btn {
+  font-size: 1rem;
+  line-height: 1;
+  padding: 0.45rem 0.6rem;
+  border-radius: 4px;
+  border: 1px solid var(--border-light);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.star-filter-btn:hover {
+  background: var(--bg-hover);
+  color: var(--warning);
+}
+
+.star-filter-btn.active {
+  background: var(--warning);
+  color: white;
+  border-color: var(--warning);
+}
+
+.require-match-btn {
   font-size: 0.72rem;
   font-weight: 600;
   letter-spacing: 0.4px;
@@ -2385,6 +2414,35 @@ tbody tr:last-child td {
   font-size: 0.75rem;
   font-family: 'Monaco', 'Courier New', monospace;
   user-select: none;
+}
+
+.star-col-header,
+.star-col-cell {
+  text-align: center;
+  width: 32px;
+  padding: 0;
+}
+
+.star-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  color: var(--text-muted);
+  padding: 2px 4px;
+  line-height: 1;
+  opacity: 0.4;
+  transition: opacity 0.1s, color 0.1s;
+}
+
+.star-btn:hover {
+  opacity: 1;
+  color: var(--warning);
+}
+
+.star-btn--active {
+  color: var(--warning);
+  opacity: 1;
 }
 
 .timestamp-cell {

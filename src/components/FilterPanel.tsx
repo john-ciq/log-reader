@@ -13,6 +13,8 @@ interface FilterPanelProps {
   onMoveFilter: (filterId: string, direction: 'up' | 'down') => void;
   onReorderFilter: (fromId: string, toId: string) => void;
   availableFiles: string[];
+  showOnlyStarred?: boolean;
+  onToggleShowOnlyStarred?: () => void;
 }
 
 export default function FilterPanel({
@@ -25,6 +27,8 @@ export default function FilterPanel({
   onMoveFilter,
   onReorderFilter,
   availableFiles,
+  showOnlyStarred = false,
+  onToggleShowOnlyStarred,
 }: FilterPanelProps) {
   const { features, setFeature } = useFeatures();
   const [expandedFilters, setExpandedFilters] = useState<Set<string>>(() => new Set(storage.loadExpandedFilters()));
@@ -63,11 +67,20 @@ export default function FilterPanel({
             ✕ All
           </button>
         )}
-        <button
-          className={`require-match-btn${features.showOnlyMatches ? ' active' : ''}`}
-          onClick={() => setFeature('showOnlyMatches', !features.showOnlyMatches)}
-          title="Only show entries that match a filter"
-        >Matches</button>
+        <div className="filter-header-right">
+          {features.starredEntries && (
+            <button
+              className={`star-filter-btn${showOnlyStarred ? ' active' : ''}`}
+              onClick={onToggleShowOnlyStarred}
+              title="Only show starred entries"
+            >{showOnlyStarred ? '★' : '☆'}</button>
+          )}
+          <button
+            className={`require-match-btn${features.showOnlyMatches ? ' active' : ''}`}
+            onClick={() => setFeature('showOnlyMatches', !features.showOnlyMatches)}
+            title="Only show entries that match a filter"
+          >Matches</button>
+        </div>
         <button onClick={() => {
           const id = onAddFilter();
           setExpandedFilters(prev => {

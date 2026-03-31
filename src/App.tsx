@@ -28,6 +28,8 @@ function App() {
   const { features, setFeature } = useFeatures();
   const [entries, setEntries] = useState<LogEntry[]>([]);
   const [filteredEntries, setFilteredEntries] = useState<LogEntry[]>([]);
+  const [starredEntryIds, setStarredEntryIds] = useState<Set<string>>(() => new Set(storage.loadStarredEntryIds()));
+  const [showOnlyStarred, setShowOnlyStarred] = useState(false);
   const timestampSequenceMap = useMemo(() => {
     const sorted = [...entries].sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
     const map = new Map<string, number>();
@@ -106,6 +108,22 @@ function App() {
     storage.saveFilterConfigs(filters);
   }, [filters]);
 
+  // Save starred entries whenever they change
+  useEffect(() => {
+    storage.saveStarredEntryIds([...starredEntryIds]);
+  }, [starredEntryIds]);
+
+  // Remove starred IDs that no longer correspond to any loaded entry
+  useEffect(() => {
+    if (entries.length === 0) return;
+    const entryIds = new Set(entries.map(e => e.id));
+    setStarredEntryIds(prev => {
+      const cleaned = new Set([...prev].filter(id => entryIds.has(id)));
+      if (cleaned.size === prev.size) return prev;
+      return cleaned;
+    });
+  }, [entries]);
+
   // Save search state
   useEffect(() => {
     storage.saveSearchState(searchQuery, useRegexSearch);
@@ -156,8 +174,13 @@ function App() {
       });
     }
 
+    // Apply starred-only filter
+    if (features.starredEntries && showOnlyStarred) {
+      result = result.filter(entry => starredEntryIds.has(entry.id));
+    }
+
     setFilteredEntries(result);
-  }, [entries, filters, features.showOnlyMatches, displayLevels, displayFiles, displaySources, timeRange]);
+  }, [entries, filters, features.showOnlyMatches, features.starredEntries, showOnlyStarred, starredEntryIds, displayLevels, displayFiles, displaySources, timeRange]);
 
   // Global keyboard shortcuts
   useEffect(() => {
@@ -456,6 +479,7 @@ function App() {
       hiddenLevels: [...hiddenLevels],
       displayFiles: [...displayFiles],
       entries,
+      starredEntryIds: [...starredEntryIds],
     };
     const dataStr = JSON.stringify(bundle, null, 2);
     const dataBlob = new Blob([dataStr], { type: 'application/json' });
@@ -465,7 +489,7 @@ function App() {
     link.download = `support-bundle-${downloadTimestamp()}.json`;
     link.click();
     URL.revokeObjectURL(url);
-  }, [entries, filters, features.showOnlyMatches, hiddenLevels, displayFiles]);
+  }, [entries, filters, features.showOnlyMatches, hiddenLevels, displayFiles, starredEntryIds]);
 
   const handleImportBundle = useCallback((file: File) => {
     const reader = new FileReader();
@@ -497,12 +521,26 @@ function App() {
         if (Array.isArray(bundle.displayFiles)) {
           pendingDisplayFilesRef.current = new Set<string>(bundle.displayFiles);
         }
+        if (Array.isArray(bundle.starredEntryIds)) {
+          const starred = new Set<string>(bundle.starredEntryIds);
+          setStarredEntryIds(starred);
+          storage.saveStarredEntryIds([...starred]);
+        }
       } catch {
         alert('Failed to import support bundle: invalid file.');
       }
     };
     reader.readAsText(file);
   }, [setFeature, setHiddenLevels, setDisplayFiles]);
+
+  // ── Starred entries ───────────────────────────────────────────────────────────
+  const handleToggleStar = useCallback((id: string) => {
+    setStarredEntryIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  }, []);
 
   // ── Row detail navigation ─────────────────────────────────────────────────────
   const handleRowClick = useCallback((entry: LogEntry) => {
@@ -688,6 +726,8 @@ function App() {
                       onDuplicateFilter={handleDuplicateFilter}
                       onReorderFilter={handleReorderFilter}
                       availableFiles={[...new Set(entries.map(e => e.filename).filter((f): f is string => Boolean(f)))]}
+                      showOnlyStarred={showOnlyStarred}
+                      onToggleShowOnlyStarred={() => setShowOnlyStarred(v => !v)}
                     />
                     {features.savedPresets && (
                       <PresetsPanel
@@ -788,6 +828,8 @@ function App() {
                   entries={filteredEntries}
                   filters={filters}
                   timestampSequenceMap={timestampSequenceMap}
+                  starredEntryIds={starredEntryIds}
+                  onToggleStar={handleToggleStar}
                   searchQuery={searchQuery}
                   useRegex={useRegexSearch}
                   activeEntryId={activeEntryId}

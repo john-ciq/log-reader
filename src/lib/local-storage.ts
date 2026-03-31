@@ -321,6 +321,21 @@ export class BrowserStorage implements Storage {
     }
   }
 
+  saveStarredEntryIds(ids: string[]): void {
+    try {
+      localStorage.setItem(`${STORAGE_PREFIX}starred-entries`, JSON.stringify(ids));
+    } catch { /* ignore */ }
+  }
+
+  loadStarredEntryIds(): string[] {
+    try {
+      const stored = localStorage.getItem(`${STORAGE_PREFIX}starred-entries`);
+      return stored ? JSON.parse(stored) : [];
+    } catch {
+      return [];
+    }
+  }
+
   exportAllData(): Record<string, string> {
     const data: Record<string, string> = {};
     for (let i = 0; i < localStorage.length; i++) {

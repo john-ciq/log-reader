@@ -9,6 +9,8 @@ interface LogTableProps {
   entries: LogEntry[];
   filters?: FilterConfig[];
   timestampSequenceMap?: Map<string, number>;
+  starredEntryIds?: Set<string>;
+  onToggleStar?: (id: string) => void;
   searchQuery?: string;
   useRegex?: boolean;
   activeEntryId?: string | null;
@@ -69,6 +71,8 @@ export default function LogTable({
   entries,
   filters = [],
   timestampSequenceMap,
+  starredEntryIds,
+  onToggleStar,
   searchQuery = '',
   useRegex = false,
   activeEntryId,
@@ -475,11 +479,13 @@ export default function LogTable({
         <table style={{ tableLayout: 'fixed' }}>
           <colgroup>
             {features.showSequenceColumn && <col style={{ width: 52 }} />}
+            {features.starredEntries && <col style={{ width: 32 }} />}
             {colOrder.map(col => <col key={col} style={{ width: collapsedCols.has(col) ? 28 : colWidths[col] }} />)}
           </colgroup>
           <thead>
             <tr>
               {features.showSequenceColumn && <th className="seq-col-header">#</th>}
+              {features.starredEntries && <th className="star-col-header" />}
               {colOrder.map(col => {
                 const collapsed = collapsedCols.has(col);
                 return (
@@ -523,9 +529,9 @@ export default function LogTable({
           </thead>
           <tbody>
             {entries.length === 0 && (
-              <tr><td colSpan={colOrder.length + (features.showSequenceColumn ? 1 : 0)} className="table-empty-cell">No log entries to display</td></tr>
+              <tr><td colSpan={colOrder.length + (features.showSequenceColumn ? 1 : 0) + (features.starredEntries ? 1 : 0)} className="table-empty-cell">No log entries to display</td></tr>
             )}
-            {paddingTop > 0 && <tr style={{ height: paddingTop }}><td colSpan={colOrder.length + (features.showSequenceColumn ? 1 : 0)} /></tr>}
+            {paddingTop > 0 && <tr style={{ height: paddingTop }}><td colSpan={colOrder.length + (features.showSequenceColumn ? 1 : 0) + (features.starredEntries ? 1 : 0)} /></tr>}
             {visibleEntries.map((displayEntry, i) => {
               const { entry, count } = displayEntry;
               const globalIdx = startIdx + i;
@@ -539,11 +545,18 @@ export default function LogTable({
                   style={{ cursor: 'pointer', backgroundColor: features.filterColors ? getMatchingFilterColor(entry, filters) : undefined }}
                 >
                   {features.showSequenceColumn && <td className="seq-col-cell">{features.timestampSequence && timestampSequenceMap ? (timestampSequenceMap.get(entry.id) ?? globalIdx + 1) : globalIdx + 1}</td>}
+                  {features.starredEntries && (
+                    <td className="star-col-cell" onClick={e => { e.stopPropagation(); onToggleStar?.(entry.id); }}>
+                      <span className={`star-btn${starredEntryIds?.has(entry.id) ? ' star-btn--active' : ''}`}>
+                        {starredEntryIds?.has(entry.id) ? '★' : '☆'}
+                      </span>
+                    </td>
+                  )}
                   {colOrder.map(col => renderCell(entry, col, count))}
                 </tr>
               );
             })}
-            {paddingBottom > 0 && <tr style={{ height: paddingBottom }}><td colSpan={colOrder.length + (features.showSequenceColumn ? 1 : 0)} /></tr>}
+            {paddingBottom > 0 && <tr style={{ height: paddingBottom }}><td colSpan={colOrder.length + (features.showSequenceColumn ? 1 : 0) + (features.starredEntries ? 1 : 0)} /></tr>}
           </tbody>
         </table>
       </div>
