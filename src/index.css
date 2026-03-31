@@ -3097,7 +3097,7 @@ th.star-col-header.sortable {
 
 .detail-copy-btn {
   margin-left: auto;
-  font-size: 0.75rem;
+  font-size: 1.75rem;
   color: var(--text-muted);
   padding: 0 2px;
   opacity: 0;
