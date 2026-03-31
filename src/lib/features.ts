@@ -1,6 +1,6 @@
 import { storage } from './local-storage';
 
-export type FeatureKey = 'autoSizeColumns' | 'advancedFilters' | 'deduplication' | 'savedPresets' | 'timeRange' | 'persistTimeRange' | 'importExportStorage' | 'scrollLogSources' | 'showOnlyMatches' | 'entryDetailSidebar' | 'filterComments' | 'supportBundle' | 'removeAllFilters' | 'autoScrollToEntry' | 'showSequenceColumn' | 'filterColors';
+export type FeatureKey = 'autoSizeColumns' | 'advancedFilters' | 'deduplication' | 'savedPresets' | 'timeRange' | 'persistTimeRange' | 'importExportStorage' | 'scrollLogSources' | 'showOnlyMatches' | 'entryDetailSidebar' | 'filterComments' | 'supportBundle' | 'removeAllFilters' | 'autoScrollToEntry' | 'showSequenceColumn' | 'filterColors' | 'timestampSequence';
 
 // The "visible" property allows us to hide features that are still in development or not
 // ready/intended for users, without removing their definitions from the code.
@@ -67,7 +67,7 @@ export const featureDefinitions: Record<FeatureKey, FeatureDefinition> = {
     defaultValue: true,
     description: 'Scroll in Log Sources — limit the sources list height and add a scrollbar',
     visible: true,
-    category: 'Sidebar',
+    category: 'Misc UI',
   },
   showOnlyMatches: {
     name: 'Show Only Matches',
@@ -81,7 +81,7 @@ export const featureDefinitions: Record<FeatureKey, FeatureDefinition> = {
     defaultValue: false,
     description: 'Show the "Entry Detail" panel as a persistent right sidebar, always visible alongside the log table',
     visible: true,
-    category: 'Sidebar',
+    category: 'Misc UI',
   },
   filterComments: {
     name: 'Filter Comments',
@@ -115,6 +115,13 @@ export const featureDefinitions: Record<FeatureKey, FeatureDefinition> = {
     name: 'Sequence Column',
     defaultValue: true,
     description: 'Show a "#" column on the far left of the log table with a sequential row number',
+    visible: true,
+    category: 'Table',
+  },
+  timestampSequence: {
+    name: 'Timestamp-based Sequence Numbers',
+    defaultValue: false,
+    description: 'Number entries by their timestamp order across all loaded entries, so the sequence number is stable regardless of filtering or sort order',
     visible: true,
     category: 'Table',
   },

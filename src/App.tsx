@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { downloadTimestamp } from './lib/utils';
 import { LogEntry } from './lib/parser';
 import { FilterConfig, getFilterDecision, migrateFilter } from './lib/filters';
@@ -28,6 +28,12 @@ function App() {
   const { features, setFeature } = useFeatures();
   const [entries, setEntries] = useState<LogEntry[]>([]);
   const [filteredEntries, setFilteredEntries] = useState<LogEntry[]>([]);
+  const timestampSequenceMap = useMemo(() => {
+    const sorted = [...entries].sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
+    const map = new Map<string, number>();
+    sorted.forEach((e, i) => map.set(e.id, i + 1));
+    return map;
+  }, [entries]);
   const [sortedFilteredEntries, setSortedFilteredEntries] = useState<LogEntry[]>([]);
   const [centerOnActiveEntry, setCenterOnActiveEntry] = useState(0);
   const [filters, setFilters] = useState<FilterConfig[]>(() => storage.loadFilterConfigs().map(migrateFilter));
@@ -781,6 +787,7 @@ function App() {
                 <LogTable
                   entries={filteredEntries}
                   filters={filters}
+                  timestampSequenceMap={timestampSequenceMap}
                   searchQuery={searchQuery}
                   useRegex={useRegexSearch}
                   activeEntryId={activeEntryId}

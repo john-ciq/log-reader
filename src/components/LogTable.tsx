@@ -8,6 +8,7 @@ import { useFeatures } from '../lib/FeaturesContext';
 interface LogTableProps {
   entries: LogEntry[];
   filters?: FilterConfig[];
+  timestampSequenceMap?: Map<string, number>;
   searchQuery?: string;
   useRegex?: boolean;
   activeEntryId?: string | null;
@@ -67,6 +68,7 @@ const COL_LABELS: Record<SortColumn, string> = {
 export default function LogTable({
   entries,
   filters = [],
+  timestampSequenceMap,
   searchQuery = '',
   useRegex = false,
   activeEntryId,
@@ -536,7 +538,7 @@ export default function LogTable({
                   onClick={e => handleRowClick(displayEntry, globalIdx, e)}
                   style={{ cursor: 'pointer', backgroundColor: features.filterColors ? getMatchingFilterColor(entry, filters) : undefined }}
                 >
-                  {features.showSequenceColumn && <td className="seq-col-cell">{globalIdx + 1}</td>}
+                  {features.showSequenceColumn && <td className="seq-col-cell">{features.timestampSequence && timestampSequenceMap ? (timestampSequenceMap.get(entry.id) ?? globalIdx + 1) : globalIdx + 1}</td>}
                   {colOrder.map(col => renderCell(entry, col, count))}
                 </tr>
               );
