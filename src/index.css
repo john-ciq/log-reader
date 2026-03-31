@@ -1035,13 +1035,6 @@ html, body {
   cursor: grabbing;
 }
 
-.filter-color-swatch {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  border: 1px solid var(--border-light);
-  flex-shrink: 0;
-}
 
 .filter-header-bar {
   display: flex;
@@ -1146,6 +1139,7 @@ html, body {
 
 .filter-actions {
   display: flex;
+  align-items: center;
   gap: 0.25rem;
 }
 

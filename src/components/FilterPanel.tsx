@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { FilterConfig } from '../lib/filters';
+import { FilterConfig, hexToRgba } from '../lib/filters';
 import { storage } from '../lib/local-storage';
 import { useFeatures } from '../lib/FeaturesContext';
 
@@ -110,9 +110,6 @@ export default function FilterPanel({
                   onDragStart={() => { dragIdRef.current = filter.id; }}
                   onDragEnd={() => { setDragOverId(null); dragIdRef.current = null; }}
                 >⠿</span>
-                {features.filterColors && filter.color && (
-                  <span className="filter-color-swatch" style={{ backgroundColor: filter.color }} title={`Color: ${filter.color}`} />
-                )}
                 <div className="filter-radio">
                   <input
                     type="checkbox"
@@ -122,7 +119,11 @@ export default function FilterPanel({
                   />
                   <div className="filter-title-group">
                     <label htmlFor={`filter-${filter.id}`}>
-                      <span className="filter-name-text" title={filter.name || 'Unnamed Filter'}>{filter.name || 'Unnamed Filter'}</span>
+                      <span
+                        className="filter-name-text"
+                        title={filter.name || 'Unnamed Filter'}
+                        style={features.filterColors && filter.color && (filter.colorEnabled ?? true) ? { backgroundColor: hexToRgba(filter.color, filter.colorOpacity ?? 0.3), borderRadius: '4px', padding: '0 4px' } : undefined}
+                      >{filter.name || 'Unnamed Filter'}</span>
                       {features.filterComments && filter.comment && (
                         <span className="filter-comment-preview" title={filter.comment}>{filter.comment}</span>
                       )}
