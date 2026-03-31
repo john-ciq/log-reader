@@ -7,8 +7,6 @@
 ## Planned
 
 ### Features
-- [ ] No log entries to display - no table when no log entries
-- [ ] Add log entry annotations/comments
 - [ ] Normalize timestamps with respect to timezone info (implement a "timestamp resolver", as well)
 - [ ] Add log entry transforms
 - [ ] Allow for columns to be added or removed
@@ -30,6 +28,8 @@
 - [ ] Some JSON logs (from splunk) do not parse the payload as json
 
 ## Done
+- [x] No log entries to display - no table when no log entries
+- [x] Add log entry annotations/comments
 - [x] Support bundles are now ZIP files
 - [x] Add the ability to star log entries
 - [x] Add timestamp parsing for JSON log files (best-effort)
