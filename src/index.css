@@ -358,6 +358,43 @@ html, body {
   margin: 0;
 }
 
+.features-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+  padding: 0 1rem;
+  gap: 0.25rem;
+}
+
+.features-tab {
+  padding: 0.5rem 0.85rem;
+  font-size: 0.85rem;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  margin-bottom: -1px;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.features-tab:hover {
+  color: var(--text-primary);
+}
+
+.features-tab--active {
+  color: var(--text-primary);
+  border-bottom-color: var(--primary);
+}
+
+.features-tab-panels {
+  display: grid;
+}
+
+.features-tab-content {
+  grid-area: 1 / 1;
+  overflow-y: auto;
+}
+
 .confirm-dialog-overlay {
   position: fixed;
   inset: 0;

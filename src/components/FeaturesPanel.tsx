@@ -21,11 +21,16 @@ function exportStorage() {
   URL.revokeObjectURL(url);
 }
 
+const visibleKeys = (Object.keys(featureDefinitions) as FeatureKey[])
+  .filter(key => featureDefinitions[key].visible);
+const categories = [...new Set(visibleKeys.map(key => featureDefinitions[key].category))];
+
 export default function FeaturesPanel({ onClose }: FeaturesPanelProps) {
   const { features, setFeature, resetFeatures } = useFeatures();
   const importInputRef = useRef<HTMLInputElement>(null);
   const [theme, setThemeState] = useState<Theme>(loadTheme);
   const [showRefreshConfirm, setShowRefreshConfirm] = useState(false);
+  const [activeCategory, setActiveCategory] = useState(categories[0]);
 
   const handleThemeChange = (t: Theme) => {
     setThemeState(t);
@@ -88,22 +93,39 @@ export default function FeaturesPanel({ onClose }: FeaturesPanelProps) {
               ))}
             </div>
           </div>
-          <hr className="features-divider" />
-          {(Object.keys(featureDefinitions) as FeatureKey[])
-            .filter(key => featureDefinitions[key].visible)
-            .map(key => (
-              <label key={key} className="feature-row">
-                <input
-                  type="checkbox"
-                  checked={features[key]}
-                  onChange={e => setFeature(key, e.target.checked)}
-                />
-                <span className="feature-text">
-                  <span className="feature-name">{featureDefinitions[key].name}</span>
-                  <span className="feature-description">{featureDefinitions[key].description}</span>
-                </span>
-              </label>
+          <div className="features-tabs">
+            {categories.map(cat => (
+              <button
+                key={cat}
+                className={`features-tab${activeCategory === cat ? ' features-tab--active' : ''}`}
+                onClick={() => setActiveCategory(cat)}
+              >{cat}</button>
             ))}
+          </div>
+          <div className="features-tab-panels">
+            {categories.map(cat => (
+              <div
+                key={cat}
+                className="features-tab-content"
+                style={{ visibility: activeCategory === cat ? 'visible' : 'hidden' }}
+                aria-hidden={activeCategory !== cat}
+              >
+                {visibleKeys.filter(key => featureDefinitions[key].category === cat).map(key => (
+                  <label key={key} className="feature-row">
+                    <input
+                      type="checkbox"
+                      checked={features[key]}
+                      onChange={e => setFeature(key, e.target.checked)}
+                    />
+                    <span className="feature-text">
+                      <span className="feature-name">{featureDefinitions[key].name}</span>
+                      <span className="feature-description">{featureDefinitions[key].description}</span>
+                    </span>
+                  </label>
+                ))}
+              </div>
+            ))}
+          </div>
         </div>
         {features.importExportStorage && (
           <div className="features-panel-footer">
