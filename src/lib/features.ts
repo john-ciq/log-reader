@@ -113,7 +113,7 @@ export const featureDefinitions: Record<FeatureKey, FeatureDefinition> = {
   },
   showSequenceColumn: {
     name: 'Sequence Column',
-    defaultValue: true,
+    defaultValue: false,
     description: 'Show a "#" column on the far left of the log table with a sequential row number',
     visible: true,
     category: 'Table',
