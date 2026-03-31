@@ -495,6 +495,8 @@ function App() {
       entries,
       starredEntryIds: [...starredEntryIds],
       entryComments: Object.fromEntries(entryComments),
+      search: { query: searchQuery, useRegex: useRegexSearch },
+      timeRange: timeRange ? { from: timeRange.from?.toISOString() ?? null, to: timeRange.to?.toISOString() ?? null } : null,
     };
     const dataStr = JSON.stringify(bundle, null, 2);
     const zip = new JSZip();
@@ -507,7 +509,7 @@ function App() {
       link.click();
       URL.revokeObjectURL(url);
     });
-  }, [entries, filters, features.showOnlyMatches, hiddenLevels, displayFiles, starredEntryIds, entryComments]);
+  }, [entries, filters, features.showOnlyMatches, hiddenLevels, displayFiles, starredEntryIds, entryComments, searchQuery, useRegexSearch, timeRange]);
 
   const handleImportBundle = useCallback((file: File) => {
     const processJson = (jsonText: string) => {
@@ -547,6 +549,17 @@ function App() {
           const comments = new Map<string, string>(Object.entries(bundle.entryComments));
           setEntryComments(comments);
           storage.saveEntryComments(Object.fromEntries(comments));
+        }
+        if (bundle.search && typeof bundle.search.query === 'string') {
+          setSearchQuery(bundle.search.query);
+          setUseRegexSearch(!!bundle.search.useRegex);
+          storage.saveSearchState(bundle.search.query, !!bundle.search.useRegex);
+        }
+        if ('timeRange' in bundle) {
+          const tr = bundle.timeRange
+            ? { from: bundle.timeRange.from ? new Date(bundle.timeRange.from) : null, to: bundle.timeRange.to ? new Date(bundle.timeRange.to) : null }
+            : null;
+          setTimeRange(tr);
         }
       } catch {
         alert('Failed to import support bundle: invalid file.');
