@@ -9,10 +9,10 @@
 ### Features
 - [ ] Normalize timestamps with respect to timezone info (implement a "timestamp resolver", as well)
 - [ ] Add log entry transforms
-- [ ] Allow for columns to be added or removed
+- [ ] Allow table columns to be added or removed
+- [ ] Create Electron/Tauri app
 - [ ] Create a full suite of tests (unit tests, UI tests, e2e tests)
 - [ ] Connect to Jira and append a support bundle to a case by JiraID
-- [ ] Electron app
 
 ### Parsers
 - [ ] Citi files (ICG_DESKTOP_BOOT_STRAP_20260218.log, ICG_DESKTOP_NATIVE_WATCHER_20260218.log)
@@ -33,7 +33,7 @@
 - [x] Support bundles are now ZIP files
 - [x] Add the ability to star log entries
 - [x] Add timestamp parsing for JSON log files (best-effort)
-- [x] Autosync is now a feature (defaults to off) and a "sync now" button exists in the entry details panel
+- [x] Auto-sync is now a feature (defaults to off) and a "sync now" button exists in the entry details panel
 - [x] Auto expand JSON when "show more" is clicked
 - [x] Persist log entry expanded state when the log entry leaves the virtual scroll window
 - [x] Add a fixed "sequence" column, indexed by timestamp or current order
