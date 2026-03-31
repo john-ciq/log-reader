@@ -336,6 +336,21 @@ export class BrowserStorage implements Storage {
     }
   }
 
+  saveEntryComments(comments: Record<string, string>): void {
+    try {
+      localStorage.setItem(`${STORAGE_PREFIX}entry-comments`, JSON.stringify(comments));
+    } catch { /* ignore */ }
+  }
+
+  loadEntryComments(): Record<string, string> {
+    try {
+      const stored = localStorage.getItem(`${STORAGE_PREFIX}entry-comments`);
+      return stored ? JSON.parse(stored) : {};
+    } catch {
+      return {};
+    }
+  }
+
   exportAllData(): Record<string, string> {
     const data: Record<string, string> = {};
     for (let i = 0; i < localStorage.length; i++) {

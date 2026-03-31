@@ -14,6 +14,8 @@ interface RowDetailPanelProps {
   entryIndex: number;
   totalEntries: number;
   sidebar?: boolean;
+  comment?: string;
+  onSetComment?: (id: string, comment: string) => void;
 }
 
 function formatTimestamp(t: Date): string {
@@ -68,7 +70,7 @@ function CollapsibleSection({ label, grow, copyText, children }: { label: string
   );
 }
 
-function DetailBody({ entry, onClose, onPrev, onNext, onScrollToEntry, hasPrev, hasNext, entryIndex, totalEntries, sidebar }: Omit<RowDetailPanelProps, 'dialog'> & { entry: LogEntry }) {
+function DetailBody({ entry, onClose, onPrev, onNext, onScrollToEntry, hasPrev, hasNext, entryIndex, totalEntries, sidebar, comment = '', onSetComment }: Omit<RowDetailPanelProps, 'dialog'> & { entry: LogEntry }) {
   const { features, setFeature } = useFeatures();
   const hasMetadata = entry.metadata && Object.keys(entry.metadata).length > 0;
   return (
@@ -122,6 +124,21 @@ function DetailBody({ entry, onClose, onPrev, onNext, onScrollToEntry, hasPrev, 
           </div>
         )}
 
+        {features.entryComments && (
+          <div className="detail-field detail-field--block">
+            <span className="detail-field-label">Comment</span>
+            <textarea
+              className="detail-comment-textarea"
+              value={comment}
+              onChange={e => onSetComment?.(entry.id, e.target.value)}
+              placeholder="Add a comment…"
+              rows={3}
+            />
+          </div>
+        )}
+
+
+
         <CollapsibleSection label="Message" copyText={entry.message}>
           <pre className="detail-message">{entry.message}</pre>
         </CollapsibleSection>
@@ -142,7 +159,7 @@ function DetailBody({ entry, onClose, onPrev, onNext, onScrollToEntry, hasPrev, 
   );
 }
 
-export default function RowDetailPanel({ entry, onClose, onPrev, onNext, onScrollToEntry, hasPrev, hasNext, entryIndex, totalEntries, sidebar }: RowDetailPanelProps) {
+export default function RowDetailPanel({ entry, onClose, onPrev, onNext, onScrollToEntry, hasPrev, hasNext, entryIndex, totalEntries, sidebar, comment, onSetComment }: RowDetailPanelProps) {
   useEffect(() => {
     if (!entry) return;
     const onKey = (e: KeyboardEvent) => {
@@ -158,7 +175,7 @@ export default function RowDetailPanel({ entry, onClose, onPrev, onNext, onScrol
     return (
       <aside className="row-detail-sidebar">
         {entry ? (
-          <DetailBody entry={entry} onClose={onClose} onPrev={onPrev} onNext={onNext} onScrollToEntry={onScrollToEntry} hasPrev={hasPrev} hasNext={hasNext} entryIndex={entryIndex} totalEntries={totalEntries} sidebar />
+          <DetailBody entry={entry} onClose={onClose} onPrev={onPrev} onNext={onNext} onScrollToEntry={onScrollToEntry} hasPrev={hasPrev} hasNext={hasNext} entryIndex={entryIndex} totalEntries={totalEntries} sidebar comment={comment} onSetComment={onSetComment} />
         ) : (
           <div className="detail-sidebar-empty">
             <span>Select an entry to view details</span>
@@ -174,7 +191,7 @@ export default function RowDetailPanel({ entry, onClose, onPrev, onNext, onScrol
     <>
       <div className="detail-panel-overlay" onClick={onClose} />
       <div className="row-detail-panel">
-        <DetailBody entry={entry} onClose={onClose} onPrev={onPrev} onNext={onNext} onScrollToEntry={onScrollToEntry} hasPrev={hasPrev} hasNext={hasNext} entryIndex={entryIndex} totalEntries={totalEntries} />
+        <DetailBody entry={entry} onClose={onClose} onPrev={onPrev} onNext={onNext} onScrollToEntry={onScrollToEntry} hasPrev={hasPrev} hasNext={hasNext} entryIndex={entryIndex} totalEntries={totalEntries} comment={comment} onSetComment={onSetComment} />
       </div>
     </>
   );

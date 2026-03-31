@@ -15,6 +15,8 @@ interface FilterPanelProps {
   availableFiles: string[];
   showOnlyStarred?: boolean;
   onToggleShowOnlyStarred?: () => void;
+  showOnlyCommented?: boolean;
+  onToggleShowOnlyCommented?: () => void;
 }
 
 export default function FilterPanel({
@@ -29,6 +31,8 @@ export default function FilterPanel({
   availableFiles,
   showOnlyStarred = false,
   onToggleShowOnlyStarred,
+  showOnlyCommented = false,
+  onToggleShowOnlyCommented,
 }: FilterPanelProps) {
   const { features, setFeature } = useFeatures();
   const [expandedFilters, setExpandedFilters] = useState<Set<string>>(() => new Set(storage.loadExpandedFilters()));
@@ -75,6 +79,13 @@ export default function FilterPanel({
               title="Only show starred entries"
             >{showOnlyStarred ? '★' : '☆'}</button>
           )}
+          {features.entryComments && (
+            <button
+              className={`star-filter-btn${showOnlyCommented ? ' active' : ''}`}
+              onClick={onToggleShowOnlyCommented}
+              title="Only show commented entries"
+            >✎</button>
+          )}
           <button
             className={`require-match-btn${features.showOnlyMatches ? ' active' : ''}`}
             onClick={() => setFeature('showOnlyMatches', !features.showOnlyMatches)}
@@ -90,7 +101,7 @@ export default function FilterPanel({
             return next;
           });
         }} className="add-filter-btn">
-          + New
+          +
         </button>
       </div>
 

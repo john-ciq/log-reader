@@ -31,6 +31,9 @@ function App() {
   const [filteredEntries, setFilteredEntries] = useState<LogEntry[]>([]);
   const [starredEntryIds, setStarredEntryIds] = useState<Set<string>>(() => new Set(storage.loadStarredEntryIds()));
   const [showOnlyStarred, setShowOnlyStarred] = useState(false);
+  const [entryComments, setEntryComments] = useState<Map<string, string>>(() => new Map(Object.entries(storage.loadEntryComments())));
+  const [showOnlyCommented, setShowOnlyCommented] = useState(false);
+  const commentedEntryIds = useMemo(() => new Set([...entryComments.keys()].filter(id => entryComments.get(id) !== '')), [entryComments]);
   const timestampSequenceMap = useMemo(() => {
     const sorted = [...entries].sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
     const map = new Map<string, number>();
@@ -114,6 +117,11 @@ function App() {
     storage.saveStarredEntryIds([...starredEntryIds]);
   }, [starredEntryIds]);
 
+  // Save entry comments whenever they change
+  useEffect(() => {
+    storage.saveEntryComments(Object.fromEntries(entryComments));
+  }, [entryComments]);
+
   // Remove starred IDs that no longer correspond to any loaded entry
   useEffect(() => {
     if (entries.length === 0) return;
@@ -180,8 +188,13 @@ function App() {
       result = result.filter(entry => starredEntryIds.has(entry.id));
     }
 
+    // Apply commented-only filter
+    if (features.entryComments && showOnlyCommented) {
+      result = result.filter(entry => entryComments.has(entry.id) && entryComments.get(entry.id) !== '');
+    }
+
     setFilteredEntries(result);
-  }, [entries, filters, features.showOnlyMatches, features.starredEntries, showOnlyStarred, starredEntryIds, displayLevels, displayFiles, displaySources, timeRange]);
+  }, [entries, filters, features.showOnlyMatches, features.starredEntries, showOnlyStarred, starredEntryIds, features.entryComments, showOnlyCommented, entryComments, displayLevels, displayFiles, displaySources, timeRange]);
 
   // Global keyboard shortcuts
   useEffect(() => {
@@ -481,6 +494,7 @@ function App() {
       displayFiles: [...displayFiles],
       entries,
       starredEntryIds: [...starredEntryIds],
+      entryComments: Object.fromEntries(entryComments),
     };
     const dataStr = JSON.stringify(bundle, null, 2);
     const zip = new JSZip();
@@ -493,7 +507,7 @@ function App() {
       link.click();
       URL.revokeObjectURL(url);
     });
-  }, [entries, filters, features.showOnlyMatches, hiddenLevels, displayFiles, starredEntryIds]);
+  }, [entries, filters, features.showOnlyMatches, hiddenLevels, displayFiles, starredEntryIds, entryComments]);
 
   const handleImportBundle = useCallback((file: File) => {
     const processJson = (jsonText: string) => {
@@ -529,6 +543,11 @@ function App() {
           setStarredEntryIds(starred);
           storage.saveStarredEntryIds([...starred]);
         }
+        if (bundle.entryComments && typeof bundle.entryComments === 'object') {
+          const comments = new Map<string, string>(Object.entries(bundle.entryComments));
+          setEntryComments(comments);
+          storage.saveEntryComments(Object.fromEntries(comments));
+        }
       } catch {
         alert('Failed to import support bundle: invalid file.');
       }
@@ -551,6 +570,15 @@ function App() {
     setStarredEntryIds(prev => {
       const next = new Set(prev);
       if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  }, []);
+
+  // ── Entry comments ────────────────────────────────────────────────────────────
+  const handleSetComment = useCallback((id: string, comment: string) => {
+    setEntryComments(prev => {
+      const next = new Map(prev);
+      if (comment === '') next.delete(id); else next.set(id, comment);
       return next;
     });
   }, []);
@@ -668,6 +696,8 @@ function App() {
           hasNext={hasNext}
           entryIndex={detailIdx + 1}
           totalEntries={sortedFilteredEntries.length}
+          comment={detailEntry ? (entryComments.get(detailEntry.id) ?? '') : ''}
+          onSetComment={handleSetComment}
         />
       )}
 
@@ -741,6 +771,8 @@ function App() {
                       availableFiles={[...new Set(entries.map(e => e.filename).filter((f): f is string => Boolean(f)))]}
                       showOnlyStarred={showOnlyStarred}
                       onToggleShowOnlyStarred={() => setShowOnlyStarred(v => !v)}
+                      showOnlyCommented={showOnlyCommented}
+                      onToggleShowOnlyCommented={() => setShowOnlyCommented(v => !v)}
                     />
                     {features.savedPresets && (
                       <PresetsPanel
@@ -843,6 +875,7 @@ function App() {
                   timestampSequenceMap={timestampSequenceMap}
                   starredEntryIds={starredEntryIds}
                   onToggleStar={handleToggleStar}
+                  commentedEntryIds={commentedEntryIds}
                   searchQuery={searchQuery}
                   useRegex={useRegexSearch}
                   activeEntryId={activeEntryId}
@@ -915,6 +948,8 @@ function App() {
             entryIndex={detailIdx + 1}
             totalEntries={sortedFilteredEntries.length}
             sidebar
+            comment={detailEntry ? (entryComments.get(detailEntry.id) ?? '') : ''}
+            onSetComment={handleSetComment}
           />
         )}
       </div>

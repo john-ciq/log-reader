@@ -2423,6 +2423,13 @@ tbody tr:last-child td {
   padding: 0;
 }
 
+th.star-col-header.sortable {
+  cursor: pointer;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
 .star-btn {
   background: none;
   border: none;
@@ -3140,6 +3147,38 @@ tbody tr:last-child td {
   overflow-y: auto;
 }
 
+
+.comment-indicator {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  line-height: 1;
+  display: block;
+  text-align: center;
+}
+
+.detail-comment-textarea {
+  width: 100%;
+  box-sizing: border-box;
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.6rem 0.75rem;
+  font-size: 0.82rem;
+  font-family: inherit;
+  color: var(--text-primary);
+  resize: vertical;
+  min-height: 60px;
+  transition: border-color 0.15s;
+}
+
+.detail-comment-textarea:focus {
+  outline: none;
+  border-color: var(--accent, #4a90e2);
+}
+
+.detail-comment-textarea::placeholder {
+  color: var(--text-muted);
+}
 
 /* ── Entry detail sidebar mode ───────────────────────────────────────────────── */
 .row-detail-sidebar {

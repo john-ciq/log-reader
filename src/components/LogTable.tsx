@@ -11,6 +11,7 @@ interface LogTableProps {
   timestampSequenceMap?: Map<string, number>;
   starredEntryIds?: Set<string>;
   onToggleStar?: (id: string) => void;
+  commentedEntryIds?: Set<string>;
   searchQuery?: string;
   useRegex?: boolean;
   activeEntryId?: string | null;
@@ -47,6 +48,7 @@ function highlightText(text: string, query: string, useRegex: boolean): ReactNod
 }
 
 type SortColumn = 'timestamp' | 'level' | 'file' | 'source' | 'message';
+type AllSortColumn = SortColumn | 'starred' | 'commented';
 type SortDirection = 'asc' | 'desc';
 
 const DEFAULT_COL_ORDER: SortColumn[] = ['timestamp', 'level', 'file', 'source', 'message'];
@@ -73,6 +75,7 @@ export default function LogTable({
   timestampSequenceMap,
   starredEntryIds,
   onToggleStar,
+  commentedEntryIds,
   searchQuery = '',
   useRegex = false,
   activeEntryId,
@@ -82,8 +85,8 @@ export default function LogTable({
 }: LogTableProps) {
   const { features } = useFeatures();
   const saved = storage.loadSortPreference();
-  const [sortColumn, setSortColumn] = useState<SortColumn>(
-    (saved?.column as SortColumn) || 'timestamp'
+  const [sortColumn, setSortColumn] = useState<AllSortColumn>(
+    (saved?.column as AllSortColumn) || 'timestamp'
   );
   const [sortDirection, setSortDirection] = useState<SortDirection>(
     (saved?.direction as SortDirection) || 'desc'
@@ -268,6 +271,8 @@ export default function LogTable({
         case 'file':      aVal = (a.filename || a.source || '').toLowerCase(); bVal = (b.filename || b.source || '').toLowerCase(); break;
         case 'source':    aVal = a.source.toLowerCase(); bVal = b.source.toLowerCase(); break;
         case 'message':   aVal = a.message.toLowerCase(); bVal = b.message.toLowerCase(); break;
+        case 'starred':   aVal = starredEntryIds?.has(a.id) ? 1 : 0; bVal = starredEntryIds?.has(b.id) ? 1 : 0; break;
+        case 'commented': aVal = commentedEntryIds?.has(a.id) ? 1 : 0; bVal = commentedEntryIds?.has(b.id) ? 1 : 0; break;
       }
 
       if (typeof aVal === 'string' && typeof bVal === 'string')
@@ -276,7 +281,7 @@ export default function LogTable({
         return sortDirection === 'asc' ? aVal - bVal : bVal - aVal;
       return 0;
     });
-  }, [entries, sortColumn, sortDirection]);
+  }, [entries, sortColumn, sortDirection, starredEntryIds, commentedEntryIds]);
 
   useEffect(() => {
     onSortedEntriesChange?.(sortedEntries);
@@ -304,19 +309,21 @@ export default function LogTable({
     return result;
   }, [sortedEntries, features.deduplication]);
 
-  const handleSort = (column: SortColumn) => {
+  const handleSort = (column: AllSortColumn) => {
     if (sortColumn === column) {
       const dir = sortDirection === 'asc' ? 'desc' : 'asc';
       setSortDirection(dir);
       storage.saveSortPreference(column, dir);
     } else {
       setSortColumn(column);
-      setSortDirection('asc');
-      storage.saveSortPreference(column, 'asc');
+      // starred/commented default to desc so flagged entries float to the top
+      const defaultDir = (column === 'starred' || column === 'commented') ? 'desc' : 'asc';
+      setSortDirection(defaultDir);
+      storage.saveSortPreference(column, defaultDir);
     }
   };
 
-  const getSortIndicator = (column: SortColumn) =>
+  const getSortIndicator = (column: AllSortColumn) =>
     sortColumn !== column ? ' ⇅' : sortDirection === 'asc' ? ' ▲' : ' ▼';
 
   // ── Virtual window ───────────────────────────────────────────────────────────
@@ -480,12 +487,22 @@ export default function LogTable({
           <colgroup>
             {features.showSequenceColumn && <col style={{ width: 52 }} />}
             {features.starredEntries && <col style={{ width: 32 }} />}
+            {features.entryComments && <col style={{ width: 26 }} />}
             {colOrder.map(col => <col key={col} style={{ width: collapsedCols.has(col) ? 28 : colWidths[col] }} />)}
           </colgroup>
           <thead>
             <tr>
               {features.showSequenceColumn && <th className="seq-col-header">#</th>}
-              {features.starredEntries && <th className="star-col-header" />}
+              {features.starredEntries && (
+                <th className="star-col-header sortable" onClick={() => handleSort('starred')} title="Sort by starred">
+                  {sortColumn === 'starred' ? (sortDirection === 'asc' ? '☆▲' : '★▼') : '☆⇅'}
+                </th>
+              )}
+              {features.entryComments && (
+                <th className="star-col-header sortable" onClick={() => handleSort('commented')} title="Sort by commented">
+                  {sortColumn === 'commented' ? (sortDirection === 'asc' ? '✎▲' : '✎▼') : '✎⇅'}
+                </th>
+              )}
               {colOrder.map(col => {
                 const collapsed = collapsedCols.has(col);
                 return (
@@ -529,9 +546,9 @@ export default function LogTable({
           </thead>
           <tbody>
             {entries.length === 0 && (
-              <tr><td colSpan={colOrder.length + (features.showSequenceColumn ? 1 : 0) + (features.starredEntries ? 1 : 0)} className="table-empty-cell">No log entries to display</td></tr>
+              <tr><td colSpan={colOrder.length + (features.showSequenceColumn ? 1 : 0) + (features.starredEntries ? 1 : 0) + (features.entryComments ? 1 : 0)} className="table-empty-cell">No log entries to display</td></tr>
             )}
-            {paddingTop > 0 && <tr style={{ height: paddingTop }}><td colSpan={colOrder.length + (features.showSequenceColumn ? 1 : 0) + (features.starredEntries ? 1 : 0)} /></tr>}
+            {paddingTop > 0 && <tr style={{ height: paddingTop }}><td colSpan={colOrder.length + (features.showSequenceColumn ? 1 : 0) + (features.starredEntries ? 1 : 0) + (features.entryComments ? 1 : 0)} /></tr>}
             {visibleEntries.map((displayEntry, i) => {
               const { entry, count } = displayEntry;
               const globalIdx = startIdx + i;
@@ -552,11 +569,18 @@ export default function LogTable({
                       </span>
                     </td>
                   )}
+                  {features.entryComments && (
+                    <td className="star-col-cell">
+                      {commentedEntryIds?.has(entry.id) && (
+                        <span className="comment-indicator" title="Has comment">✎</span>
+                      )}
+                    </td>
+                  )}
                   {colOrder.map(col => renderCell(entry, col, count))}
                 </tr>
               );
             })}
-            {paddingBottom > 0 && <tr style={{ height: paddingBottom }}><td colSpan={colOrder.length + (features.showSequenceColumn ? 1 : 0) + (features.starredEntries ? 1 : 0)} /></tr>}
+            {paddingBottom > 0 && <tr style={{ height: paddingBottom }}><td colSpan={colOrder.length + (features.showSequenceColumn ? 1 : 0) + (features.starredEntries ? 1 : 0) + (features.entryComments ? 1 : 0)} /></tr>}
           </tbody>
         </table>
       </div>

@@ -51,6 +51,8 @@ export interface Storage {
   loadDetailSectionCollapsed(): Record<string, boolean>;
   saveStarredEntryIds(ids: string[]): void;
   loadStarredEntryIds(): string[];
+  saveEntryComments(comments: Record<string, string>): void;
+  loadEntryComments(): Record<string, string>;
   exportAllData(): Record<string, string>;
   importAllData(data: Record<string, string>): void;
   clearAllStoredData(): void;

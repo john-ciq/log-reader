@@ -1,6 +1,6 @@
 import { storage } from './local-storage';
 
-export type FeatureKey = 'autoSizeColumns' | 'advancedFilters' | 'deduplication' | 'savedPresets' | 'timeRange' | 'persistTimeRange' | 'importExportStorage' | 'scrollLogSources' | 'showOnlyMatches' | 'entryDetailSidebar' | 'filterComments' | 'supportBundle' | 'removeAllFilters' | 'autoScrollToEntry' | 'showSequenceColumn' | 'filterColors' | 'timestampSequence' | 'starredEntries';
+export type FeatureKey = 'autoSizeColumns' | 'advancedFilters' | 'deduplication' | 'savedPresets' | 'timeRange' | 'persistTimeRange' | 'importExportStorage' | 'scrollLogSources' | 'showOnlyMatches' | 'entryDetailSidebar' | 'filterComments' | 'supportBundle' | 'removeAllFilters' | 'autoScrollToEntry' | 'showSequenceColumn' | 'filterColors' | 'timestampSequence' | 'starredEntries' | 'entryComments';
 
 // The "visible" property allows us to hide features that are still in development or not
 // ready/intended for users, without removing their definitions from the code.
@@ -136,6 +136,13 @@ export const featureDefinitions: Record<FeatureKey, FeatureDefinition> = {
     name: 'Starred Entries',
     defaultValue: true,
     description: 'Allow log entries to be starred for easy reference; starred entries are included in bundle exports',
+    visible: true,
+    category: 'Table',
+  },
+  entryComments: {
+    name: 'Entry Comments',
+    defaultValue: true,
+    description: 'Allow adding a free-text comment to individual log entries; comments are included in bundle exports',
     visible: true,
     category: 'Table',
   },
