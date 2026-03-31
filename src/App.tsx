@@ -18,6 +18,7 @@ import TimeRangeFilter from './components/TimeRangeFilter';
 import RowDetailPanel from './components/RowDetailPanel';
 import LogDensityHistogram from './components/LogDensityHistogram';
 import PresetsPanel from './components/PresetsPanel';
+import JSZip from 'jszip';
 
 // import version from package.json (Vite allows direct import)
 import pkg from '../package.json';
@@ -482,20 +483,22 @@ function App() {
       starredEntryIds: [...starredEntryIds],
     };
     const dataStr = JSON.stringify(bundle, null, 2);
-    const dataBlob = new Blob([dataStr], { type: 'application/json' });
-    const url = URL.createObjectURL(dataBlob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `support-bundle-${downloadTimestamp()}.json`;
-    link.click();
-    URL.revokeObjectURL(url);
+    const zip = new JSZip();
+    zip.file('support-bundle.json', dataStr);
+    zip.generateAsync({ type: 'blob' }).then(zipBlob => {
+      const url = URL.createObjectURL(zipBlob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `support-bundle-${downloadTimestamp()}.zip`;
+      link.click();
+      URL.revokeObjectURL(url);
+    });
   }, [entries, filters, features.showOnlyMatches, hiddenLevels, displayFiles, starredEntryIds]);
 
   const handleImportBundle = useCallback((file: File) => {
-    const reader = new FileReader();
-    reader.onload = () => {
+    const processJson = (jsonText: string) => {
       try {
-        const bundle = JSON.parse(reader.result as string);
+        const bundle = JSON.parse(jsonText);
         const importedEntries: LogEntry[] = (bundle.entries ?? []).map((e: LogEntry & { timestamp: string }) => ({
           ...e,
           timestamp: new Date(e.timestamp),
@@ -530,7 +533,17 @@ function App() {
         alert('Failed to import support bundle: invalid file.');
       }
     };
-    reader.readAsText(file);
+    if (file.name.endsWith('.zip')) {
+      JSZip.loadAsync(file).then(zip => {
+        const jsonFile = Object.values(zip.files).find(f => f.name.endsWith('.json'));
+        if (!jsonFile) { alert('Failed to import support bundle: no JSON file found in ZIP.'); return; }
+        jsonFile.async('string').then(processJson);
+      }).catch(() => alert('Failed to import support bundle: invalid ZIP file.'));
+    } else {
+      const reader = new FileReader();
+      reader.onload = () => processJson(reader.result as string);
+      reader.readAsText(file);
+    }
   }, [setFeature, setHiddenLevels, setDisplayFiles]);
 
   // ── Starred entries ───────────────────────────────────────────────────────────

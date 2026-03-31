@@ -96,7 +96,7 @@ export default function StatisticsPanel({
               <input
                 ref={bundleInputRef}
                 type="file"
-                accept=".json"
+                accept=".zip,.json"
                 style={{ display: 'none' }}
                 onChange={e => { const f = e.target.files?.[0]; if (f) onImportBundle(f); e.target.value = ''; }}
               />
