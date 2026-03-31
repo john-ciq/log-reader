@@ -80,8 +80,8 @@ function DetailBody({ entry, onClose, onPrev, onNext, onScrollToEntry, hasPrev, 
         <div className="detail-panel-nav">
           <button onClick={onPrev} disabled={!hasPrev} title="Previous entry (←)">‹</button>
           <button onClick={onNext} disabled={!hasNext} title="Next entry (→)">›</button>
+          <button className="detail-panel-scroll-to" onClick={onScrollToEntry} title="Scroll to this entry in the log table (C)">⌖</button>
         </div>
-        <button className="detail-panel-scroll-to" onClick={onScrollToEntry} title="Scroll to this entry in the log table">⌖</button>
         <button
           className="detail-panel-close"
           onClick={() => setFeature('entryDetailSidebar', !features.entryDetailSidebar)}
@@ -166,6 +166,7 @@ export default function RowDetailPanel({ entry, onClose, onPrev, onNext, onScrol
       if (e.key === 'Escape' && !sidebar) onClose();
       if (e.key === 'ArrowLeft' && hasPrev) onPrev();
       if (e.key === 'ArrowRight' && hasNext) onNext();
+      if (e.key === 'C' || e.key === 'c') onScrollToEntry();
     };
     document.addEventListener('keydown', onKey);
     return () => document.removeEventListener('keydown', onKey);

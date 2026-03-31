@@ -3010,6 +3010,25 @@ th.star-col-header.sortable {
   cursor: default;
 }
 
+.detail-panel-scroll-to {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-light);
+  color: var(--text-primary);
+  width: 28px;
+  height: 28px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.detail-panel-scroll-to:hover {
+  background: var(--bg-hover);
+}
+
 .detail-panel-close {
   background: transparent;
   border: none;
