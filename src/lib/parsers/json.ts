@@ -15,10 +15,11 @@ function normalizeTimestamp(value: string): string {
 
 // Guess the timestamp from any ISO-like substring in the data, even if it's not in a known field
 // Example data: {"preview":false,"result":{"_raw":"2026-02-18 13:14:54.384 -05:00 [INF] ...
-function guessTimestampString(data: string): Date | undefined {
-  if (ISO_LIKE.test(data)) {
+function tryExtractTimestamp(data: Record<string, unknown>): Date | undefined {
+  const dataStr = JSON.stringify(data);
+  if (ISO_LIKE.test(dataStr)) {
     // Extract the first timestamp looking substring and try to parse it
-    const timestamp = data.match(ISO_LIKE)?.[0] ?? '';
+    const timestamp = dataStr.match(ISO_LIKE)?.[0] ?? '';
     const d = new Date(normalizeTimestamp(timestamp));
     if (!isNaN(d.getTime())) return d;
   }
@@ -40,7 +41,7 @@ export const json: ParserConfig = {
     try {
       const data = JSON.parse(match[1]);
       const knownTs = data.timestamp || data.time || data.date;
-      const timestamp = knownTs ? new Date(knownTs) : (guessTimestampString(JSON.stringify(data)) ?? new Date());
+      const timestamp = knownTs ? new Date(knownTs) : (tryExtractTimestamp(data) ?? new Date());
 
       return {
         timestamp,
