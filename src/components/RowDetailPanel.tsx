@@ -117,12 +117,10 @@ function DetailBody({ entry, onClose, onPrev, onNext, onScrollToEntry, hasPrev, 
           <span className="detail-field-value">{entry.source}</span>
         </div>
 
-        {entry.parser && (
-          <div className="detail-field">
-            <span className="detail-field-label">Parser</span>
-            <span className="detail-field-value detail-muted">{entry.parser}</span>
-          </div>
-        )}
+        <div className="detail-field">
+          <span className="detail-field-label">Parser</span>
+          <span className="detail-field-value detail-muted">{entry.parser ?? '—'}</span>
+        </div>
 
         {features.entryComments && (
           <div className="detail-field detail-field--block">
