@@ -19,6 +19,8 @@ export interface LogEntry {
   level: string; // debug, info, warn, error, log, etc.
   source: string; // Component/module name (original parsed source)
   filename?: string; // Name of the file this entry came from
+  lineNumberStart?: number; // 1-based start line number in the source file
+  lineNumberEnd?: number; // 1-based end line number (differs from lineNumberStart for multi-line entries)
   parser?: string; // Name of the parser that matched this entry
   message: string; // The full message content
   raw: string; // Original unparsed line
@@ -147,22 +149,23 @@ export function parseLogContent(content: string, filename?: string): LogEntry[] 
   if (!rawLines.some(isStartLine)) {
     rawLines.forEach((line, i) => {
       const entry = parseLogLine(line.trimEnd(), `${Date.now()}-${i}`, filename);
-      if (entry) entries.push(entry);
+      if (entry) entries.push({ ...entry, lineNumberStart: i + 1, lineNumberEnd: i + 1 });
     });
     return entries;
   }
 
   // Parse as line-delimited content, combining continuations
   let buffer = '';
-  rawLines.forEach((line) => {
+  let bufferStartLine = 1;
+  rawLines.forEach((line, i) => {
     if (isStartLine(line)) {
       if (buffer) {
         const entry = parseLogLine(buffer.trimEnd(), `${Date.now()}-${entries.length}`, filename);
-        if (entry) {
-          entries.push(entry);
-        }
+        const lineNumberEnd = bufferStartLine + buffer.split('\n').length - 1;
+        if (entry) entries.push({ ...entry, lineNumberStart: bufferStartLine, lineNumberEnd });
       }
       buffer = line;
+      bufferStartLine = i + 1;
     } else {
       // continuation of previous entry (or leading blank lines)
       buffer += buffer ? '\n' + line : line;
@@ -170,9 +173,8 @@ export function parseLogContent(content: string, filename?: string): LogEntry[] 
   });
   if (buffer) {
     const entry = parseLogLine(buffer.trimEnd(), `${Date.now()}-${entries.length}`, filename);
-    if (entry) {
-      entries.push(entry);
-    }
+    const lineNumberEnd = bufferStartLine + buffer.split('\n').length - 1;
+    if (entry) entries.push({ ...entry, lineNumberStart: bufferStartLine, lineNumberEnd });
   }
 
   return entries;

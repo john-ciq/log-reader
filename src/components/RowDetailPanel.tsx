@@ -122,6 +122,17 @@ function DetailBody({ entry, onClose, onPrev, onNext, onScrollToEntry, hasPrev, 
           <span className="detail-field-value detail-muted">{entry.parser ?? '—'}</span>
         </div>
 
+        <div className="detail-field">
+          <span className="detail-field-label">Line</span>
+          <span className="detail-field-value detail-muted">
+            {entry.lineNumberStart == null
+              ? '—'
+              : entry.lineNumberEnd != null && entry.lineNumberEnd !== entry.lineNumberStart
+                ? `${entry.lineNumberStart} – ${entry.lineNumberEnd}`
+                : entry.lineNumberStart}
+          </span>
+        </div>
+
         {features.entryComments && (
           <div className="detail-field detail-field--block">
             <span className="detail-field-label">Comment</span>
