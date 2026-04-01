@@ -352,7 +352,11 @@ function App() {
     setEntries(prev => prev.filter(e => e.filename !== file));
     setDisplayFiles(prev => { const next = new Set(prev); next.delete(file); return next; });
     setAvailableFiles(prev => prev.filter(f => f !== file));
-  }, []);
+    if (features.closeTabOnFileRemove) {
+      const rawFile = rawFiles.find(rf => rf.name === file || rf.children?.some(c => c.name === file));
+      if (rawFile) handleCloseTab(rawFile.id);
+    }
+  }, [rawFiles, handleCloseTab, features.closeTabOnFileRemove]);
 
   const handleSourceCheckbox = useCallback((source: string, checked: boolean) => {
     setDisplaySources(prev => {
