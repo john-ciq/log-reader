@@ -29,7 +29,11 @@ export const icgDesktopNativeBridge: ParserConfig = {
     const [, timestamp, tz, rawLevel, tid, remainder] = match;
 
     const separatorIdx = remainder.indexOf(' - ');
-    const source = separatorIdx !== -1 ? remainder.slice(0, separatorIdx) : '';
+    let source = separatorIdx !== -1 ? remainder.slice(0, separatorIdx) : '';
+    if (source.indexOf(':') !== -1) {
+      // Some lines have the format "source: message" instead of "source - message"
+      source = source.split(':')[1].trim();
+    }
     const message = separatorIdx !== -1 ? remainder.slice(separatorIdx + 3) : remainder;
 
     return {
