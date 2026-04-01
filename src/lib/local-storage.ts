@@ -77,7 +77,7 @@ export class BrowserStorage implements Storage {
     }
   }
 
-  saveColumnPreferences(order: string[], widths: Record<string, number>, collapsed?: string[]): void {
+  saveColumnPreferences(order: string[], widths: Record<string, number>, collapsed?: string[], hidden?: string[]): void {
     try {
       const stored = localStorage.getItem(`${STORAGE_PREFIX}columns`);
       const existing = stored ? JSON.parse(stored) : {};
@@ -86,6 +86,7 @@ export class BrowserStorage implements Storage {
         order,
         widths,
         ...(collapsed !== undefined ? { collapsed } : {}),
+        ...(hidden !== undefined ? { hidden } : {}),
       }));
     } catch (error) {
       console.error('Failed to save column preferences:', error);

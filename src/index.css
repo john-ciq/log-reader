@@ -2289,6 +2289,56 @@ html, body {
   justify-content: space-between;
   align-items: center;
   background: var(--bg-tertiary);
+  min-height: 2rem;
+}
+
+.col-picker {
+  position: relative;
+  margin-left: auto;
+}
+
+.col-picker-btn {
+  background: none;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  padding: 0.2rem 0.5rem;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.col-picker-btn:hover,
+.col-picker-btn--open {
+  color: var(--text-primary);
+  border-color: var(--border);
+}
+
+.col-picker-dropdown {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 4px);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.4rem 0;
+  z-index: 50;
+  min-width: 140px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.col-picker-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.3rem 0.75rem;
+  font-size: 0.8rem;
+  cursor: pointer;
+  user-select: none;
+}
+
+.col-picker-item:hover {
+  background: var(--bg-tertiary);
 }
 
 .entry-count {

@@ -1,6 +1,6 @@
 import { storage } from './local-storage';
 
-export type FeatureKey = 'autoSizeColumns' | 'advancedFilters' | 'deduplication' | 'savedPresets' | 'timeRange' | 'persistTimeRange' | 'importExportStorage' | 'scrollLogSources' | 'showOnlyMatches' | 'entryDetailSidebar' | 'filterComments' | 'supportBundle' | 'removeAllFilters' | 'autoScrollToEntry' | 'showSequenceColumn' | 'filterColors' | 'timestampSequence' | 'starredEntries' | 'entryComments' | 'closeTabOnFileRemove' | 'messageScrollable' | 'rawFileLineNumbers';
+export type FeatureKey = 'autoSizeColumns' | 'advancedFilters' | 'deduplication' | 'savedPresets' | 'timeRange' | 'persistTimeRange' | 'importExportStorage' | 'scrollLogSources' | 'showOnlyMatches' | 'entryDetailSidebar' | 'filterComments' | 'supportBundle' | 'removeAllFilters' | 'autoScrollToEntry' | 'showSequenceColumn' | 'filterColors' | 'timestampSequence' | 'starredEntries' | 'entryComments' | 'closeTabOnFileRemove' | 'messageScrollable' | 'rawFileLineNumbers' | 'columnPicker';
 
 // The "visible" property allows us to hide features that are still in development or not
 // ready/intended for users, without removing their definitions from the code.
@@ -18,7 +18,7 @@ export const featureDefinitions: Record<FeatureKey, FeatureDefinition> = {
     defaultValue: true,
     description: 'Auto-size "Timestamp" and "Level" columns to fit log files are loaded',
     visible: true,
-    category: 'Table',
+    category: 'Log Table',
   },
   advancedFilters: {
     name: 'Advanced Filters',
@@ -32,7 +32,7 @@ export const featureDefinitions: Record<FeatureKey, FeatureDefinition> = {
     defaultValue: false,
     description: 'Merge consecutive identical log entries (same message, level, and source) into a single row with a count badge',
     visible: true,
-    category: 'Table',
+    category: 'Log Table',
   },
   savedPresets: {
     name: 'Preset Saving',
@@ -109,21 +109,21 @@ export const featureDefinitions: Record<FeatureKey, FeatureDefinition> = {
     defaultValue: false,
     description: 'Automatically scroll the log table to keep the active entry in view when navigating',
     visible: true,
-    category: 'Table',
+    category: 'Log Table',
   },
   showSequenceColumn: {
     name: 'Sequence Column',
     defaultValue: false,
     description: 'Show a "#" column on the far left of the log table with a sequential row number',
     visible: true,
-    category: 'Table',
+    category: 'Log Table',
   },
   timestampSequence: {
     name: 'Timestamp-based Sequence Numbers',
     defaultValue: false,
     description: 'Number entries by their timestamp order across all loaded entries, so the sequence number is stable regardless of filtering or sort order',
     visible: true,
-    category: 'Table',
+    category: 'Log Table',
   },
   filterColors: {
     name: 'Filter Colors',
@@ -137,14 +137,14 @@ export const featureDefinitions: Record<FeatureKey, FeatureDefinition> = {
     defaultValue: true,
     description: 'Allow log entries to be starred for easy reference; starred entries are included in bundle exports',
     visible: true,
-    category: 'Table',
+    category: 'Log Table',
   },
   entryComments: {
     name: 'Entry Comments',
     defaultValue: true,
     description: 'Allow adding a free-text comment to individual log entries; comments are included in bundle exports',
     visible: true,
-    category: 'Table',
+    category: 'Log Table',
   },
   closeTabOnFileRemove: {
     name: 'Close Tab on File Remove',
@@ -166,6 +166,13 @@ export const featureDefinitions: Record<FeatureKey, FeatureDefinition> = {
     description: 'Show line numbers in the gutter of the raw file viewer tab',
     visible: true,
     category: 'File Tab',
+  },
+  columnPicker: {
+    name: 'Column Picker',
+    defaultValue: false,
+    description: 'Allow columns to be shown or hidden from the log table',
+    visible: true,
+    category: 'Log Table',
   },
 };
 

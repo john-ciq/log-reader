@@ -109,6 +109,13 @@ export default function LogTable({
     if (!saved?.collapsed) return new Set();
     return new Set(saved.collapsed.filter(c => DEFAULT_COL_ORDER.includes(c as SortColumn)) as SortColumn[]);
   });
+  const [hiddenCols, setHiddenCols] = useState<Set<SortColumn>>(() => {
+    const saved = storage.loadColumnPreferences();
+    if (!saved?.hidden) return new Set();
+    return new Set(saved.hidden.filter(c => DEFAULT_COL_ORDER.includes(c as SortColumn)) as SortColumn[]);
+  });
+  const [colPickerOpen, setColPickerOpen] = useState(false);
+  const colPickerRef = useRef<HTMLDivElement>(null);
 
   // ── Message expanded state (persisted across virtual scroll) ─────────────────
   const [expandedMessages, setExpandedMessages] = useState<Map<string, { text: boolean; json: boolean }>>(new Map());
@@ -136,6 +143,26 @@ export default function LogTable({
     });
   };
 
+  const toggleHidden = (col: SortColumn) => {
+    setHiddenCols(prev => {
+      const next = new Set(prev);
+      if (next.has(col)) next.delete(col); else next.add(col);
+      storage.saveColumnPreferences(colOrder, colWidths, [...collapsedCols], [...next]);
+      return next;
+    });
+  };
+
+  useEffect(() => {
+    if (!colPickerOpen) return;
+    const handler = (e: MouseEvent) => {
+      if (colPickerRef.current && !colPickerRef.current.contains(e.target as Node)) {
+        setColPickerOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [colPickerOpen]);
+
   const resizing = useRef<{ col: SortColumn; startX: number; startWidth: number } | null>(null);
   const draggingCol = useRef<SortColumn | null>(null);
 
@@ -160,8 +187,10 @@ export default function LogTable({
   }, [scrollEl]);
 
   useEffect(() => {
-    storage.saveColumnPreferences(colOrder, colWidths, [...collapsedCols]);
-  }, [colOrder, colWidths, collapsedCols]);
+    storage.saveColumnPreferences(colOrder, colWidths, [...collapsedCols], [...hiddenCols]);
+  }, [colOrder, colWidths, collapsedCols, hiddenCols]);
+
+  const visibleCols = useMemo(() => colOrder.filter(c => !hiddenCols.has(c)), [colOrder, hiddenCols]);
 
   // Auto-size timestamp and level columns to fit their content
   useLayoutEffect(() => {
@@ -196,7 +225,7 @@ export default function LogTable({
     // their sum < table width. Setting both columns simultaneously, the correction is:
     //   T = target * sumOther / (tableWidth - tsTarget - lvlTarget)
     const tableWidth = (tsCell.closest('table') as HTMLElement)?.getBoundingClientRect().width ?? 0;
-    const sumOther = colOrder
+    const sumOther = visibleCols
       .filter(col => col !== 'timestamp' && col !== 'level')
       .reduce((sum, col) => sum + (collapsedCols.has(col) ? 28 : colWidths[col]), 0);
     const denom = tableWidth - tsTarget - lvlTarget;
@@ -468,15 +497,38 @@ export default function LogTable({
 
   return (
     <div className="log-table">
-      {selectedIds.size > 0 && (
-        <div className="table-control">
+      <div className="table-control">
+        {selectedIds.size > 0 && (
           <span className="copy-selection-info">
             {selectedIds.size} selected
             <button className="copy-rows-btn" onClick={copySelectedRows}>Copy {selectedIds.size}</button>
             <button className="clear-selection-btn" onClick={() => setSelectedIds(new Set())}>✕</button>
           </span>
-        </div>
-      )}
+        )}
+        {features.columnPicker && (
+          <div className="col-picker" ref={colPickerRef}>
+            <button
+              className={`col-picker-btn${colPickerOpen ? ' col-picker-btn--open' : ''}`}
+              onClick={() => setColPickerOpen(v => !v)}
+              title="Show/hide columns"
+            >Columns ⚙</button>
+            {colPickerOpen && (
+              <div className="col-picker-dropdown">
+                {DEFAULT_COL_ORDER.map(col => (
+                  <label key={col} className="col-picker-item">
+                    <input
+                      type="checkbox"
+                      checked={!hiddenCols.has(col)}
+                      onChange={() => toggleHidden(col)}
+                    />
+                    {COL_LABELS[col]}
+                  </label>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
       <div
         className="table-wrapper"
         ref={setScrollEl}
@@ -492,7 +544,7 @@ export default function LogTable({
               {features.showSequenceColumn && <col style={{ width: 52 }} />}
               {features.starredEntries && <col style={{ width: 32 }} />}
               {features.entryComments && <col style={{ width: 26 }} />}
-              {colOrder.map(col => <col key={col} style={{ width: collapsedCols.has(col) ? 28 : colWidths[col] }} />)}
+              {visibleCols.map(col => <col key={col} style={{ width: collapsedCols.has(col) ? 28 : colWidths[col] }} />)}
             </colgroup>
             <thead>
               <tr>
@@ -507,7 +559,7 @@ export default function LogTable({
                     {sortColumn === 'commented' ? (sortDirection === 'asc' ? '✎▲' : '✎▼') : '✎⇅'}
                   </th>
                 )}
-                {colOrder.map(col => {
+                {visibleCols.map(col => {
                   const collapsed = collapsedCols.has(col);
                   return (
                     <th
@@ -550,9 +602,9 @@ export default function LogTable({
             </thead>
             <tbody>
               {entries.length === 0 && (
-                <tr><td colSpan={colOrder.length + (features.showSequenceColumn ? 1 : 0) + (features.starredEntries ? 1 : 0) + (features.entryComments ? 1 : 0)} /></tr>
+                <tr><td colSpan={visibleCols.length + (features.showSequenceColumn ? 1 : 0) + (features.starredEntries ? 1 : 0) + (features.entryComments ? 1 : 0)} /></tr>
               )}
-              {paddingTop > 0 && <tr style={{ height: paddingTop }}><td colSpan={colOrder.length + (features.showSequenceColumn ? 1 : 0) + (features.starredEntries ? 1 : 0) + (features.entryComments ? 1 : 0)} /></tr>}
+              {paddingTop > 0 && <tr style={{ height: paddingTop }}><td colSpan={visibleCols.length + (features.showSequenceColumn ? 1 : 0) + (features.starredEntries ? 1 : 0) + (features.entryComments ? 1 : 0)} /></tr>}
               {visibleEntries.map((displayEntry, i) => {
                 const { entry, count } = displayEntry;
                 const globalIdx = startIdx + i;
@@ -580,11 +632,11 @@ export default function LogTable({
                         )}
                       </td>
                     )}
-                    {colOrder.map(col => renderCell(entry, col, count))}
+                    {visibleCols.map(col => renderCell(entry, col, count))}
                   </tr>
                 );
               })}
-              {paddingBottom > 0 && <tr style={{ height: paddingBottom }}><td colSpan={colOrder.length + (features.showSequenceColumn ? 1 : 0) + (features.starredEntries ? 1 : 0) + (features.entryComments ? 1 : 0)} /></tr>}
+              {paddingBottom > 0 && <tr style={{ height: paddingBottom }}><td colSpan={visibleCols.length + (features.showSequenceColumn ? 1 : 0) + (features.starredEntries ? 1 : 0) + (features.entryComments ? 1 : 0)} /></tr>}
             </tbody>
           </table>
         )}

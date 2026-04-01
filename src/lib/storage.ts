@@ -23,8 +23,8 @@ export interface Storage {
   loadSortPreference(): { column: string; direction: 'asc' | 'desc' } | null;
   saveUIPreferences(prefs: Record<string, unknown>): void;
   loadUIPreferences(): Record<string, unknown>;
-  saveColumnPreferences(order: string[], widths: Record<string, number>, collapsed?: string[]): void;
-  loadColumnPreferences(): { order: string[]; widths: Record<string, number>; collapsed?: string[] } | null;
+  saveColumnPreferences(order: string[], widths: Record<string, number>, collapsed?: string[], hidden?: string[]): void;
+  loadColumnPreferences(): { order: string[]; widths: Record<string, number>; collapsed?: string[]; hidden?: string[] } | null;
   saveHiddenLevels(levels: string[]): void;
   loadHiddenLevels(): string[];
   saveHiddenSources(sources: string[]): void;
