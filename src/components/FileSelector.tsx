@@ -42,7 +42,7 @@ export default function FileSelector({ files, selected, onChange, onRemove, onOp
                 <span className="parser-name">{counts[file].toLocaleString()} entries</span>
               )}
               <span className={`parser-name${parsers[file] ? '' : ' parser-name--missing'}`}>
-                {parsers[file] ?? 'no parser found'}
+                {parsers[file] ?? 'No parser found'}
               </span>
             </span>
           </label>
