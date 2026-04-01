@@ -1,6 +1,6 @@
 import { storage } from './local-storage';
 
-export type FeatureKey = 'autoSizeColumns' | 'advancedFilters' | 'deduplication' | 'savedPresets' | 'timeRange' | 'persistTimeRange' | 'importExportStorage' | 'scrollLogSources' | 'showOnlyMatches' | 'entryDetailSidebar' | 'filterComments' | 'supportBundle' | 'removeAllFilters' | 'autoScrollToEntry' | 'showSequenceColumn' | 'filterColors' | 'timestampSequence' | 'starredEntries' | 'entryComments' | 'closeTabOnFileRemove';
+export type FeatureKey = 'autoSizeColumns' | 'advancedFilters' | 'deduplication' | 'savedPresets' | 'timeRange' | 'persistTimeRange' | 'importExportStorage' | 'scrollLogSources' | 'showOnlyMatches' | 'entryDetailSidebar' | 'filterComments' | 'supportBundle' | 'removeAllFilters' | 'autoScrollToEntry' | 'showSequenceColumn' | 'filterColors' | 'timestampSequence' | 'starredEntries' | 'entryComments' | 'closeTabOnFileRemove' | 'messageScrollable';
 
 // The "visible" property allows us to hide features that are still in development or not
 // ready/intended for users, without removing their definitions from the code.
@@ -150,6 +150,13 @@ export const featureDefinitions: Record<FeatureKey, FeatureDefinition> = {
     name: 'Close Tab on File Remove',
     defaultValue: true,
     description: 'Automatically close the file viewer tab when its log file is removed from the log sources',
+    visible: true,
+    category: 'Misc UI',
+  },
+  messageScrollable: {
+    name: 'Scrollable Details in Entry Panel',
+    defaultValue: true,
+    description: 'Make the message area in the entry detail panel scrollable horizontally and vertically instead of wrapping',
     visible: true,
     category: 'Misc UI',
   },

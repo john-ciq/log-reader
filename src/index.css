@@ -3185,6 +3185,12 @@ th.star-col-header.sortable {
   overflow-y: auto;
 }
 
+.detail-message--scrollable {
+  white-space: pre;
+  word-break: normal;
+  overflow: auto;
+}
+
 
 .comment-indicator {
   font-size: 0.8rem;
