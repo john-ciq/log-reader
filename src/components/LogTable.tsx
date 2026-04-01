@@ -543,7 +543,7 @@ export default function LogTable({
             <colgroup>
               {features.showSequenceColumn && <col style={{ width: 52 }} />}
               {features.starredEntries && <col style={{ width: 32 }} />}
-              {features.entryComments && <col style={{ width: 26 }} />}
+              {features.entryComments && <col style={{ width: 32 }} />}
               {visibleCols.map(col => <col key={col} style={{ width: collapsedCols.has(col) ? 28 : colWidths[col] }} />)}
             </colgroup>
             <thead>
