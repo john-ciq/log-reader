@@ -17,6 +17,7 @@ interface RowDetailPanelProps {
   comment?: string;
   onSetComment?: (id: string, comment: string) => void;
   onOpenInEditor?: (filename: string, lineNumberStart: number, lineNumberEnd: number) => void;
+  width?: number;
 }
 
 function formatTimestamp(t: Date): string {
@@ -175,7 +176,7 @@ function DetailBody({ entry, onClose, onPrev, onNext, onScrollToEntry, hasPrev, 
   );
 }
 
-export default function RowDetailPanel({ entry, onClose, onPrev, onNext, onScrollToEntry, hasPrev, hasNext, entryIndex, totalEntries, sidebar, comment, onSetComment, onOpenInEditor }: RowDetailPanelProps) {
+export default function RowDetailPanel({ entry, onClose, onPrev, onNext, onScrollToEntry, hasPrev, hasNext, entryIndex, totalEntries, sidebar, comment, onSetComment, onOpenInEditor, width }: RowDetailPanelProps) {
   useEffect(() => {
     if (!entry) return;
     const onKey = (e: KeyboardEvent) => {
@@ -190,7 +191,7 @@ export default function RowDetailPanel({ entry, onClose, onPrev, onNext, onScrol
 
   if (sidebar) {
     return (
-      <aside className="row-detail-sidebar">
+      <aside className="row-detail-sidebar" style={width !== undefined ? { width } : undefined}>
         {entry ? (
           <DetailBody entry={entry} onClose={onClose} onPrev={onPrev} onNext={onNext} onScrollToEntry={onScrollToEntry} hasPrev={hasPrev} hasNext={hasNext} entryIndex={entryIndex} totalEntries={totalEntries} sidebar comment={comment} onSetComment={onSetComment} onOpenInEditor={onOpenInEditor} />
         ) : (

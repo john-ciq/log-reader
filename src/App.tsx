@@ -57,6 +57,8 @@ function App() {
 
   const [filtersCollapsed, setFiltersCollapsed] = useState(() => storage.loadPanelCollapsed('filters'));
   const [sidebarCollapsed, setSidebarCollapsed] = useState(() => storage.loadPanelCollapsed('sidebar'));
+  const [detailSidebarWidth, setDetailSidebarWidth] = useState(380);
+  const detailResizerDragging = useRef(false);
 
   // raw file tabs
   const [rawFiles, setRawFiles] = useState<RawFile[]>([]);
@@ -95,6 +97,25 @@ function App() {
     window.addEventListener('mousemove', onMove);
     window.addEventListener('mouseup', onUp);
   }, []);
+
+  const handleDetailResizerMouseDown = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    detailResizerDragging.current = true;
+    const startX = e.clientX;
+    const startWidth = detailSidebarWidth;
+    const onMove = (ev: MouseEvent) => {
+      if (!detailResizerDragging.current) return;
+      const newWidth = Math.min(800, Math.max(240, startWidth + startX - ev.clientX));
+      setDetailSidebarWidth(newWidth);
+    };
+    const onUp = () => {
+      detailResizerDragging.current = false;
+      window.removeEventListener('mousemove', onMove);
+      window.removeEventListener('mouseup', onUp);
+    };
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('mouseup', onUp);
+  }, [detailSidebarWidth]);
 
   // source visibility controls
   const [availableSources, setAvailableSources] = useState<string[]>([]);
@@ -993,21 +1014,27 @@ function App() {
           })()}
         </main>
         {features.entryDetailSidebar && (
-          <RowDetailPanel
-            entry={detailEntry}
-            onClose={handleCloseDetail}
-            onPrev={handleDetailPrev}
-            onNext={handleDetailNext}
-            onScrollToEntry={() => setCenterOnActiveEntry(c => c + 1)}
-            hasPrev={hasPrev}
-            hasNext={hasNext}
-            entryIndex={detailIdx + 1}
-            totalEntries={sortedFilteredEntries.length}
-            sidebar
-            comment={detailEntry ? (entryComments.get(detailEntry.id) ?? '') : ''}
-            onSetComment={handleSetComment}
-            onOpenInEditor={handleOpenInEditor}
-          />
+          <>
+            <div className="detail-sidebar-resizer" onMouseDown={handleDetailResizerMouseDown}>
+              <div className="detail-sidebar-resizer__handle" />
+            </div>
+            <RowDetailPanel
+              entry={detailEntry}
+              onClose={handleCloseDetail}
+              onPrev={handleDetailPrev}
+              onNext={handleDetailNext}
+              onScrollToEntry={() => setCenterOnActiveEntry(c => c + 1)}
+              hasPrev={hasPrev}
+              hasNext={hasNext}
+              entryIndex={detailIdx + 1}
+              totalEntries={sortedFilteredEntries.length}
+              sidebar
+              width={detailSidebarWidth}
+              comment={detailEntry ? (entryComments.get(detailEntry.id) ?? '') : ''}
+              onSetComment={handleSetComment}
+              onOpenInEditor={handleOpenInEditor}
+            />
+          </>
         )}
       </div>
     </div>

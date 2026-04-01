@@ -3266,6 +3266,50 @@ th.star-col-header.sortable {
 }
 
 /* ── Entry detail sidebar mode ───────────────────────────────────────────────── */
+.detail-sidebar-resizer {
+  width: 12px;
+  flex-shrink: 0;
+  cursor: col-resize;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  position: relative;
+}
+
+.detail-sidebar-resizer::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 2px;
+  background: var(--border);
+  transition: background 0.15s;
+}
+
+.detail-sidebar-resizer__handle {
+  position: relative;
+  z-index: 1;
+  width: 8px;
+  height: 48px;
+  border-radius: 4px;
+  background: var(--border);
+  transition: background 0.15s;
+  box-shadow: -2px 0 0 var(--bg-secondary) inset, 2px 0 0 var(--bg-secondary) inset;
+}
+
+.detail-sidebar-resizer:hover .detail-sidebar-resizer__handle,
+.detail-sidebar-resizer:active .detail-sidebar-resizer__handle {
+  background: var(--primary);
+}
+
+.detail-sidebar-resizer:hover::before,
+.detail-sidebar-resizer:active::before {
+  background: var(--primary);
+}
+
 .row-detail-sidebar {
   width: 380px;
   flex-shrink: 0;
