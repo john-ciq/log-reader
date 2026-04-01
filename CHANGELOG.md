@@ -2,6 +2,30 @@
 
 All notable changes to the Log Reader project will be documented in this file.
 
+## [1.1.1] - 2026-04-01
+
+### Added
+- **Line numbers in file viewer** — gutter with line numbers in the raw file viewer tab (feature switch, on by default)
+- **Open entry in file viewer** — click the line number icon in the entry detail panel to jump directly to that line in the file viewer tab; matched lines are highlighted and fade out after a few seconds
+- **Source line numbers in entry detail** — entry detail panel now shows the source line number(s), including ranges for multi-line entries
+- **Single line parser** — fallback parser that handles any unmatched log line and attempts to extract a timestamp from it
+- **Scrollable entry detail sections** — message, metadata, and raw sections can be made scrollable (feature switch, on by default)
+- **Close file viewer on file remove** — automatically closes the file viewer tab when its log file is removed from log sources (feature switch, on by default)
+- **Ctrl+W** — closes the active file viewer tab
+- **`/` shortcut** — when a file viewer tab is active, focuses the search box
+
+### Changed
+- Filters are created with color highlighting disabled by default
+- The "remove all filters" button is now a compact icon that replaces the search icon when filters are present
+- Entry detail panel always shows the parser field, displaying `—` when no parser matched
+- Copy button in entry detail sections is now always visible (was hover-only)
+- Line number in entry detail panel opens the file viewer via an icon button rather than a text link
+
+### Fixed
+- Parser name was not attached to the last entry in a file in some cases
+- Star icon on non-starred rows was overlaying the sticky table header
+- Bug parsing ICG DNB source strings
+
 ## [1.0.60] - 2026-03-27
 
 ### Added
