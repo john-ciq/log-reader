@@ -233,14 +233,14 @@ export default function FilterPanel({
                         <input
                           type="checkbox"
                           className="app-checkbox"
-                          checked={filter.colorEnabled ?? true}
+                            checked={filter.colorEnabled ?? false}
                           onChange={e => onUpdateFilter(filter.id, { colorEnabled: e.target.checked })}
                           title="Enable highlight color"
                         />
                         <input
                           type="color"
                           value={filter.color || '#3b82f6'}
-                          onChange={e => onUpdateFilter(filter.id, { color: e.target.value })}
+                            onChange={e => onUpdateFilter(filter.id, { color: e.target.value, ...(!filter.color && { colorEnabled: true }) })}
                           className="filter-color-input"
                           title="Pick a highlight color for matched entries"
                         />
