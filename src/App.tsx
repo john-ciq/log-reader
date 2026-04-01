@@ -200,9 +200,13 @@ function App() {
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       // '/' focuses search bar (unless already in an input/textarea)
-      if (e.key === '/' && document.activeElement?.tagName !== 'INPUT' && document.activeElement?.tagName !== 'TEXTAREA') {
+      if ((e.key === 'f' || e.key === 'F' || e.key === '/') && document.activeElement?.tagName !== 'INPUT' && document.activeElement?.tagName !== 'TEXTAREA') {
         e.preventDefault();
-        searchInputRef.current?.focus();
+        if (activeTab !== 'viewer') {
+          document.querySelector<HTMLInputElement>('.raw-file-search-input')?.focus();
+        } else {
+          searchInputRef.current?.focus();
+        }
       }
       // Escape closes detail panel
       if (e.key === 'Escape' && detailEntry) {
@@ -212,7 +216,7 @@ function App() {
     };
     document.addEventListener('keydown', handler);
     return () => document.removeEventListener('keydown', handler);
-  }, [detailEntry]);
+  }, [detailEntry, activeTab]);
 
   const handleFileUpload = useCallback((uploadedEntries: LogEntry[]) => {
     setEntries(prev => [...prev, ...uploadedEntries]);
