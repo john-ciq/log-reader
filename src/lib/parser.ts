@@ -155,7 +155,7 @@ export function parseLogContent(content: string, filename?: string): LogEntry[] 
   rawLines.forEach((line) => {
     if (isStartLine(line)) {
       if (buffer) {
-        const entry = parseLogLine(buffer, `${Date.now()}-${entries.length}`, filename);
+        const entry = parseLogLine(buffer.trimEnd(), `${Date.now()}-${entries.length}`, filename);
         if (entry) {
           entries.push(entry);
         }
@@ -167,7 +167,7 @@ export function parseLogContent(content: string, filename?: string): LogEntry[] 
     }
   });
   if (buffer) {
-    const entry = parseLogLine(buffer, `${Date.now()}-${entries.length}`, filename);
+    const entry = parseLogLine(buffer.trimEnd(), `${Date.now()}-${entries.length}`, filename);
     if (entry) {
       entries.push(entry);
     }
