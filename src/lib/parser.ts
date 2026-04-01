@@ -8,6 +8,7 @@ import { finsembleJson } from './parsers/finsembleJson.ts';
 import { icgDesktopNativeBridge } from './parsers/icgDesktopNativeBridge.ts';
 import { genericBracketed } from './parsers/genericBracketed.ts';
 import { gilding } from './parsers/gilding.ts';
+import { singleLine } from './parsers/singleLine';
 
 /**
  * Common log entry format after parsing
@@ -32,6 +33,8 @@ export interface ParserConfig {
   description: string;
   patterns: RegExp[];
   format: (match: RegExpMatchArray) => Partial<LogEntry>;
+  /** If true, this parser is excluded from start-of-entry detection and only runs as a last resort */
+  fallback?: boolean;
 }
 
 /**
@@ -48,6 +51,7 @@ export const PARSER_CONFIGS: ParserConfig[] = [
   json,
   icgDesktopNativeBridge,
   genericBracketed,
+  singleLine,
 ];
 
 /**
@@ -63,37 +67,44 @@ function normalizeLevel(level: string): string {
 export function parseLogLine(line: string, id: string, filename?: string): LogEntry | null {
   if (!line.trim()) return null;
 
-  for (const config of PARSER_CONFIGS) {
-    for (const pattern of config.patterns) {
-      const match = line.match(pattern);
-      if (match) {
-        const formatted = config.format(match);
-
-        return {
-          id,
-          timestamp: formatted.timestamp || new Date(),
-          level: normalizeLevel(formatted.level || 'info'),
-          source: formatted.source || 'unknown',
-          filename,
-          parser: config.name,
-          message: formatted.message || line,
-          raw: line,
-          metadata: formatted.metadata,
-        };
+  const tryParsers = (configs: ParserConfig[]) => {
+    for (const config of configs) {
+      for (const pattern of config.patterns) {
+        const match = line.match(pattern);
+        if (match) {
+          const formatted = config.format(match);
+          return {
+            id,
+            timestamp: formatted.timestamp || new Date(),
+            level: normalizeLevel(formatted.level || 'info'),
+            source: formatted.source || 'unknown',
+            filename,
+            parser: config.name,
+            message: formatted.message || line,
+            raw: line,
+            metadata: formatted.metadata,
+          };
+        }
       }
     }
-  }
-
-  // Fallback: treat entire line as message
-  return {
-    id,
-    timestamp: new Date(),
-    level: 'info',
-    source: 'unknown',
-    filename,
-    message: line,
-    raw: line,
+    return null;
   };
+
+  return (
+    tryParsers(PARSER_CONFIGS.filter(c => !c.fallback)) ??
+    tryParsers(PARSER_CONFIGS.filter(c => c.fallback)) ??
+    // Fallback if no parser matches (shouldn't happen due to singleLine fallback, but
+    // just in case that is not enabled or the code changes, have a final fallback here)
+    {
+      id,
+      timestamp: new Date(),
+      level: 'info',
+      source: 'unknown',
+      filename,
+      message: line,
+      raw: line,
+    }
+  );
 }
 
 /**
@@ -122,30 +133,21 @@ export function parseLogContent(content: string, filename?: string): LogEntry[] 
     }
   }
 
-  // Helper: determine if a line begins a new entry according to any parser pattern
+  // Helper: determine if a line begins a new entry according to any non-fallback parser pattern
   const isStartLine = (line: string): boolean => {
     if (!line.trim()) return false;
     return PARSER_CONFIGS.some((cfg) =>
-      cfg.patterns.some((p) => p.test(line))
+      !cfg.fallback && cfg.patterns.some((p) => p.test(line))
     );
   };
 
   const rawLines = content.split('\n');
 
-  // If no line matches any parser, treat each non-empty line as its own entry
-  const anyMatch = rawLines.some(isStartLine);
-  if (!anyMatch) {
+  // If no non-fallback parser matches any line, each line is its own entry
+  if (!rawLines.some(isStartLine)) {
     rawLines.forEach((line, i) => {
-      if (!line.trim()) return;
-      entries.push({
-        id: `${Date.now()}-${i}`,
-        timestamp: new Date(entries.length * 1000),
-        level: 'log',
-        source: '',
-        filename,
-        message: line,
-        raw: line,
-      });
+      const entry = parseLogLine(line.trimEnd(), `${Date.now()}-${i}`, filename);
+      if (entry) entries.push(entry);
     });
     return entries;
   }
