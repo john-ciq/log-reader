@@ -1,4 +1,5 @@
 import { useState, useMemo, useRef, useEffect } from 'react';
+import { useFeatures } from '../lib/FeaturesContext';
 
 interface RawFileViewerProps {
   content: string;
@@ -28,6 +29,7 @@ function findMatches(text: string, query: string, useRegex: boolean): MatchRange
 }
 
 export default function RawFileViewer({ content }: RawFileViewerProps) {
+  const { features } = useFeatures();
   const [wrap, setWrap] = useState(false);
   const [searchInput, setSearchInput] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
@@ -138,6 +140,11 @@ export default function RawFileViewer({ content }: RawFileViewerProps) {
         </label>
       </div>
       <div className="raw-file-scroll">
+        {features.rawFileLineNumbers && (
+          <pre className="raw-file-line-numbers" aria-hidden>
+            {Array.from({ length: displayContent.split('\n').length }, (_, i) => i + 1).join('\n')}
+          </pre>
+        )}
         <pre
           ref={preRef}
           className="raw-file-content"

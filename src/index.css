@@ -2223,6 +2223,24 @@ html, body {
   min-height: 0;
   min-width: 0;
   overflow: auto;
+  display: flex;
+}
+
+.raw-file-line-numbers {
+  margin: 0;
+  padding: 1rem 0.75rem;
+  font-family: 'Monaco', 'Courier New', monospace;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: var(--text-muted);
+  background: var(--bg-secondary);
+  border-right: 1px solid var(--border);
+  text-align: right;
+  user-select: none;
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  flex-shrink: 0;
 }
 
 .raw-file-content {

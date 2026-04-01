@@ -1,6 +1,6 @@
 import { storage } from './local-storage';
 
-export type FeatureKey = 'autoSizeColumns' | 'advancedFilters' | 'deduplication' | 'savedPresets' | 'timeRange' | 'persistTimeRange' | 'importExportStorage' | 'scrollLogSources' | 'showOnlyMatches' | 'entryDetailSidebar' | 'filterComments' | 'supportBundle' | 'removeAllFilters' | 'autoScrollToEntry' | 'showSequenceColumn' | 'filterColors' | 'timestampSequence' | 'starredEntries' | 'entryComments' | 'closeTabOnFileRemove' | 'messageScrollable';
+export type FeatureKey = 'autoSizeColumns' | 'advancedFilters' | 'deduplication' | 'savedPresets' | 'timeRange' | 'persistTimeRange' | 'importExportStorage' | 'scrollLogSources' | 'showOnlyMatches' | 'entryDetailSidebar' | 'filterComments' | 'supportBundle' | 'removeAllFilters' | 'autoScrollToEntry' | 'showSequenceColumn' | 'filterColors' | 'timestampSequence' | 'starredEntries' | 'entryComments' | 'closeTabOnFileRemove' | 'messageScrollable' | 'rawFileLineNumbers';
 
 // The "visible" property allows us to hide features that are still in development or not
 // ready/intended for users, without removing their definitions from the code.
@@ -151,7 +151,7 @@ export const featureDefinitions: Record<FeatureKey, FeatureDefinition> = {
     defaultValue: true,
     description: 'Automatically close the file viewer tab when its log file is removed from the log sources',
     visible: true,
-    category: 'Misc UI',
+    category: 'File Tab',
   },
   messageScrollable: {
     name: 'Scrollable Details in Entry Panel',
@@ -159,6 +159,13 @@ export const featureDefinitions: Record<FeatureKey, FeatureDefinition> = {
     description: 'Make the message area in the entry detail panel scrollable horizontally and vertically instead of wrapping',
     visible: true,
     category: 'Misc UI',
+  },
+  rawFileLineNumbers: {
+    name: 'Line Numbers in File Viewer',
+    defaultValue: true,
+    description: 'Show line numbers in the gutter of the raw file viewer tab',
+    visible: true,
+    category: 'File Tab',
   },
 };
 
