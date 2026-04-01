@@ -7,16 +7,21 @@
 ## Planned
 
 ### Features
-- [ ] Add source file line number(s) to the Entry Detail panel
-- [ ] Normalize timestamps with respect to timezone info (implement a "timestamp resolver", as well)
+- [ ] Order feature categories manually
 - [ ] Add log entry transforms
 - [ ] Allow table columns to be added or removed
+- [ ] Enhance parser awareness
+  - [ ] Each file should be parsed by a parser (instead of each line)
+  - [ ] Parser configs should have "can parse" to identify if they can parse a file
+  - [ ] Create a defacto default parser
+  - [ ] Create better descriptions and names for the parsers
+- [ ] Normalize timestamps with respect to timezone info (implement a "timestamp resolver", as well)
 - [ ] Create Electron/Tauri app
 - [ ] Create a full suite of tests (unit tests, UI tests, e2e tests)
 - [ ] Connect to Jira and append a support bundle to a case by JiraID
 
 ### Parsers
-- [ ] Citi files (ICG_DESKTOP_BOOT_STRAP_20260218.log, ICG_DESKTOP_NATIVE_WATCHER_20260218.log)
+- [ ]
 
 ### UI / UX
 - [ ]
@@ -25,10 +30,14 @@
 - [ ]
 
 ## Bugs
-- [ ] Highlight does not work when a the highlight text is set and then a log entry containing that text is expanded
 - [ ] Some JSON logs (from splunk) do not parse the payload as json
+- [ ] Highlight does not work when a the highlight text is set and then a log entry containing that text is expanded
 
 ## Done
+- [x] Add source file line numbers to the file editor tab
+- [x] Add source file line number(s) to the Entry Detail panel
+- [x] Always show a parser in entry detail
+- [x] Files with no parser should try to extract the timestamp from each line (the parser should be "single line parser")
 - [x] No log entries to display - no table when no log entries
 - [x] Add log entry annotations/comments
 - [x] Support bundles are now ZIP files
