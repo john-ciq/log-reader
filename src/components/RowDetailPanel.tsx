@@ -20,6 +20,14 @@ interface RowDetailPanelProps {
   width?: number;
 }
 
+function tryFormatJson(value: string): string {
+  try {
+    return JSON.stringify(JSON.parse(value), null, 2);
+  } catch {
+    return value;
+  }
+}
+
 function formatTimestamp(t: Date): string {
   const pad2 = (n: number) => String(n).padStart(2, '0');
   const pad3 = (n: number) => String(n).padStart(3, '0');
@@ -156,8 +164,8 @@ function DetailBody({ entry, onClose, onPrev, onNext, onScrollToEntry, hasPrev, 
 
 
 
-        <CollapsibleSection label="Message" copyText={entry.message}>
-          <pre className={`detail-message${features.messageScrollable ? ' detail-message--scrollable' : ''}`}>{entry.message}</pre>
+        <CollapsibleSection label="Message" copyText={tryFormatJson(entry.message)}>
+          <pre className={`detail-message${features.messageScrollable ? ' detail-message--scrollable' : ''}`}>{tryFormatJson(entry.message)}</pre>
         </CollapsibleSection>
 
         {hasMetadata && (
@@ -168,8 +176,8 @@ function DetailBody({ entry, onClose, onPrev, onNext, onScrollToEntry, hasPrev, 
           </CollapsibleSection>
         )}
 
-        <CollapsibleSection label="Raw" grow copyText={entry.raw}>
-          <pre className={`detail-message detail-muted detail-monospace${features.messageScrollable ? ' detail-message--scrollable' : ''}`}>{entry.raw}</pre>
+        <CollapsibleSection label="Raw" grow copyText={tryFormatJson(entry.raw)}>
+          <pre className={`detail-message detail-muted detail-monospace${features.messageScrollable ? ' detail-message--scrollable' : ''}`}>{tryFormatJson(entry.raw)}</pre>
         </CollapsibleSection>
       </div>
     </>
