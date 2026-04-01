@@ -2450,21 +2450,18 @@ th.star-col-header.sortable {
   border: none;
   cursor: pointer;
   font-size: 1rem;
-  color: var(--text-muted);
+  color: rgba(148, 163, 184, 0.4);
   padding: 2px 4px;
   line-height: 1;
-  opacity: 0.4;
-  transition: opacity 0.1s, color 0.1s;
+  transition: color 0.1s;
 }
 
 .star-btn:hover {
-  opacity: 1;
   color: var(--warning);
 }
 
 .star-btn--active {
   color: var(--warning);
-  opacity: 1;
 }
 
 .timestamp-cell {
