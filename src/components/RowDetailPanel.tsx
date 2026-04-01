@@ -16,6 +16,7 @@ interface RowDetailPanelProps {
   sidebar?: boolean;
   comment?: string;
   onSetComment?: (id: string, comment: string) => void;
+  onOpenInEditor?: (filename: string, lineNumberStart: number, lineNumberEnd: number) => void;
 }
 
 function formatTimestamp(t: Date): string {
@@ -70,7 +71,7 @@ function CollapsibleSection({ label, grow, copyText, children }: { label: string
   );
 }
 
-function DetailBody({ entry, onClose, onPrev, onNext, onScrollToEntry, hasPrev, hasNext, entryIndex, totalEntries, sidebar, comment = '', onSetComment }: Omit<RowDetailPanelProps, 'dialog'> & { entry: LogEntry }) {
+function DetailBody({ entry, onClose, onPrev, onNext, onScrollToEntry, hasPrev, hasNext, entryIndex, totalEntries, sidebar, comment = '', onSetComment, onOpenInEditor }: Omit<RowDetailPanelProps, 'dialog'> & { entry: LogEntry }) {
   const { features, setFeature } = useFeatures();
   const hasMetadata = entry.metadata && Object.keys(entry.metadata).length > 0;
   return (
@@ -127,9 +128,15 @@ function DetailBody({ entry, onClose, onPrev, onNext, onScrollToEntry, hasPrev, 
           <span className="detail-field-value detail-muted">
             {entry.lineNumberStart == null
               ? '—'
-              : entry.lineNumberEnd != null && entry.lineNumberEnd !== entry.lineNumberStart
-                ? `${entry.lineNumberStart} – ${entry.lineNumberEnd}`
-                : entry.lineNumberStart}
+              : (() => {
+                  const label = entry.lineNumberEnd != null && entry.lineNumberEnd !== entry.lineNumberStart
+                    ? `${entry.lineNumberStart} – ${entry.lineNumberEnd}`
+                    : String(entry.lineNumberStart);
+                  const canOpen = entry.filename != null && onOpenInEditor != null;
+                  return canOpen
+                    ? <>{label}<button className="detail-line-open-btn" onClick={() => onOpenInEditor!(entry.filename!, entry.lineNumberStart!, entry.lineNumberEnd ?? entry.lineNumberStart!)} title="Open in file viewer">⧉</button></>
+                    : label;
+                })()}
           </span>
         </div>
 
@@ -168,7 +175,7 @@ function DetailBody({ entry, onClose, onPrev, onNext, onScrollToEntry, hasPrev, 
   );
 }
 
-export default function RowDetailPanel({ entry, onClose, onPrev, onNext, onScrollToEntry, hasPrev, hasNext, entryIndex, totalEntries, sidebar, comment, onSetComment }: RowDetailPanelProps) {
+export default function RowDetailPanel({ entry, onClose, onPrev, onNext, onScrollToEntry, hasPrev, hasNext, entryIndex, totalEntries, sidebar, comment, onSetComment, onOpenInEditor }: RowDetailPanelProps) {
   useEffect(() => {
     if (!entry) return;
     const onKey = (e: KeyboardEvent) => {
@@ -185,7 +192,7 @@ export default function RowDetailPanel({ entry, onClose, onPrev, onNext, onScrol
     return (
       <aside className="row-detail-sidebar">
         {entry ? (
-          <DetailBody entry={entry} onClose={onClose} onPrev={onPrev} onNext={onNext} onScrollToEntry={onScrollToEntry} hasPrev={hasPrev} hasNext={hasNext} entryIndex={entryIndex} totalEntries={totalEntries} sidebar comment={comment} onSetComment={onSetComment} />
+          <DetailBody entry={entry} onClose={onClose} onPrev={onPrev} onNext={onNext} onScrollToEntry={onScrollToEntry} hasPrev={hasPrev} hasNext={hasNext} entryIndex={entryIndex} totalEntries={totalEntries} sidebar comment={comment} onSetComment={onSetComment} onOpenInEditor={onOpenInEditor} />
         ) : (
           <div className="detail-sidebar-empty">
             <span>Select an entry to view details</span>
@@ -201,7 +208,7 @@ export default function RowDetailPanel({ entry, onClose, onPrev, onNext, onScrol
     <>
       <div className="detail-panel-overlay" onClick={onClose} />
       <div className="row-detail-panel">
-        <DetailBody entry={entry} onClose={onClose} onPrev={onPrev} onNext={onNext} onScrollToEntry={onScrollToEntry} hasPrev={hasPrev} hasNext={hasNext} entryIndex={entryIndex} totalEntries={totalEntries} comment={comment} onSetComment={onSetComment} />
+        <DetailBody entry={entry} onClose={onClose} onPrev={onPrev} onNext={onNext} onScrollToEntry={onScrollToEntry} hasPrev={hasPrev} hasNext={hasNext} entryIndex={entryIndex} totalEntries={totalEntries} comment={comment} onSetComment={onSetComment} onOpenInEditor={onOpenInEditor} />
       </div>
     </>
   );

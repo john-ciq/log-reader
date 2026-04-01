@@ -3,6 +3,9 @@ import { useFeatures } from '../lib/FeaturesContext';
 
 interface RawFileViewerProps {
   content: string;
+  scrollToLine?: number;
+  scrollToLineEnd?: number;
+  onScrolled?: () => void;
 }
 
 interface MatchRange {
@@ -28,7 +31,7 @@ function findMatches(text: string, query: string, useRegex: boolean): MatchRange
   }
 }
 
-export default function RawFileViewer({ content }: RawFileViewerProps) {
+export default function RawFileViewer({ content, scrollToLine, scrollToLineEnd, onScrolled }: RawFileViewerProps) {
   const { features } = useFeatures();
   const [wrap, setWrap] = useState(false);
   const [searchInput, setSearchInput] = useState('');
@@ -36,6 +39,10 @@ export default function RawFileViewer({ content }: RawFileViewerProps) {
   const [useRegex, setUseRegex] = useState(false);
   const [currentMatchIdx, setCurrentMatchIdx] = useState(0);
   const preRef = useRef<HTMLPreElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const lineHeightRef = useRef(0);
+  const paddingTopRef = useRef(0);
+  const [highlightLines, setHighlightLines] = useState<{ start: number; end: number } | null>(null);
 
   // Pretty-print JSON content to avoid single-line files that are millions of pixels wide
   const displayContent = useMemo(() => {
@@ -68,6 +75,20 @@ export default function RawFileViewer({ content }: RawFileViewerProps) {
     const el = preRef.current.querySelector('.raw-highlight-current');
     if (el) el.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
   }, [currentMatchIdx, matches]);
+
+  // Scroll to a specific line number when requested, then highlight and fade
+  useEffect(() => {
+    if (!scrollToLine || !scrollContainerRef.current || !preRef.current) return;
+    const lineHeight = parseFloat(getComputedStyle(preRef.current).lineHeight);
+    const paddingTop = parseFloat(getComputedStyle(preRef.current).paddingTop);
+    lineHeightRef.current = lineHeight;
+    paddingTopRef.current = paddingTop;
+    scrollContainerRef.current.scrollTop = paddingTop + (scrollToLine - 1) * lineHeight;
+    onScrolled?.();
+    setHighlightLines({ start: scrollToLine, end: scrollToLineEnd ?? scrollToLine });
+    const clearTimer = setTimeout(() => setHighlightLines(null), 4000);
+    return () => { clearTimeout(clearTimer); };
+  }, [scrollToLine]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleFind = () => {
     if (matches.length === 0) return;
@@ -139,7 +160,7 @@ export default function RawFileViewer({ content }: RawFileViewerProps) {
           Wrap
         </label>
       </div>
-      <div className="raw-file-scroll">
+      <div className="raw-file-scroll" ref={scrollContainerRef}>
         {features.rawFileLineNumbers && (
           <pre className="raw-file-line-numbers" aria-hidden>
             {Array.from({ length: displayContent.split('\n').length }, (_, i) => i + 1).join('\n')}
@@ -148,8 +169,17 @@ export default function RawFileViewer({ content }: RawFileViewerProps) {
         <pre
           ref={preRef}
           className="raw-file-content"
-          style={{ whiteSpace: wrap ? 'pre-wrap' : 'pre', width: wrap ? undefined : 'max-content' }}
+          style={{ whiteSpace: wrap ? 'pre-wrap' : 'pre', width: wrap ? undefined : 'max-content', position: 'relative' }}
         >
+          {highlightLines && (
+            <span
+              className="raw-file-line-highlight"
+              style={{
+                top: paddingTopRef.current + (highlightLines.start - 1) * lineHeightRef.current,
+                height: (highlightLines.end - highlightLines.start + 1) * lineHeightRef.current,
+              }}
+            />
+          )}
           {renderedContent}
         </pre>
       </div>

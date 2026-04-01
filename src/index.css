@@ -2243,6 +2243,20 @@ html, body {
   flex-shrink: 0;
 }
 
+@keyframes raw-highlight-fade {
+  0%, 75% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+.raw-file-line-highlight {
+  position: absolute;
+  left: 0;
+  right: 0;
+  background: rgba(255, 200, 0, 0.25);
+  pointer-events: none;
+  animation: raw-highlight-fade 4s ease forwards;
+}
+
 .raw-file-content {
   margin: 0;
   padding: 1rem;
@@ -3127,21 +3141,18 @@ th.star-col-header.sortable {
 
 .detail-copy-btn {
   margin-left: auto;
-  font-size: 1.75rem;
+  font-size: 1.25rem;
   color: var(--text-muted);
   padding: 0 2px;
-  opacity: 0;
-  transition: opacity 0.15s, color 0.15s;
+  opacity: 0.4;
+  transition: color 0.15s;
   pointer-events: auto;
   line-height: 1;
 }
 
-.detail-field--block:hover .detail-copy-btn {
-  opacity: 1;
-}
 
 .detail-copy-btn:hover {
-  color: var(--text-primary);
+  color: var(--info);
 }
 
 .detail-copy-btn--copied {
@@ -3172,6 +3183,21 @@ th.star-col-header.sortable {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.detail-line-open-btn {
+  background: none;
+  border: none;
+  padding: 0 0 0 0.3em;
+  cursor: pointer;
+  font-size: 0.85em;
+  color: var(--text-muted);
+  line-height: 1;
+  vertical-align: middle;
+}
+
+.detail-line-open-btn:hover {
+  color: var(--info);
 }
 
 .detail-monospace {

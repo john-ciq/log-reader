@@ -65,6 +65,7 @@ function App() {
   const [activeTab, setActiveTab] = useState<string>('viewer');
   const [activeSubTabs, setActiveSubTabs] = useState<Record<string, string>>({});
   const [subTabOrders, setSubTabOrders] = useState<Record<string, string[]>>({});
+  const [tabScrollToLine, setTabScrollToLine] = useState<Record<string, { start: number; end: number }>>({});
   const pendingDisplayFilesRef = useRef<Set<string> | null>(null);
   const dragTabId = useRef<string | null>(null);
   const dragSubTabId = useRef<string | null>(null);
@@ -239,6 +240,26 @@ function App() {
         setTabOrder(prev => prev.includes(rf.id) ? prev : [...prev, rf.id]);
         setActiveTab(rf.id);
         setActiveSubTabs(st => ({ ...st, [rf.id]: filename }));
+        return;
+      }
+    }
+  }, [rawFiles]);
+
+  const handleOpenInEditor = useCallback((filename: string, lineNumberStart: number, lineNumberEnd: number) => {
+    for (const rf of rawFiles) {
+      if (rf.name === filename) {
+        setOpenTabIds(ids => new Set([...ids, rf.id]));
+        setTabOrder(prev => prev.includes(rf.id) ? prev : [...prev, rf.id]);
+        setActiveTab(rf.id);
+        setTabScrollToLine(prev => ({ ...prev, [rf.id]: { start: lineNumberStart, end: lineNumberEnd } }));
+        return;
+      }
+      if (rf.children?.some(c => c.name === filename)) {
+        setOpenTabIds(ids => new Set([...ids, rf.id]));
+        setTabOrder(prev => prev.includes(rf.id) ? prev : [...prev, rf.id]);
+        setActiveTab(rf.id);
+        setActiveSubTabs(st => ({ ...st, [rf.id]: filename }));
+        setTabScrollToLine(prev => ({ ...prev, [rf.id]: { start: lineNumberStart, end: lineNumberEnd } }));
         return;
       }
     }
@@ -732,6 +753,7 @@ function App() {
           totalEntries={sortedFilteredEntries.length}
           comment={detailEntry ? (entryComments.get(detailEntry.id) ?? '') : ''}
           onSetComment={handleSetComment}
+          onOpenInEditor={handleOpenInEditor}
         />
       )}
 
@@ -959,13 +981,13 @@ function App() {
                         </button>
                       ))}
                   </div>
-                  <RawFileViewer content={childContent} />
+                  <RawFileViewer content={childContent} scrollToLine={tabScrollToLine[rf.id]?.start} scrollToLineEnd={tabScrollToLine[rf.id]?.end} onScrolled={() => setTabScrollToLine(prev => { const next = { ...prev }; delete next[rf.id]; return next; })} />
                 </div>
               );
             }
             return (
               <div className="tab-content">
-                <RawFileViewer content={rf.content} />
+                <RawFileViewer content={rf.content} scrollToLine={tabScrollToLine[rf.id]?.start} scrollToLineEnd={tabScrollToLine[rf.id]?.end} onScrolled={() => setTabScrollToLine(prev => { const next = { ...prev }; delete next[rf.id]; return next; })} />
               </div>
             );
           })()}
@@ -984,6 +1006,7 @@ function App() {
             sidebar
             comment={detailEntry ? (entryComments.get(detailEntry.id) ?? '') : ''}
             onSetComment={handleSetComment}
+            onOpenInEditor={handleOpenInEditor}
           />
         )}
       </div>
