@@ -256,6 +256,19 @@ function App() {
     });
   }, []);
 
+  // Ctrl+W closes the active file editor tab
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      // This will only work in the PWA since control-w will close the browser tab
+      if ((e.key === 'w' || e.key === 'W') && (e.ctrlKey || e.metaKey) && activeTab !== 'viewer') {
+        e.preventDefault();
+        handleCloseTab(activeTab);
+      }
+    };
+    document.addEventListener('keydown', handler);
+    return () => document.removeEventListener('keydown', handler);
+  }, [activeTab, handleCloseTab]);
+
   const handleAddFilter = useCallback((): string => {
     const newFilter: FilterConfig = {
       id: `filter-${Date.now()}`,
