@@ -151,7 +151,7 @@ export const featureDefinitions: Record<FeatureKey, FeatureDefinition> = {
     defaultValue: true,
     description: 'Automatically close the file viewer tab when its log file is removed from the log sources',
     visible: true,
-    category: 'File Tab',
+    category: 'File Tabs',
   },
   messageScrollable: {
     name: 'Scrollable Details in Entry Panel',
@@ -165,7 +165,7 @@ export const featureDefinitions: Record<FeatureKey, FeatureDefinition> = {
     defaultValue: true,
     description: 'Show line numbers in the gutter of the raw file viewer tab',
     visible: true,
-    category: 'File Tab',
+    category: 'File Tabs',
   },
   columnPicker: {
     name: 'Column Picker',
