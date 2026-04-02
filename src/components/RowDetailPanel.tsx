@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { LogEntry } from '../lib/parser';
+import { FilterConfig, getFilterDecision } from '../lib/filters';
 import { useFeatures } from '../lib/FeaturesContext';
 import { storage } from '../lib/local-storage';
 
@@ -18,6 +19,7 @@ interface RowDetailPanelProps {
   onSetComment?: (id: string, comment: string) => void;
   onOpenInEditor?: (filename: string, lineNumberStart: number, lineNumberEnd: number) => void;
   width?: number;
+  filters?: FilterConfig[];
 }
 
 function tryFormatJson(value: string): string {
@@ -80,9 +82,10 @@ function CollapsibleSection({ label, grow, copyText, children }: { label: string
   );
 }
 
-function DetailBody({ entry, onClose, onPrev, onNext, onScrollToEntry, hasPrev, hasNext, entryIndex, totalEntries, sidebar, comment = '', onSetComment, onOpenInEditor }: Omit<RowDetailPanelProps, 'dialog'> & { entry: LogEntry }) {
+function DetailBody({ entry, onClose, onPrev, onNext, onScrollToEntry, hasPrev, hasNext, entryIndex, totalEntries, sidebar, comment = '', onSetComment, onOpenInEditor, filters }: Omit<RowDetailPanelProps, 'dialog'> & { entry: LogEntry }) {
   const { features, setFeature } = useFeatures();
   const hasMetadata = entry.metadata && Object.keys(entry.metadata).length > 0;
+  const matchedFilters = (filters ?? []).filter(f => f.enabled && getFilterDecision(entry, f) === true);
   return (
     <>
       <div className="detail-panel-header">
@@ -149,6 +152,20 @@ function DetailBody({ entry, onClose, onPrev, onNext, onScrollToEntry, hasPrev, 
           </span>
         </div>
 
+        <div className="detail-field">
+          <span className="detail-field-label">Filters</span>
+          <span className="detail-field-value detail-filter-matches">
+            {matchedFilters.length === 0
+              ? <span className="detail-muted">—</span>
+              : matchedFilters.map(f => (
+                  <span key={f.id} className="detail-filter-badge" style={f.colorEnabled && f.color ? { background: f.color + '55', borderColor: f.color } : undefined}>
+                    {f.name}
+                  </span>
+                ))
+            }
+          </span>
+        </div>
+
         {features.entryComments && (
           <div className="detail-field detail-field--block">
             <span className="detail-field-label">Comment</span>
@@ -184,7 +201,7 @@ function DetailBody({ entry, onClose, onPrev, onNext, onScrollToEntry, hasPrev, 
   );
 }
 
-export default function RowDetailPanel({ entry, onClose, onPrev, onNext, onScrollToEntry, hasPrev, hasNext, entryIndex, totalEntries, sidebar, comment, onSetComment, onOpenInEditor, width }: RowDetailPanelProps) {
+export default function RowDetailPanel({ entry, onClose, onPrev, onNext, onScrollToEntry, hasPrev, hasNext, entryIndex, totalEntries, sidebar, comment, onSetComment, onOpenInEditor, width, filters }: RowDetailPanelProps) {
   useEffect(() => {
     if (!entry) return;
     const onKey = (e: KeyboardEvent) => {
@@ -201,7 +218,7 @@ export default function RowDetailPanel({ entry, onClose, onPrev, onNext, onScrol
     return (
       <aside className="row-detail-sidebar" style={width !== undefined ? { width } : undefined}>
         {entry ? (
-          <DetailBody entry={entry} onClose={onClose} onPrev={onPrev} onNext={onNext} onScrollToEntry={onScrollToEntry} hasPrev={hasPrev} hasNext={hasNext} entryIndex={entryIndex} totalEntries={totalEntries} sidebar comment={comment} onSetComment={onSetComment} onOpenInEditor={onOpenInEditor} />
+          <DetailBody entry={entry} onClose={onClose} onPrev={onPrev} onNext={onNext} onScrollToEntry={onScrollToEntry} hasPrev={hasPrev} hasNext={hasNext} entryIndex={entryIndex} totalEntries={totalEntries} sidebar comment={comment} onSetComment={onSetComment} onOpenInEditor={onOpenInEditor} filters={filters} />
         ) : (
           <div className="detail-sidebar-empty">
             <span>Select an entry to view details</span>
@@ -217,7 +234,7 @@ export default function RowDetailPanel({ entry, onClose, onPrev, onNext, onScrol
     <>
       <div className="detail-panel-overlay" onClick={onClose} />
       <div className="row-detail-panel">
-        <DetailBody entry={entry} onClose={onClose} onPrev={onPrev} onNext={onNext} onScrollToEntry={onScrollToEntry} hasPrev={hasPrev} hasNext={hasNext} entryIndex={entryIndex} totalEntries={totalEntries} comment={comment} onSetComment={onSetComment} onOpenInEditor={onOpenInEditor} />
+        <DetailBody entry={entry} onClose={onClose} onPrev={onPrev} onNext={onNext} onScrollToEntry={onScrollToEntry} hasPrev={hasPrev} hasNext={hasNext} entryIndex={entryIndex} totalEntries={totalEntries} comment={comment} onSetComment={onSetComment} onOpenInEditor={onOpenInEditor} filters={filters} />
       </div>
     </>
   );

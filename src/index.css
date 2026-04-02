@@ -3250,6 +3250,23 @@ th.star-col-header.sortable {
   color: var(--info);
 }
 
+.detail-filter-matches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  align-items: center;
+}
+
+.detail-filter-badge {
+  font-size: 0.75rem;
+  padding: 0.1rem 0.5rem;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+
 .detail-monospace {
   font-family: 'Fira Code', 'Cascadia Code', monospace;
   font-size: 0.82rem;

@@ -775,6 +775,7 @@ function App() {
           comment={detailEntry ? (entryComments.get(detailEntry.id) ?? '') : ''}
           onSetComment={handleSetComment}
           onOpenInEditor={handleOpenInEditor}
+          filters={filters}
         />
       )}
 
@@ -1033,6 +1034,7 @@ function App() {
               comment={detailEntry ? (entryComments.get(detailEntry.id) ?? '') : ''}
               onSetComment={handleSetComment}
               onOpenInEditor={handleOpenInEditor}
+              filters={filters}
             />
           </>
         )}
