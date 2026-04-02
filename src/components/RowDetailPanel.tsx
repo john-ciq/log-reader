@@ -181,17 +181,17 @@ function DetailBody({ entry, onClose, onPrev, onNext, onScrollToEntry, hasPrev, 
 
 
 
-        <CollapsibleSection label="Message" copyText={tryFormatJson(entry.message)}>
+        {/* <CollapsibleSection label="Message" copyText={tryFormatJson(entry.message)}>
           <pre className={`detail-message${features.messageScrollable ? ' detail-message--scrollable' : ''}`}>{tryFormatJson(entry.message)}</pre>
-        </CollapsibleSection>
+        </CollapsibleSection> */}
 
-        {hasMetadata && (
+        {/* {hasMetadata && (
           <CollapsibleSection label="Metadata" copyText={JSON.stringify(entry.metadata, null, 2)}>
             <pre className={`detail-message detail-monospace${features.messageScrollable ? ' detail-message--scrollable' : ''}`}>
               {JSON.stringify(entry.metadata, null, 2)}
             </pre>
           </CollapsibleSection>
-        )}
+        )} */}
 
         <CollapsibleSection label="Raw" grow copyText={tryFormatJson(entry.raw)}>
           <pre className={`detail-message detail-muted detail-monospace${features.messageScrollable ? ' detail-message--scrollable' : ''}`}>{tryFormatJson(entry.raw)}</pre>
