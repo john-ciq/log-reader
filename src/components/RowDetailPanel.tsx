@@ -84,7 +84,6 @@ function CollapsibleSection({ label, grow, copyText, children }: { label: string
 
 function DetailBody({ entry, onClose, onPrev, onNext, onScrollToEntry, hasPrev, hasNext, entryIndex, totalEntries, sidebar, comment = '', onSetComment, onOpenInEditor, filters }: Omit<RowDetailPanelProps, 'dialog'> & { entry: LogEntry }) {
   const { features, setFeature } = useFeatures();
-  const hasMetadata = entry.metadata && Object.keys(entry.metadata).length > 0;
   const matchedFilters = (filters ?? []).filter(f => f.enabled && getFilterDecision(entry, f) === true);
   return (
     <>

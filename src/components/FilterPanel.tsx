@@ -17,6 +17,7 @@ interface FilterPanelProps {
   onToggleShowOnlyStarred?: () => void;
   showOnlyCommented?: boolean;
   onToggleShowOnlyCommented?: () => void;
+  filterMatchCounts?: Map<string, number>;
 }
 
 export default function FilterPanel({
@@ -33,6 +34,7 @@ export default function FilterPanel({
   onToggleShowOnlyStarred,
   showOnlyCommented = false,
   onToggleShowOnlyCommented,
+  filterMatchCounts,
 }: FilterPanelProps) {
   const { features, setFeature } = useFeatures();
   const [expandedFilters, setExpandedFilters] = useState<Set<string>>(() => new Set(storage.loadExpandedFilters()));
@@ -148,6 +150,9 @@ export default function FilterPanel({
                         title={filter.name || 'Unnamed Filter'}
                         style={features.filterColors && filter.color && (filter.colorEnabled ?? true) ? { backgroundColor: hexToRgba(filter.color, filter.colorOpacity ?? 0.3), borderRadius: '4px', padding: '0 4px' } : undefined}
                       >{filter.name || 'Unnamed Filter'}</span>
+                      {features.filterMatchCounts && filter.enabled && filterMatchCounts?.has(filter.id) && (
+                        <span className="filter-match-count">{filterMatchCounts.get(filter.id)!.toLocaleString()}</span>
+                      )}
                       {features.filterComments && filter.comment && (
                         <span className="filter-comment-preview" title={filter.comment}>{filter.comment}</span>
                       )}

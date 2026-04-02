@@ -665,6 +665,17 @@ function App() {
     setDetailEntry(entry);
   }, []);
 
+  const filterMatchCounts = useMemo(() => {
+    const enabledFilters = filters.filter(f => f.enabled);
+    const counts = new Map<string, number>();
+    for (const f of enabledFilters) {
+      let count = 0;
+      for (const e of entries) { if (getFilterDecision(e, f) === true) count++; }
+      counts.set(f.id, count);
+    }
+    return counts;
+  }, [filters, entries]);
+
   const detailIdx = detailEntry ? sortedFilteredEntries.findIndex(e => e.id === detailEntry.id) : -1;
   const hasPrev = detailIdx > 0;
   const hasNext = detailIdx !== -1 && detailIdx < sortedFilteredEntries.length - 1;
@@ -776,6 +787,7 @@ function App() {
           onSetComment={handleSetComment}
           onOpenInEditor={handleOpenInEditor}
           filters={filters}
+
         />
       )}
 
@@ -851,6 +863,7 @@ function App() {
                       onToggleShowOnlyStarred={() => setShowOnlyStarred(v => !v)}
                       showOnlyCommented={showOnlyCommented}
                       onToggleShowOnlyCommented={() => setShowOnlyCommented(v => !v)}
+                      filterMatchCounts={entries.length > 0 ? filterMatchCounts : undefined}
                     />
                     {features.savedPresets && (
                       <PresetsPanel
@@ -1035,6 +1048,7 @@ function App() {
               onSetComment={handleSetComment}
               onOpenInEditor={handleOpenInEditor}
               filters={filters}
+    
             />
           </>
         )}
