@@ -221,20 +221,11 @@ export default function LogTable({
     const levelPadH = parseFloat(levelCellStyle.paddingLeft) + parseFloat(levelCellStyle.paddingRight);
     const lvlTarget = Math.ceil(ctx.measureText(longestLevel).width) + badgePadH + levelPadH + 4;
 
-    // table { width: 100% } with table-layout: fixed scales all columns proportionally when
-    // their sum < table width. Setting both columns simultaneously, the correction is:
-    //   T = target * sumOther / (tableWidth - tsTarget - lvlTarget)
-    const tableWidth = (tsCell.closest('table') as HTMLElement)?.getBoundingClientRect().width ?? 0;
-    const sumOther = visibleCols
-      .filter(col => col !== 'timestamp' && col !== 'level')
-      .reduce((sum, col) => sum + (collapsedCols.has(col) ? 28 : colWidths[col]), 0);
-    const denom = tableWidth - tsTarget - lvlTarget;
-    const tsWidth  = tableWidth > 0 && denom > 0 ? (tsTarget  * sumOther) / denom : tsTarget;
-    const lvlWidth = tableWidth > 0 && denom > 0 ? (lvlTarget * sumOther) / denom : lvlTarget;
-
-    setColWidths(prev => ({ ...prev, timestamp: tsWidth, level: lvlWidth }));
+    // The message <col> has no explicit width so it absorbs all remaining table space.
+    // All other columns therefore render at their exact specified widths — no compensation needed.
+    setColWidths(prev => ({ ...prev, timestamp: tsTarget, level: lvlTarget }));
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [entries, colWidths.file, colWidths.source, colWidths.message, collapsedCols]);
+  }, [entries, collapsedCols]);
 
   // ── Column resize ────────────────────────────────────────────────────────────
   const startResize = (col: SortColumn, e: React.MouseEvent) => {
@@ -544,7 +535,7 @@ export default function LogTable({
               {features.showSequenceColumn && <col style={{ width: 52 }} />}
               {features.starredEntries && <col style={{ width: 32 }} />}
               {features.entryComments && <col style={{ width: 32 }} />}
-              {visibleCols.map(col => <col key={col} style={{ width: collapsedCols.has(col) ? 28 : colWidths[col] }} />)}
+              {visibleCols.map(col => <col key={col} style={col === 'message' && !collapsedCols.has(col) ? undefined : { width: collapsedCols.has(col) ? 28 : colWidths[col] }} />)}
             </colgroup>
             <thead>
               <tr>
