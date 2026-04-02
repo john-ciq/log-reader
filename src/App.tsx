@@ -68,6 +68,8 @@ function App() {
   const [activeSubTabs, setActiveSubTabs] = useState<Record<string, string>>({});
   const [subTabOrders, setSubTabOrders] = useState<Record<string, string[]>>({});
   const [tabScrollToLine, setTabScrollToLine] = useState<Record<string, { start: number; end: number }>>({});
+  const [goToLineOpen, setGoToLineOpen] = useState(false);
+  const goToLineInputRef = useRef<HTMLInputElement>(null);
   const pendingDisplayFilesRef = useRef<Set<string> | null>(null);
   const dragTabId = useRef<string | null>(null);
   const dragSubTabId = useRef<string | null>(null);
@@ -302,18 +304,39 @@ function App() {
     });
   }, []);
 
-  // Ctrl+W closes the active file editor tab
+  // Ctrl+W closes the active file editor tab; Ctrl+G opens go-to-line prompt
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
+      if (activeTab === 'viewer') return;
       // This will only work in the PWA since control-w will close the browser tab
-      if ((e.key === 'w' || e.key === 'W') && (e.ctrlKey || e.metaKey) && activeTab !== 'viewer') {
+      if ((e.key === 'w' || e.key === 'W') && (e.ctrlKey || e.metaKey)) {
         e.preventDefault();
         handleCloseTab(activeTab);
+      }
+      if ((e.key === 'g' || e.key === 'G') && (e.ctrlKey || e.metaKey)) {
+        e.preventDefault();
+        setGoToLineOpen(true);
+      }
+      if (e.key === 'Escape' && goToLineOpen) {
+        setGoToLineOpen(false);
       }
     };
     document.addEventListener('keydown', handler);
     return () => document.removeEventListener('keydown', handler);
-  }, [activeTab, handleCloseTab]);
+  }, [activeTab, handleCloseTab, goToLineOpen]);
+
+  useEffect(() => {
+    if (goToLineOpen) goToLineInputRef.current?.focus();
+  }, [goToLineOpen]);
+
+  const handleGoToLineSubmit = useCallback((e: React.FormEvent) => {
+    e.preventDefault();
+    const val = parseInt(goToLineInputRef.current?.value ?? '', 10);
+    if (!isNaN(val) && val > 0 && activeTab !== 'viewer') {
+      setTabScrollToLine(prev => ({ ...prev, [activeTab]: { start: val, end: val } }));
+    }
+    setGoToLineOpen(false);
+  }, [activeTab]);
 
   const handleAddFilter = useCallback((): string => {
     const newFilter: FilterConfig = {
@@ -1027,6 +1050,22 @@ function App() {
             );
           })()}
         </main>
+        {goToLineOpen && activeTab !== 'viewer' && (
+          <div className="go-to-line-overlay" onClick={() => setGoToLineOpen(false)}>
+            <form className="go-to-line-form" onClick={e => e.stopPropagation()} onSubmit={handleGoToLineSubmit}>
+              <label className="go-to-line-label">Go to line</label>
+              <input
+                ref={goToLineInputRef}
+                className="go-to-line-input"
+                type="number"
+                min={1}
+                placeholder="Line number…"
+                onKeyDown={e => { if (e.key === 'Escape') setGoToLineOpen(false); }}
+              />
+              <button type="submit" className="go-to-line-btn">Go</button>
+            </form>
+          </div>
+        )}
         {features.entryDetailSidebar && (
           <>
             <div className="detail-sidebar-resizer" onMouseDown={handleDetailResizerMouseDown}>
