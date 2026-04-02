@@ -304,9 +304,20 @@ function App() {
     });
   }, []);
 
-  // Ctrl+W closes the active file editor tab; Ctrl+G opens go-to-line prompt
+  // Ctrl+W closes the active file editor tab; Ctrl+G opens go-to-line prompt; Ctrl+Tab navigates tabs
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
+      // Ctrl+Tab / Ctrl+Shift+Tab — navigate tabs (works from any tab including viewer)
+      if (e.key === 'Tab' && (e.ctrlKey || e.metaKey)) {
+        e.preventDefault();
+        const allTabs = ['viewer', ...tabOrder.filter(id => openTabIds.has(id))];
+        const idx = allTabs.indexOf(activeTab);
+        const next = e.shiftKey
+          ? (idx - 1 + allTabs.length) % allTabs.length
+          : (idx + 1) % allTabs.length;
+        setActiveTab(allTabs[next]);
+        return;
+      }
       if (activeTab === 'viewer') return;
       // This will only work in the PWA since control-w will close the browser tab
       if ((e.key === 'w' || e.key === 'W') && (e.ctrlKey || e.metaKey)) {
@@ -323,7 +334,7 @@ function App() {
     };
     document.addEventListener('keydown', handler);
     return () => document.removeEventListener('keydown', handler);
-  }, [activeTab, handleCloseTab, goToLineOpen]);
+  }, [activeTab, handleCloseTab, goToLineOpen, tabOrder, openTabIds]);
 
   useEffect(() => {
     if (goToLineOpen) goToLineInputRef.current?.focus();
