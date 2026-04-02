@@ -90,9 +90,14 @@ export default function RawFileViewer({ content, scrollToLine, scrollToLineEnd, 
     return () => { clearTimeout(clearTimer); };
   }, [scrollToLine]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const handleFind = () => {
+  const handleFindNext = () => {
     if (matches.length === 0) return;
     setCurrentMatchIdx(prev => (prev + 1) % matches.length);
+  };
+
+  const handleFindPrev = () => {
+    if (matches.length === 0) return;
+    setCurrentMatchIdx(prev => (prev - 1 + matches.length) % matches.length);
   };
 
   const renderedContent = useMemo(() => {
@@ -125,17 +130,24 @@ export default function RawFileViewer({ content, scrollToLine, scrollToLineEnd, 
           type="text"
           value={searchInput}
           onChange={e => setSearchInput(e.target.value)}
-          onKeyDown={e => e.key === 'Enter' && handleFind()}
+          onKeyDown={e => {
+            if (e.key === 'Enter') { e.shiftKey ? handleFindPrev() : handleFindNext(); }
+          }}
           placeholder="Find in file…"
           className="raw-file-search-input"
         />
         <button
-          onClick={handleFind}
-          className="raw-file-find-btn"
+          onClick={handleFindPrev}
+          className="raw-file-nav-btn"
           disabled={matches.length === 0}
-        >
-          Find
-        </button>
+          title="Previous match (Shift+Enter)"
+        >‹</button>
+        <button
+          onClick={handleFindNext}
+          className="raw-file-nav-btn"
+          disabled={matches.length === 0}
+          title="Next match (Enter)"
+        >›</button>
         <button
           onClick={() => setUseRegex(r => !r)}
           className={`raw-file-regex-btn${useRegex ? ' active' : ''}`}

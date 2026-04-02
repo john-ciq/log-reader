@@ -2161,23 +2161,23 @@ html, body {
   border-color: var(--primary);
 }
 
-.raw-file-find-btn {
-  padding: 0.25rem 0.6rem;
+.raw-file-nav-btn {
+  padding: 0.15rem 0.45rem;
   border: 1px solid var(--border);
   border-radius: 4px;
   background: var(--bg-primary);
   color: var(--text-primary);
-  font-size: 0.8rem;
+  font-size: 1rem;
+  line-height: 1;
   cursor: pointer;
-  white-space: nowrap;
   transition: background 0.15s;
 }
 
-.raw-file-find-btn:hover:not(:disabled) {
+.raw-file-nav-btn:hover:not(:disabled) {
   background: var(--bg-tertiary);
 }
 
-.raw-file-find-btn:disabled {
+.raw-file-nav-btn:disabled {
   opacity: 0.4;
   cursor: default;
 }
