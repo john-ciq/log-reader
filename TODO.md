@@ -15,7 +15,7 @@
 - [ ] Connect to Jira and append a support bundle to a case by JiraID
 
 ### Parsers
-- [ ] Enhance parser awareness
+  - [ ] Enhance parser awareness
   - [ ] Each file should be parsed by a parser (instead of each line)
   - [ ] Parser configs should have "can parse" to identify if they can parse a file
   - [ ] Create a defacto default parser
