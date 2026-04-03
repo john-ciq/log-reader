@@ -32,6 +32,7 @@ const SHORTCUTS: { group: string; items: ShortcutItem[] }[] = [
       { keys: ['←'], description: 'Previous entry' },
       { keys: ['→'], description: 'Next entry' },
       { keys: ['c'], description: 'Scroll table to active entry' },
+      { keys: ['t'], description: 'Toggle sidebar / overlay mode' },
     ],
   },
   {

@@ -182,6 +182,15 @@ function ParsedSection({ entry }: { entry: LogEntry }) {
 
 function DetailBody({ entry, onClose, onPrev, onNext, onScrollToEntry, hasPrev, hasNext, entryIndex, totalEntries, sidebar, comment = '', onSetComment, onOpenInEditor, filters }: Omit<RowDetailPanelProps, 'dialog'> & { entry: LogEntry }) {
   const { features, setFeature } = useFeatures();
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+      if (e.key === 't' || e.key === 'T') setFeature('entryDetailSidebar', !features.entryDetailSidebar);
+    };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [features.entryDetailSidebar, setFeature]);
   const matchedFilters = (filters ?? []).filter(f => f.enabled && getFilterDecision(entry, f) === true);
   return (
     <>
@@ -195,7 +204,7 @@ function DetailBody({ entry, onClose, onPrev, onNext, onScrollToEntry, hasPrev, 
         <button
           className="detail-panel-close"
           onClick={() => setFeature('entryDetailSidebar', !features.entryDetailSidebar)}
-          title={sidebar ? 'Switch to overlay mode' : 'Switch to sidebar mode'}
+          title={sidebar ? 'Switch to overlay mode (T)' : 'Switch to sidebar mode (T)'}
         >{sidebar ? '⇥' : '⇤'}</button>
         {!sidebar && (
           <button className="detail-panel-close" onClick={onClose} title="Close (Esc)">✕</button>
