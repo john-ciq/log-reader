@@ -115,7 +115,7 @@ export const featureDefinitions: Record<FeatureKey, FeatureDefinition> = {
     name: 'Auto-scroll to Active Entry',
     defaultValue: false,
     description: 'Automatically scroll the log table to keep the active entry in view when navigating',
-    visible: true,
+    visible: false,
     category: 'Log Table',
   },
   showSequenceColumn: {
@@ -176,7 +176,7 @@ export const featureDefinitions: Record<FeatureKey, FeatureDefinition> = {
   },
   columnPicker: {
     name: 'Column Picker',
-    defaultValue: false,
+    defaultValue: true,
     description: 'Allow columns to be shown or hidden from the log table',
     visible: true,
     category: 'Log Table',
