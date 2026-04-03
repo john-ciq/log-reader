@@ -794,7 +794,7 @@ function App() {
           <span className="app-version">v{pkg.version}</span>
         </div>
         <div className="header-actions">
-          <button className="features-toggle-btn" onClick={() => setFeaturesPanelOpen(true)} title="Features">⚙</button>
+          <button className="features-toggle-btn" onClick={() => setFeaturesPanelOpen(true)} title="Settings (Ctrl+s)">⚙</button>
           <button className="features-toggle-btn" onClick={() => setShortcutsPanelOpen(true)} title="Keyboard shortcuts (Ctrl+?)">⌨</button>
         </div>
       </header>
@@ -1106,7 +1106,7 @@ function App() {
               onSetComment={handleSetComment}
               onOpenInEditor={handleOpenInEditor}
               filters={filters}
-    
+
             />
           </>
         )}
