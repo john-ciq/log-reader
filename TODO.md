@@ -7,6 +7,7 @@
 ## Planned
 
 ### Features
+- [ ] Move import/export (logs and bundles) to a separate shade next to the statistics panel
 - [ ] Reorganize features / add a "log filters" section
 - [ ] Order feature categories manually
 - [ ] Add an "ONLY" button, which temporarily disables all other filters
