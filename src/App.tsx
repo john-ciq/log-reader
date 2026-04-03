@@ -6,6 +6,7 @@ import { TimeRange, FilterPreset } from './lib/storage';
 import { storage } from './lib/local-storage';
 import { useFeatures } from './lib/FeaturesContext';
 import FileUploader, { RawFile } from './components/FileUploader';
+import SourceSelector from './components/SourceSelector';
 import FilterPanel from './components/FilterPanel';
 import SearchBar from './components/SearchBar';
 import LogTable from './components/LogTable';
@@ -859,6 +860,15 @@ function App() {
                     return acc;
                   }, {})}
                 />
+                <SourceSelector
+                  sources={availableSources}
+                  selected={displaySources}
+                  sourceCounts={entries.reduce<Record<string, number>>((acc, e) => {
+                    if (e.source) acc[e.source] = (acc[e.source] ?? 0) + 1;
+                    return acc;
+                  }, {})}
+                  onChange={handleSourceCheckbox}
+                />
               </div>
               <div className="sidebar-section">
                 <h3 className="collapsible-heading" onClick={() => setFiltersCollapsed(c => { storage.savePanelCollapsed('filters', !c); return !c; })}>
@@ -978,9 +988,6 @@ function App() {
                   onExportAll={handleExportAllJSON}
                   onExportBundle={handleExportBundle}
                   onImportBundle={handleImportBundle}
-                  availableSources={availableSources}
-                  displaySources={displaySources}
-                  onSourceChange={handleSourceCheckbox}
                 />
               </div>
               <div className="split-pane__divider" onMouseDown={handleSplitMouseDown}>

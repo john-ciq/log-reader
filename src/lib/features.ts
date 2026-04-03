@@ -66,7 +66,7 @@ export const featureDefinitions: Record<FeatureKey, FeatureDefinition> = {
     name: 'Scroll in Log Sources',
     defaultValue: true,
     description: 'Scroll in Log Sources — limit the sources list height and add a scrollbar',
-    visible: false,
+    visible: true,
     category: 'Misc UI',
   },
   showOnlyMatches: {

@@ -11,9 +11,6 @@ interface StatisticsPanelProps {
   onExportAll: () => void;
   onExportBundle: () => void;
   onImportBundle: (file: File) => void;
-  availableSources: string[];
-  displaySources: Set<string>;
-  onSourceChange: (source: string, checked: boolean) => void;
 }
 
 export default function StatisticsPanel({
@@ -23,34 +20,16 @@ export default function StatisticsPanel({
   onExportAll,
   onExportBundle,
   onImportBundle,
-  availableSources,
-  displaySources,
-  onSourceChange,
 }: StatisticsPanelProps) {
   const bundleInputRef = useRef<HTMLInputElement>(null);
   const [collapsed, setCollapsed] = useState(() => storage.loadPanelCollapsed('statistics'));
   const [expanded, setExpanded] = useState({
     summary: !storage.loadPanelCollapsed('stats-summary'),
     levels: !storage.loadPanelCollapsed('stats-levels'),
-    sources: !storage.loadPanelCollapsed('stats-sources'),
   });
-  const [sourceFilter, setSourceFilter] = useState(() => storage.loadSourcesState().filter);
-  const [sourceSort, setSourceSort] = useState<'name' | 'count'>(() => storage.loadSourcesState().sort);
-  const [sortDir, setSortDir] = useState<'asc' | 'desc'>(() => storage.loadSourcesState().dir);
-
-  const handleSortClick = (key: 'name' | 'count') => {
-    const newDir = sourceSort === key && sortDir === 'asc' ? 'desc' : 'asc';
-    setSourceSort(key);
-    setSortDir(newDir);
-    storage.saveSourcesState(sourceFilter, key, newDir);
-  };
 
   const { features } = useFeatures();
   const stats = useMemo(() => calculateStatistics(entries), [entries]);
-  const maxSourceCount = useMemo(() => {
-    const counts = Object.values(stats.sourceCounts);
-    return counts.length > 0 ? Math.max(...counts) : 1;
-  }, [stats.sourceCounts]);
 
   const getLevelColor = (level: string): string => {
     const colors: Record<string, string> = {
@@ -197,76 +176,6 @@ export default function StatisticsPanel({
         )}
       </div>
 
-      <div className="stats-section">
-        <div
-          className="stats-section-header"
-          onClick={() => { const v = !expanded.sources; storage.savePanelCollapsed('stats-sources', !v); setExpanded({ ...expanded, sources: v }); }}
-        >
-          <h4>Logging Sources {!expanded.sources && '▼'} {expanded.sources && '▲'}</h4>
-        </div>
-        {expanded.sources && (
-          <>
-          <div className="source-controls">
-            <input
-              type="text"
-              value={sourceFilter}
-              onChange={e => { setSourceFilter(e.target.value); storage.saveSourcesState(e.target.value, sourceSort, sortDir); }}
-              placeholder="Filter sources…"
-              className="source-filter-input"
-            />
-            <div className="source-sort-btns">
-              <button
-                className={`source-sort-btn${sourceSort === 'name' ? ' active' : ''}`}
-                onClick={() => handleSortClick('name')}
-                title={`Sort by name${sourceSort === 'name' ? (sortDir === 'asc' ? ' (A→Z)' : ' (Z→A)') : ''}`}
-              >{sourceSort === 'name' ? (sortDir === 'asc' ? 'A↓Z' : 'Z↓A') : 'A–Z'}</button>
-              <button
-                className={`source-sort-btn${sourceSort === 'count' ? ' active' : ''}`}
-                onClick={() => handleSortClick('count')}
-                title={`Sort by count${sourceSort === 'count' ? (sortDir === 'asc' ? ' (low→high)' : ' (high→low)') : ''}`}
-              >{sourceSort === 'count' ? (sortDir === 'asc' ? '#↑' : '#↓') : '#'}</button>
-            </div>
-          </div>
-          <div className={`stats-breakdown${features.scrollLogSources ? ' stats-breakdown--scrollable' : ''}`}>
-            {availableSources
-              .slice()
-              .filter(s => s.toLowerCase().includes(sourceFilter.toLowerCase()))
-              .sort((a, b) => {
-                const asc = sortDir === 'asc' ? 1 : -1;
-                return sourceSort === 'name'
-                  ? asc * a.toLowerCase().localeCompare(b.toLowerCase())
-                  : asc * ((stats.sourceCounts[a] ?? 0) - (stats.sourceCounts[b] ?? 0));
-              })
-              .map(source => {
-                const count = stats.sourceCounts[source] ?? 0;
-                return (
-                  <label key={source} className="stats-row">
-                    <span className="stats-label truncate" title={source}>
-                      <input
-                        type="checkbox"
-                        checked={displaySources.has(source)}
-                        onChange={e => onSourceChange(source, e.target.checked)}
-                        className="app-checkbox"
-                      />
-                      {source.length > 35 ? source.slice(0, 35) + '…' : source}
-                    </span>
-                    <span className="stats-bar-container">
-                      <span
-                        className="stats-bar"
-                        style={{
-                          width: `${(count / maxSourceCount) * 100}%`,
-                          backgroundColor: '#4CAF50',
-                        }}
-                      />
-                    </span>
-                    <span className="stats-count">{count}</span>
-                  </label>
-                );
-              })}
-          </div>
-          </>
-        )}
-      </div>
       </>}
     </div>
   );

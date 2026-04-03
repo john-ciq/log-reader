@@ -110,10 +110,11 @@ html, body {
 }
 
 /* Level selector */
-.level-selector,
+/* .level-selector,
+.file-selector,
 .source-selector {
   margin-bottom: 1.5rem;
-}
+} */
 
 .level-selector h3,
 .source-selector h3 {
@@ -627,6 +628,10 @@ html, body {
   gap: 0.4rem;
 }
 
+.selector--has-content {
+  margin-bottom: 1.5rem;
+}
+
 .heading-actions {
   margin-left: auto;
   display: flex;
@@ -679,6 +684,13 @@ html, body {
 .collapse-arrow {
   font-size: 0.65em;
   opacity: 0.6;
+}
+
+.selector-count {
+  margin-left: auto;
+  font-size: 0.7rem;
+  font-weight: 400;
+  color: var(--text-muted);
 }
 
 .uploader-browse-btn {

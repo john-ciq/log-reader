@@ -15,13 +15,13 @@ export default function FileSelector({ files, selected, onChange, onRemove, onOp
   const [collapsed, setCollapsed] = useState(() => storage.loadPanelCollapsed('files'));
 
   return (
-    <div className="file-selector">
+    <div className={`file-selector${!collapsed ? ' selector--has-content' : ''}`}>
       <h3 className="collapsible-heading" onClick={() => setCollapsed(c => { storage.savePanelCollapsed('files', !c); return !c; })}>
         <span className="collapse-arrow">{collapsed ? '▶' : '▼'}</span>
         Log Files
         {files.length > 0 && (
           <span className="heading-actions">
-            <span className="heading-count">{files.filter(f => selected.has(f)).length}/{files.length} files</span>
+            <span className="heading-count">{files.filter(f => selected.has(f)).length}/{files.length}</span>
             <button className="config-action-btn" onClick={e => { e.stopPropagation(); files.forEach(f => onChange(f, true)); }}>All</button>
             <button className="config-action-btn" onClick={e => { e.stopPropagation(); files.forEach(f => onChange(f, false)); }}>None</button>
           </span>
