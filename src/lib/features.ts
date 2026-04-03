@@ -87,7 +87,7 @@ export const featureDefinitions: Record<FeatureKey, FeatureDefinition> = {
     name: 'Entry Detail as Sidebar',
     defaultValue: false,
     description: 'Show the "Entry Detail" panel as a persistent right sidebar, always visible alongside the log table',
-    visible: true,
+    visible: false,
     category: 'Entry Detail',
   },
   filterComments: {
@@ -164,7 +164,7 @@ export const featureDefinitions: Record<FeatureKey, FeatureDefinition> = {
     name: 'Scrollable Details in Entry Panel',
     defaultValue: true,
     description: 'Make the message area in the entry detail panel scrollable horizontally and vertically instead of wrapping',
-    visible: true,
+    visible: false,
     category: 'Entry Detail',
   },
   rawFileLineNumbers: {
