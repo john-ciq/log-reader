@@ -23,11 +23,9 @@
 - [ ] Normalize timestamps with respect to timezone info (implement a "timestamp resolver", as well)
 
 ### UI / UX
-- [ ] Move import/export (logs and bundles) to a separate shade next to the statistics panel
-- [ ] Reorganize features / add a "log filters" section
 - [ ] Preview for log entries should indicate JSON (instead of showing unformatted or escaped JSON)
 - [ ] Move log level/source/files into filter and sort panel, use vertical tabs for files/search & time/filters
-- [ ] Order feature categories manually
+- [ ] Reorganize features and order the feature categories manually
 
 ### CLI
 - [ ]
@@ -41,6 +39,7 @@
 - [ ] Bug: Highlight does not work when a the highlight text is set and then a log entry containing that text is expanded
 
 ## Done
+- [x] Move import/export (logs and bundles) to a separate shade next to the statistics panel
 - [x] Bug: Central Logger parser does not always parse JSON objects (UIPlatform.Performance, for example)
 - [x] Add a shortcut (control+?) to see keyboard shortcuts
 - [x] Redistribute UI real-estate
