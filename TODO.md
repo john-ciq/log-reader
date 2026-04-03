@@ -7,6 +7,7 @@
 ## Planned
 
 ### Features
+- [ ] Move log level/source/files into filter and sort panel, use vertical tabs for files/search & time/filters
 - [ ] Move import/export (logs and bundles) to a separate shade next to the statistics panel
 - [ ] Reorganize features / add a "log filters" section
 - [ ] Order feature categories manually
