@@ -19,6 +19,7 @@ import KeyboardShortcutsPanel from './components/KeyboardShortcutsPanel';
 import TimeRangeFilter from './components/TimeRangeFilter';
 import RowDetailPanel from './components/RowDetailPanel';
 import LogDensityHistogram from './components/LogDensityHistogram';
+import ImportExportPanel from './components/ImportExportPanel';
 import PresetsPanel from './components/PresetsPanel';
 import JSZip from 'jszip';
 
@@ -82,6 +83,7 @@ function App() {
   const [shortcutsPanelOpen, setShortcutsPanelOpen] = useState(false);
 
   const [statsOpen, setStatsOpen] = useState(false);
+  const [bundleOpen, setBundleOpen] = useState(false);
 
   const handleSidebarResizerMouseDown = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
@@ -854,7 +856,8 @@ function App() {
             <>
               <FileUploader onUpload={handleFileUpload} onRawFiles={handleRawFiles} />
               <div className="sidebar-section">
-                <h3 className="collapsible-heading">
+                <h3 className="collapsible-heading" onClick={() => setFiltersCollapsed(c => { storage.savePanelCollapsed('filters', !c); return !c; })}>
+                  <span className="collapse-arrow">{filtersCollapsed ? '▶' : '▼'}</span>
                   Filters & Search
                   <span className="filter-config-actions" onClick={e => e.stopPropagation()}>
                     <button className="config-action-btn" title="Export filters & search config" onClick={handleExportConfig}>⬇ Export</button>
@@ -994,27 +997,43 @@ function App() {
               </button>
             ))}
             {activeTab === 'viewer' && (
-              <button
-                className={`tab-btn stats-toggle-btn${statsOpen ? ' active' : ''}`}
-                onClick={() => setStatsOpen(o => !o)}
-                title="Toggle statistics panel"
-              >
-                📊
-              </button>
+              <div className="tab-bar-actions">
+                <button
+                  className={`tab-btn${statsOpen ? ' active' : ''}`}
+                  onClick={() => { setStatsOpen(o => !o); setBundleOpen(false); }}
+                  title="Toggle statistics panel"
+                >
+                  📊
+                </button>
+                <button
+                  className={`tab-btn${bundleOpen ? ' active' : ''}`}
+                  onClick={() => { setBundleOpen(o => !o); setStatsOpen(false); }}
+                  title="Toggle import/export panel"
+                >
+                  📦
+                </button>
+              </div>
             )}
           </div>
 
           {activeTab === 'viewer' ? (
             <div className="viewer-area">
-              {statsOpen && <div className="stats-backdrop" onClick={() => setStatsOpen(false)} />}
+              {(statsOpen || bundleOpen) && <div className="stats-backdrop" onClick={() => { setStatsOpen(false); setBundleOpen(false); }} />}
               <div className={`stats-dropdown${statsOpen ? ' stats-dropdown--open' : ''}`}>
                 <StatisticsPanel
                   entries={filteredEntries}
                   totalEntries={entries.length}
+                />
+              </div>
+              <div className={`stats-dropdown stats-dropdown--right${bundleOpen ? ' stats-dropdown--open' : ''}`}>
+                <ImportExportPanel
+                  totalEntries={entries.length}
+                  filteredEntries={filteredEntries.length}
                   onExport={handleExportJSON}
                   onExportAll={handleExportAllJSON}
                   onExportBundle={handleExportBundle}
                   onImportBundle={handleImportBundle}
+                  onClose={() => setBundleOpen(false)}
                 />
               </div>
               <div className="viewer-content">

@@ -2253,14 +2253,58 @@ html, body {
   transform: translateY(0);
 }
 
+.stats-dropdown--right {
+  left: auto;
+  right: 0;
+  width: 185px;
+}
+
+.import-export-panel {
+  padding: 0.25rem 0;
+}
+
+.import-export-heading {
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 0 0 0.75rem 0;
+  color: var(--text-primary);
+}
+
+.import-export-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-bottom: 1rem;
+}
+
+.import-export-group-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  margin-bottom: 0.1rem;
+}
+
+.import-export-empty {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
 .stats-backdrop {
   position: absolute;
   inset: 0;
   z-index: 49;
 }
 
-.stats-toggle-btn {
+.tab-bar-actions {
   margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+.tab-bar-actions .tab-btn {
+  padding: 0;
 }
 
 /* Split pane */

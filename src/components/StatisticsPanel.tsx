@@ -1,27 +1,15 @@
 import { calculateStatistics } from '../lib/statistics';
 import { storage } from '../lib/local-storage';
 import { LogEntry } from '../lib/parser';
-import { useState, useMemo, useRef } from 'react';
+import { useState, useMemo } from 'react';
 import { useFeatures } from '../lib/FeaturesContext';
 
 interface StatisticsPanelProps {
   entries: LogEntry[];
   totalEntries: number;
-  onExport: () => void;
-  onExportAll: () => void;
-  onExportBundle: () => void;
-  onImportBundle: (file: File) => void;
 }
 
-export default function StatisticsPanel({
-  entries,
-  totalEntries,
-  onExport,
-  onExportAll,
-  onExportBundle,
-  onImportBundle,
-}: StatisticsPanelProps) {
-  const bundleInputRef = useRef<HTMLInputElement>(null);
+export default function StatisticsPanel({ entries, totalEntries }: StatisticsPanelProps) {
   const [collapsed, setCollapsed] = useState(() => storage.loadPanelCollapsed('statistics'));
   const [expanded, setExpanded] = useState({
     summary: !storage.loadPanelCollapsed('stats-summary'),
@@ -55,35 +43,6 @@ export default function StatisticsPanel({
           <span className="total-count">
             Total: {totalEntries} | Filtered: {entries.length}
           </span>
-          {entries.length > 0 && (
-            <button onClick={onExport} className="export-btn" title="Export filtered entries">
-              📥 Filtered
-            </button>
-          )}
-          {totalEntries > 0 && (
-            <button onClick={onExportAll} className="export-btn" title="Export all entries">
-              📥 All
-            </button>
-          )}
-          {features.supportBundle && totalEntries > 0 && (
-            <button onClick={onExportBundle} className="export-btn" title="Export support bundle">
-              📦 Export
-            </button>
-          )}
-          {features.supportBundle && (
-            <>
-              <input
-                ref={bundleInputRef}
-                type="file"
-                accept=".zip,.json"
-                style={{ display: 'none' }}
-                onChange={e => { const f = e.target.files?.[0]; if (f) onImportBundle(f); e.target.value = ''; }}
-              />
-              <button onClick={() => bundleInputRef.current?.click()} className="export-btn" title="Import support bundle">
-                📦 Import
-              </button>
-            </>
-          )}
         </div>
       </div>
 
