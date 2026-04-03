@@ -7,35 +7,37 @@
 ## Planned
 
 ### Features
-- [ ] Move log level/source/files into filter and sort panel, use vertical tabs for files/search & time/filters
-- [ ] Move import/export (logs and bundles) to a separate shade next to the statistics panel
-- [ ] Reorganize features / add a "log filters" section
-- [ ] Order feature categories manually
 - [ ] Add an "ONLY" button, which temporarily disables all other filters
 - [ ] Add log entry transforms
 - [ ] Add a module which can extract performance data from the logs (a "performance parser" - one for legacy and one for iocd)
+- [ ] Publish a support bundle as a gist
+- [ ] Create Electron/Tauri app
+- [ ] Connect to Jira and append a support bundle to a case by JiraID
+
+### Parsers
 - [ ] Enhance parser awareness
   - [ ] Each file should be parsed by a parser (instead of each line)
   - [ ] Parser configs should have "can parse" to identify if they can parse a file
   - [ ] Create a defacto default parser
   - [ ] Create better descriptions and names for the parsers
 - [ ] Normalize timestamps with respect to timezone info (implement a "timestamp resolver", as well)
-- [ ] Publish a support bundle as a gist
-- [ ] Create Electron/Tauri app
-- [ ] Create a full suite of tests (unit tests, UI tests, e2e tests)
-- [ ] Connect to Jira and append a support bundle to a case by JiraID
-
-### Parsers
-- [ ]
 
 ### UI / UX
-- [ ]
+- [ ] Move import/export (logs and bundles) to a separate shade next to the statistics panel
+- [ ] Reorganize features / add a "log filters" section
+- [ ] Preview for log entries should indicate JSON (instead of showing unformatted or escaped JSON)
+- [ ] Move log level/source/files into filter and sort panel, use vertical tabs for files/search & time/filters
+- [ ] Order feature categories manually
 
 ### CLI
 - [ ]
 
+### Misc
+- [ ] Create a full suite of tests (unit tests, UI tests, e2e tests)
+
 ## Bugs
-- [ ] Bug: Some JSON logs (from splunk) do not parse the payload as json
+- [ ] Bug: Some parsers do not properly parse as JSON (eg. timestamp bug with Splunk)
+- [ ] Bug: Some JSON logs (eg. from splunk) do not parse the payload as json
 - [ ] Bug: Highlight does not work when a the highlight text is set and then a log entry containing that text is expanded
 
 ## Done
