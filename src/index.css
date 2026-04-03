@@ -2682,6 +2682,12 @@ th.star-col-header.sortable {
   border-color: #dc2626;
 }
 
+.files-list--scrollable {
+  overflow-y: auto;
+  max-height: 17rem;
+  padding-right: 4px;
+}
+
 .file-row {
   display: flex;
   align-items: flex-start;

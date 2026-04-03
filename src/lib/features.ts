@@ -1,6 +1,6 @@
 import { storage } from './local-storage';
 
-export type FeatureKey = 'autoSizeColumns' | 'advancedFilters' | 'deduplication' | 'savedPresets' | 'timeRange' | 'persistTimeRange' | 'importExportStorage' | 'scrollLogSources' | 'showOnlyMatches' | 'entryDetailSidebar' | 'filterComments' | 'supportBundle' | 'removeAllFilters' | 'autoScrollToEntry' | 'showSequenceColumn' | 'filterColors' | 'timestampSequence' | 'starredEntries' | 'entryComments' | 'closeTabOnFileRemove' | 'messageScrollable' | 'rawFileLineNumbers' | 'columnPicker' | 'filterMatchCounts';
+export type FeatureKey = 'autoSizeColumns' | 'advancedFilters' | 'deduplication' | 'savedPresets' | 'timeRange' | 'persistTimeRange' | 'importExportStorage' | 'scrollLogSources' | 'scrollLogFiles' | 'showOnlyMatches' | 'entryDetailSidebar' | 'filterComments' | 'supportBundle' | 'removeAllFilters' | 'autoScrollToEntry' | 'showSequenceColumn' | 'filterColors' | 'timestampSequence' | 'starredEntries' | 'entryComments' | 'closeTabOnFileRemove' | 'messageScrollable' | 'rawFileLineNumbers' | 'columnPicker' | 'filterMatchCounts';
 
 // The "visible" property allows us to hide features that are still in development or not
 // ready/intended for users, without removing their definitions from the code.
@@ -66,8 +66,15 @@ export const featureDefinitions: Record<FeatureKey, FeatureDefinition> = {
     name: 'Scroll in Log Sources',
     defaultValue: true,
     description: 'Scroll in Log Sources — limit the sources list height and add a scrollbar',
-    visible: true,
-    category: 'Misc UI',
+    visible: false,
+    category: 'Log Filters',
+  },
+  scrollLogFiles: {
+    name: 'Scroll in Log Files',
+    defaultValue: true,
+    description: 'Scroll in Log Files — limit the files list height and add a scrollbar',
+    visible: false,
+    category: 'Log Filters',
   },
   showOnlyMatches: {
     name: 'Show Only Matches',
