@@ -9,7 +9,6 @@
 ### Features
 - [ ] Reorganize features / add a "log filters" section
 - [ ] Order feature categories manually
-- [ ] Add a shortcut (shift+?) to see keyboard shortcuts
 - [ ] Add an "ONLY" button, which temporarily disables all other filters
 - [ ] Add log entry transforms
 - [ ] Add a module which can extract performance data from the logs (a "performance parser" - one for legacy and one for iocd)
@@ -34,11 +33,12 @@
 - [ ]
 
 ## Bugs
-- [ ] Bug: Central Logger parser does not always parse JSON objects (UIPlatform.Performance, for example)
 - [ ] Bug: Some JSON logs (from splunk) do not parse the payload as json
 - [ ] Bug: Highlight does not work when a the highlight text is set and then a log entry containing that text is expanded
 
 ## Done
+- [x] Bug: Central Logger parser does not always parse JSON objects (UIPlatform.Performance, for example)
+- [x] Add a shortcut (control+?) to see keyboard shortcuts
 - [x] Redistribute UI real-estate
   - [x] The log entry panel should be the main focus
   - [x] The statistics panel should take less space; consider a slide-out or slide-down for the statistics

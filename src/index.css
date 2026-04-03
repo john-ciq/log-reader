@@ -211,8 +211,15 @@ html, body {
   display: none;
 }
 
-.features-toggle-btn {
+.header-actions {
   margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  flex-shrink: 0;
+}
+
+.features-toggle-btn {
   flex-shrink: 0;
   background: rgba(255,255,255,0.15);
   border: 1px solid rgba(255,255,255,0.3);
@@ -299,6 +306,66 @@ html, body {
 
 .features-panel-close:hover {
   color: var(--text);
+}
+
+.keyboard-shortcuts-panel {
+  max-width: 480px;
+}
+
+.keyboard-shortcuts-body {
+  padding: 1rem 1.25rem;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.keyboard-shortcuts-group-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  margin-bottom: 0.4rem;
+}
+
+.keyboard-shortcut-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.2rem 0;
+}
+
+.keyboard-shortcut-keys {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  min-width: 160px;
+  flex-shrink: 0;
+}
+
+.kbd {
+  display: inline-block;
+  padding: 0.15rem 0.4rem;
+  font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
+  font-size: 0.75rem;
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  box-shadow: 0 1px 0 var(--border);
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+
+.kbd-sep {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  padding: 0 4px;
+}
+
+.keyboard-shortcut-desc {
+  font-size: 0.85rem;
+  color: var(--text-primary);
 }
 
 .features-panel-body {

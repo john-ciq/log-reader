@@ -15,6 +15,7 @@ import LevelSelector from './components/LevelSelector';
 import FileSelector from './components/FileSelector';
 import RawFileViewer from './components/RawFileViewer';
 import FeaturesPanel from './components/FeaturesPanel';
+import KeyboardShortcutsPanel from './components/KeyboardShortcutsPanel';
 import TimeRangeFilter from './components/TimeRangeFilter';
 import RowDetailPanel from './components/RowDetailPanel';
 import LogDensityHistogram from './components/LogDensityHistogram';
@@ -76,6 +77,7 @@ function App() {
   const dragSubTabId = useRef<string | null>(null);
   const importConfigRef = useRef<HTMLInputElement>(null);
   const [featuresPanelOpen, setFeaturesPanelOpen] = useState(false);
+  const [shortcutsPanelOpen, setShortcutsPanelOpen] = useState(false);
 
   const [statsOpen, setStatsOpen] = useState(false);
 
@@ -210,6 +212,16 @@ function App() {
         } else {
           searchInputRef.current?.focus();
         }
+      }
+      // Ctrl+? opens keyboard shortcuts
+      if (e.key === '?' && (e.ctrlKey || e.metaKey)) {
+        e.preventDefault();
+        setShortcutsPanelOpen(o => !o);
+      }
+      // Ctrl+S opens settings
+      if (e.key === 's' && (e.ctrlKey || e.metaKey) && document.activeElement?.tagName !== 'INPUT' && document.activeElement?.tagName !== 'TEXTAREA') {
+        e.preventDefault();
+        setFeaturesPanelOpen(o => !o);
       }
       // Escape closes detail panel
       if (e.key === 'Escape' && detailEntry) {
@@ -781,9 +793,13 @@ function App() {
           <h1>📋 Full View</h1>
           <span className="app-version">v{pkg.version}</span>
         </div>
-        <button className="features-toggle-btn" onClick={() => setFeaturesPanelOpen(true)} title="Features">⚙</button>
+        <div className="header-actions">
+          <button className="features-toggle-btn" onClick={() => setFeaturesPanelOpen(true)} title="Features">⚙</button>
+          <button className="features-toggle-btn" onClick={() => setShortcutsPanelOpen(true)} title="Keyboard shortcuts (Ctrl+?)">⌨</button>
+        </div>
       </header>
       {featuresPanelOpen && <FeaturesPanel onClose={() => setFeaturesPanelOpen(false)} />}
+      {shortcutsPanelOpen && <KeyboardShortcutsPanel onClose={() => setShortcutsPanelOpen(false)} />}
 
       {!features.entryDetailSidebar && (
         <RowDetailPanel
