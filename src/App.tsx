@@ -59,6 +59,8 @@ function App() {
 
   const [filtersCollapsed, setFiltersCollapsed] = useState(() => storage.loadPanelCollapsed('filters'));
   const [sidebarCollapsed, setSidebarCollapsed] = useState(() => storage.loadPanelCollapsed('sidebar'));
+  const [sidebarWidth, setSidebarWidth] = useState(380);
+  const sidebarResizerDragging = useRef(false);
   const [detailSidebarWidth, setDetailSidebarWidth] = useState(380);
   const detailResizerDragging = useRef(false);
 
@@ -80,6 +82,25 @@ function App() {
   const [shortcutsPanelOpen, setShortcutsPanelOpen] = useState(false);
 
   const [statsOpen, setStatsOpen] = useState(false);
+
+  const handleSidebarResizerMouseDown = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    sidebarResizerDragging.current = true;
+    const startX = e.clientX;
+    const startWidth = sidebarWidth;
+    const onMove = (ev: MouseEvent) => {
+      if (!sidebarResizerDragging.current) return;
+      const newWidth = Math.min(600, Math.max(200, startWidth + ev.clientX - startX));
+      setSidebarWidth(newWidth);
+    };
+    const onUp = () => {
+      sidebarResizerDragging.current = false;
+      window.removeEventListener('mousemove', onMove);
+      window.removeEventListener('mouseup', onUp);
+    };
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('mouseup', onUp);
+  }, [sidebarWidth]);
 
   const handleDetailResizerMouseDown = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
@@ -821,7 +842,7 @@ function App() {
       )}
 
       <div className="app-container">
-        <aside className={`sidebar${sidebarCollapsed ? ' sidebar--collapsed' : ''}`}>
+        <aside className={`sidebar${sidebarCollapsed ? ' sidebar--collapsed' : ''}`} style={!sidebarCollapsed ? { width: sidebarWidth } : undefined}>
           <button
             className="sidebar-toggle-btn"
             onClick={() => setSidebarCollapsed(c => { storage.savePanelCollapsed('sidebar', !c); return !c; })}
@@ -833,6 +854,14 @@ function App() {
             <>
               <FileUploader onUpload={handleFileUpload} onRawFiles={handleRawFiles} />
               <div className="sidebar-section">
+                <h3 className="collapsible-heading">
+                  Filters & Search
+                  <span className="filter-config-actions" onClick={e => e.stopPropagation()}>
+                    <button className="config-action-btn" title="Export filters & search config" onClick={handleExportConfig}>⬇ Export</button>
+                    <button className="config-action-btn" title="Import filters & search config" onClick={() => importConfigRef.current?.click()}>⬆ Import</button>
+                    <input ref={importConfigRef} type="file" accept=".json" style={{ display: 'none' }} onChange={handleImportConfig} />
+                  </span>
+                </h3>
                 <LevelSelector
                   levels={availableLevels}
                   selected={displayLevels}
@@ -863,17 +892,6 @@ function App() {
                   }, {})}
                   onChange={handleSourceCheckbox}
                 />
-              </div>
-              <div className="sidebar-section">
-                <h3 className="collapsible-heading" onClick={() => setFiltersCollapsed(c => { storage.savePanelCollapsed('filters', !c); return !c; })}>
-                  <span className="collapse-arrow">{filtersCollapsed ? '▶' : '▼'}</span>
-                  Filters & Search
-                  <span className="filter-config-actions" onClick={e => e.stopPropagation()}>
-                    <button className="config-action-btn" title="Export filters & search config" onClick={handleExportConfig}>⬇ Export</button>
-                    <button className="config-action-btn" title="Import filters & search config" onClick={() => importConfigRef.current?.click()}>⬆ Import</button>
-                    <input ref={importConfigRef} type="file" accept=".json" style={{ display: 'none' }} onChange={handleImportConfig} />
-                  </span>
-                </h3>
                 {!filtersCollapsed && (
                   <>
                     <SearchBar
@@ -929,6 +947,11 @@ function App() {
             </>
           )}
         </aside>
+        {!sidebarCollapsed && features.filterSplitPane && (
+          <div className="sidebar-resizer" onMouseDown={handleSidebarResizerMouseDown}>
+            <div className="sidebar-resizer__handle" />
+          </div>
+        )}
 
         <main className="main-content">
           <div className="tab-bar">

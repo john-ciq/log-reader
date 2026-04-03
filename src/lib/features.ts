@@ -1,6 +1,6 @@
 import { storage } from './local-storage';
 
-export type FeatureKey = 'autoSizeColumns' | 'advancedFilters' | 'deduplication' | 'savedPresets' | 'timeRange' | 'persistTimeRange' | 'importExportStorage' | 'scrollLogSources' | 'scrollLogFiles' | 'showOnlyMatches' | 'entryDetailSidebar' | 'filterComments' | 'supportBundle' | 'removeAllFilters' | 'autoScrollToEntry' | 'showSequenceColumn' | 'filterColors' | 'timestampSequence' | 'starredEntries' | 'entryComments' | 'closeTabOnFileRemove' | 'messageScrollable' | 'rawFileLineNumbers' | 'columnPicker' | 'filterMatchCounts' | 'expandJsonOnShowMore';
+export type FeatureKey = 'autoSizeColumns' | 'advancedFilters' | 'deduplication' | 'savedPresets' | 'timeRange' | 'persistTimeRange' | 'importExportStorage' | 'scrollLogSources' | 'scrollLogFiles' | 'showOnlyMatches' | 'entryDetailSidebar' | 'filterComments' | 'supportBundle' | 'removeAllFilters' | 'autoScrollToEntry' | 'showSequenceColumn' | 'filterColors' | 'timestampSequence' | 'starredEntries' | 'entryComments' | 'closeTabOnFileRemove' | 'messageScrollable' | 'rawFileLineNumbers' | 'columnPicker' | 'filterMatchCounts' | 'expandJsonOnShowMore' | 'filterSplitPane' | 'resizableSidebar';
 
 // The "visible" property allows us to hide features that are still in development or not
 // ready/intended for users, without removing their definitions from the code.
@@ -67,14 +67,14 @@ export const featureDefinitions: Record<FeatureKey, FeatureDefinition> = {
     defaultValue: true,
     description: 'Scroll in Log Sources — limit the sources list height and add a scrollbar',
     visible: false,
-    category: 'Log Filters',
+    category: 'Filters',
   },
   scrollLogFiles: {
     name: 'Scroll in Log Files',
     defaultValue: true,
     description: 'Scroll in Log Files — limit the files list height and add a scrollbar',
     visible: false,
-    category: 'Log Filters',
+    category: 'Filters',
   },
   showOnlyMatches: {
     name: 'Show Only Matches',
@@ -194,6 +194,13 @@ export const featureDefinitions: Record<FeatureKey, FeatureDefinition> = {
     description: 'Automatically expand inline JSON objects when "show more" is clicked in the log table',
     visible: true,
     category: 'Log Table',
+  },
+  filterSplitPane: {
+    name: 'Resizable Left Sidebar',
+    defaultValue: false,
+    description: 'Allow the left sidebar to be resized by dragging its right edge',
+    visible: false,
+    category: 'Filters',
   },
 };
 
