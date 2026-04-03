@@ -124,9 +124,7 @@ export function parseLogContent(content: string, filename?: string): LogEntry[] 
         jsonArray.forEach((item, index) => {
           const jsonStr = JSON.stringify(item);
           const entry = parseLogLine(jsonStr, `${Date.now()}-${index}`, filename);
-          if (entry) {
-            entries.push(entry);
-          }
+          if (entry) entries.push({ ...entry, lineNumberStart: 1, lineNumberEnd: 1 });
         });
         return entries;
       }

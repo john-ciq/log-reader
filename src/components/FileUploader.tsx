@@ -40,25 +40,59 @@ async function processZipFile(file: File): Promise<{ entries: LogEntry[]; rawChi
         const jsonData = JSON.parse(fileContent);
 
         let entries: unknown[];
+        let nestedKey: string | undefined;
         if (Array.isArray(jsonData)) {
           entries = jsonData;
         } else if (typeof jsonData === 'object' && jsonData !== null) {
-          const nested = Object.values(jsonData).find(Array.isArray);
-          if (!nested) {
+          nestedKey = Object.keys(jsonData).find(k => Array.isArray((jsonData as Record<string, unknown>)[k]));
+          if (!nestedKey) {
             console.warn(`Warning: ${filename} contains no array to parse`);
             continue;
           }
-          entries = nested as unknown[];
+          entries = (jsonData as Record<string, unknown>)[nestedKey] as unknown[];
         } else {
           console.warn(`Warning: ${filename} is not a JSON array or object`);
           continue;
+        }
+
+        // RawFileViewer pretty-prints JSON, so line numbers must be calculated
+        // against the pretty-printed content, not the raw single-line file.
+        const prettyContent = JSON.stringify(jsonData, null, 2);
+        const prettyArrayStartOffset = nestedKey
+          ? prettyContent.indexOf('[', prettyContent.indexOf(`"${nestedKey}"`))
+          : prettyContent.indexOf('[');
+
+        // Walk the pretty-printed content tracking JSON depth to find the line
+        // number of each top-level entry object (depth 2 opening '{').
+        const entryLineNumbers: number[] = [];
+        let depth = 0;
+        let inString = false;
+        let escape = false;
+        let currentLine = prettyContent.slice(0, prettyArrayStartOffset).split('\n').length;
+        for (let i = prettyArrayStartOffset; i < prettyContent.length; i++) {
+          const ch = prettyContent[i];
+          if (ch === '\n') { currentLine++; continue; }
+          if (escape) { escape = false; continue; }
+          if (ch === '\\' && inString) { escape = true; continue; }
+          if (ch === '"') { inString = !inString; continue; }
+          if (inString) continue;
+          if (ch === '[' || ch === '{') {
+            depth++;
+            if (depth === 2 && ch === '{') entryLineNumbers.push(currentLine);
+          } else if (ch === ']' || ch === '}') {
+            depth--;
+            if (depth === 0) break;
+          }
         }
 
         entries.forEach((entry, idx) => {
           const id = `${timestamp}-${allEntries.length}-${idx}`;
           const jsonStr = JSON.stringify(entry);
           const parsed = parseLogLine(jsonStr, id, filename);
-          if (parsed) allEntries.push(parsed);
+          if (parsed) {
+            const lineNumber = entryLineNumbers[idx] ?? 1;
+            allEntries.push({ ...parsed, lineNumberStart: lineNumber, lineNumberEnd: lineNumber });
+          }
         });
       } catch (err) {
         console.error(`Error processing ${filename}:`, err);
