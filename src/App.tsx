@@ -77,29 +77,7 @@ function App() {
   const importConfigRef = useRef<HTMLInputElement>(null);
   const [featuresPanelOpen, setFeaturesPanelOpen] = useState(false);
 
-  // Split pane
-  const [splitPct, setSplitPct] = useState(() => storage.loadSplitPct() ?? 50);
-  const splitDragging = useRef(false);
-  const splitContainerRef = useRef<HTMLDivElement>(null);
-
-  const handleSplitMouseDown = useCallback((e: React.MouseEvent) => {
-    e.preventDefault();
-    splitDragging.current = true;
-    const onMove = (ev: MouseEvent) => {
-      if (!splitDragging.current || !splitContainerRef.current) return;
-      const rect = splitContainerRef.current.getBoundingClientRect();
-      const pct = Math.min(80, Math.max(10, ((ev.clientY - rect.top) / rect.height) * 100));
-      setSplitPct(pct);
-      storage.saveSplitPct(pct);
-    };
-    const onUp = () => {
-      splitDragging.current = false;
-      window.removeEventListener('mousemove', onMove);
-      window.removeEventListener('mouseup', onUp);
-    };
-    window.addEventListener('mousemove', onMove);
-    window.addEventListener('mouseup', onUp);
-  }, []);
+  const [statsOpen, setStatsOpen] = useState(false);
 
   const handleDetailResizerMouseDown = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
@@ -976,11 +954,21 @@ function App() {
                 </span>
               </button>
             ))}
+            {activeTab === 'viewer' && (
+              <button
+                className={`tab-btn stats-toggle-btn${statsOpen ? ' active' : ''}`}
+                onClick={() => setStatsOpen(o => !o)}
+                title="Toggle statistics panel"
+              >
+                📊
+              </button>
+            )}
           </div>
 
           {activeTab === 'viewer' ? (
-            <div className="split-pane" ref={splitContainerRef}>
-              <div className="split-pane__top" style={{ height: `${splitPct}%` }}>
+            <div className="viewer-area">
+              {statsOpen && <div className="stats-backdrop" onClick={() => setStatsOpen(false)} />}
+              <div className={`stats-dropdown${statsOpen ? ' stats-dropdown--open' : ''}`}>
                 <StatisticsPanel
                   entries={filteredEntries}
                   totalEntries={entries.length}
@@ -990,10 +978,7 @@ function App() {
                   onImportBundle={handleImportBundle}
                 />
               </div>
-              <div className="split-pane__divider" onMouseDown={handleSplitMouseDown}>
-                <div className="split-pane__handle" />
-              </div>
-              <div className="split-pane__bottom">
+              <div className="viewer-content">
                 {features.timeRange && (
                   <LogDensityHistogram
                     entries={filteredEntries}
