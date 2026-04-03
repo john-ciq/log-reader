@@ -1,6 +1,6 @@
 import { storage } from './local-storage';
 
-export type FeatureKey = 'autoSizeColumns' | 'advancedFilters' | 'deduplication' | 'savedPresets' | 'timeRange' | 'persistTimeRange' | 'importExportStorage' | 'scrollLogSources' | 'scrollLogFiles' | 'showOnlyMatches' | 'entryDetailSidebar' | 'filterComments' | 'supportBundle' | 'removeAllFilters' | 'autoScrollToEntry' | 'showSequenceColumn' | 'filterColors' | 'timestampSequence' | 'starredEntries' | 'entryComments' | 'closeTabOnFileRemove' | 'messageScrollable' | 'rawFileLineNumbers' | 'columnPicker' | 'filterMatchCounts';
+export type FeatureKey = 'autoSizeColumns' | 'advancedFilters' | 'deduplication' | 'savedPresets' | 'timeRange' | 'persistTimeRange' | 'importExportStorage' | 'scrollLogSources' | 'scrollLogFiles' | 'showOnlyMatches' | 'entryDetailSidebar' | 'filterComments' | 'supportBundle' | 'removeAllFilters' | 'autoScrollToEntry' | 'showSequenceColumn' | 'filterColors' | 'timestampSequence' | 'starredEntries' | 'entryComments' | 'closeTabOnFileRemove' | 'messageScrollable' | 'rawFileLineNumbers' | 'columnPicker' | 'filterMatchCounts' | 'expandJsonOnShowMore';
 
 // The "visible" property allows us to hide features that are still in development or not
 // ready/intended for users, without removing their definitions from the code.
@@ -187,6 +187,13 @@ export const featureDefinitions: Record<FeatureKey, FeatureDefinition> = {
     description: 'Show a count badge on each filter indicating how many log entries it matches',
     visible: true,
     category: 'Filters',
+  },
+  expandJsonOnShowMore: {
+    name: 'Expand JSON on Show More',
+    defaultValue: false,
+    description: 'Automatically expand inline JSON objects when "show more" is clicked in the log table',
+    visible: true,
+    category: 'Log Table',
   },
 };
 

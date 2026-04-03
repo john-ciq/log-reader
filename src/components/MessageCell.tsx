@@ -1,4 +1,5 @@
 import { ReactNode } from 'react';
+import { useFeatures } from '../lib/FeaturesContext';
 
 interface MessageCellProps {
   message: string;
@@ -129,7 +130,7 @@ function JsonTree({ data }: { data: any }) {
 const PREVIEW_CHARS = 300;
 
 export default function MessageCell({ message, searchQuery = '', useRegex = false, textExpanded, jsonExpanded, onTextExpanded, onJsonExpanded }: MessageCellProps) {
-
+  const { features } = useFeatures();
   const isLong = message.length > PREVIEW_CHARS;
 
   // When collapsed, show a plain-text truncated preview
@@ -139,7 +140,7 @@ export default function MessageCell({ message, searchQuery = '', useRegex = fals
       <span>
         {highlightText(preview, searchQuery, useRegex)}
         <span className="message-ellipsis">…</span>
-        <button className="message-expand-btn" onClick={() => { onTextExpanded(true); onJsonExpanded(true); }}>show more</button>
+        <button className="message-expand-btn" onClick={() => { onTextExpanded(true); if (features.expandJsonOnShowMore) onJsonExpanded(true); }}>show more</button>
       </span>
     );
   }
