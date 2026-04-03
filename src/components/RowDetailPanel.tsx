@@ -30,6 +30,83 @@ function tryFormatJson(value: string): string {
   }
 }
 
+type JsonValue = string | number | boolean | null | { [k: string]: JsonValue } | JsonValue[];
+
+function JsonNode({ value, label, depth }: { value: JsonValue; label?: React.ReactNode; depth: number }) {
+  const [open, setOpen] = useState(() =>
+    typeof value !== 'object' || value === null || JSON.stringify(value).length < 500
+  );
+
+  if (value === null || typeof value !== 'object') {
+    const display = value === null
+      ? <span className="jt-null">null</span>
+      : typeof value === 'boolean'
+        ? <span className="jt-bool">{String(value)}</span>
+        : typeof value === 'number'
+          ? <span className="jt-num">{value}</span>
+          : <span className="jt-str">&quot;{String(value)}&quot;</span>;
+    return <div className="jt-row" style={{ paddingLeft: depth * 14 }}>{label}{display}</div>;
+  }
+
+  const isArr = Array.isArray(value);
+  const entries: [string | number, JsonValue][] = isArr
+    ? (value as JsonValue[]).map((v, i) => [i, v])
+    : Object.entries(value as Record<string, JsonValue>);
+  const ob = isArr ? '[' : '{';
+  const cb = isArr ? ']' : '}';
+
+  if (!open || entries.length === 0) {
+    return (
+      <div
+        className={`jt-row${entries.length > 0 ? ' jt-row--toggle' : ''}`}
+        style={{ paddingLeft: depth * 14 }}
+        onClick={entries.length > 0 ? () => setOpen(true) : undefined}
+      >
+        {entries.length > 0 && <span className="jt-arrow">▶</span>}
+        {label}
+        <span className="jt-bracket">{ob}</span>
+        {!open && <span className="jt-summary">{entries.length}</span>}
+        <span className="jt-bracket">{cb}</span>
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <div className="jt-row jt-row--toggle" style={{ paddingLeft: depth * 14 }} onClick={() => setOpen(false)}>
+        <span className="jt-arrow">▼</span>
+        {label}
+        <span className="jt-bracket">{ob}</span>
+      </div>
+      {entries.map(([k, v]) => (
+        <JsonNode
+          key={String(k)}
+          value={v}
+          label={isArr ? null : <span className="jt-key">&quot;{k}&quot;: </span>}
+          depth={depth + 1}
+        />
+      ))}
+      <div className="jt-row" style={{ paddingLeft: depth * 14 }}>
+        <span className="jt-bracket">{cb}</span>
+      </div>
+    </div>
+  );
+}
+
+function JsonTreeView({ text, scrollable }: { text: string; scrollable?: boolean }) {
+  let parsed: JsonValue;
+  try {
+    parsed = JSON.parse(text) as JsonValue;
+  } catch {
+    return <pre className={`detail-message detail-muted detail-monospace${scrollable ? ' detail-message--scrollable' : ''}`}>{text}</pre>;
+  }
+  return (
+    <div className={`jt-root${scrollable ? ' jt-root--scrollable' : ''}`}>
+      <JsonNode value={parsed} depth={0} />
+    </div>
+  );
+}
+
 function formatTimestamp(t: Date): string {
   const pad2 = (n: number) => String(n).padStart(2, '0');
   const pad3 = (n: number) => String(n).padStart(3, '0');
@@ -44,9 +121,9 @@ function saveSectionCollapsed(state: Record<string, boolean>): void {
   storage.saveDetailSectionCollapsed(state);
 }
 
-function CollapsibleSection({ label, grow, copyText, children }: { label: string; grow?: boolean; copyText?: string; children: React.ReactNode }) {
+function CollapsibleSection({ label, grow, copyText, initialOpen, children }: { label: string; grow?: boolean; copyText?: string; initialOpen?: boolean; children: React.ReactNode }) {
   const key = label.toLowerCase();
-  const [collapsed, setCollapsed] = useState(() => loadSectionCollapsed()[key] ?? false);
+  const [collapsed, setCollapsed] = useState(() => initialOpen ? false : (loadSectionCollapsed()[key] ?? false));
   const [copied, setCopied] = useState(false);
 
   const toggle = () => setCollapsed(c => {
@@ -192,8 +269,8 @@ function DetailBody({ entry, onClose, onPrev, onNext, onScrollToEntry, hasPrev, 
           </CollapsibleSection>
         )} */}
 
-        <CollapsibleSection label="Raw" grow copyText={tryFormatJson(entry.raw)}>
-          <pre className={`detail-message detail-muted detail-monospace${features.messageScrollable ? ' detail-message--scrollable' : ''}`}>{tryFormatJson(entry.raw)}</pre>
+        <CollapsibleSection label="Raw" grow copyText={tryFormatJson(entry.raw)} initialOpen={(() => { try { JSON.parse(entry.raw); return true; } catch { return false; } })()}>
+          <JsonTreeView key={entry.id} text={entry.raw} scrollable={features.messageScrollable} />
         </CollapsibleSection>
       </div>
     </>

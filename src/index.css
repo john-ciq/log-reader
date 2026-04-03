@@ -906,6 +906,85 @@ html, body {
   white-space: pre-wrap;
 }
 
+/* Interactive JSON tree (RowDetailPanel) */
+.jt-root {
+  font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
+  font-size: 0.8rem;
+  line-height: 1.6;
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0.4rem 0.5rem;
+  margin-top: 0.25rem;
+  overflow-x: auto;
+}
+
+.jt-root--scrollable {
+  overflow-x: auto;
+  overflow-y: auto;
+  max-height: 60vh;
+}
+
+.jt-row {
+  display: flex;
+  align-items: baseline;
+  gap: 2px;
+  white-space: nowrap;
+  border-radius: 3px;
+  padding: 0 2px;
+}
+
+.jt-row--toggle {
+  cursor: pointer;
+}
+
+.jt-row--toggle:hover {
+  background: var(--hover);
+}
+
+.jt-arrow {
+  font-size: 0.55rem;
+  width: 12px;
+  flex-shrink: 0;
+  color: var(--text-muted);
+  user-select: none;
+}
+
+.jt-key {
+  color: var(--primary);
+}
+
+.jt-str {
+  color: #22863a;
+}
+
+.jt-num {
+  color: #e36209;
+}
+
+.jt-bool {
+  color: #6f42c1;
+}
+
+.jt-null {
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.jt-bracket {
+  color: var(--text-primary);
+}
+
+.jt-summary {
+  color: var(--text-muted);
+  font-style: italic;
+  margin: 0 4px;
+}
+
+[data-theme='dark'] .jt-str  { color: #85e89d; }
+[data-theme='dark'] .jt-num  { color: #ffab70; }
+[data-theme='dark'] .jt-bool { color: #b392f0; }
+
 /* Search highlight */
 .search-highlight {
   background: rgba(245, 158, 11, 0.35);
