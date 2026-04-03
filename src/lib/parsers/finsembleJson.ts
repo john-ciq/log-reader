@@ -19,7 +19,9 @@ export const finsembleJson: ParserConfig = {
 
       let message = '';
       if (Array.isArray(data.parsedLogArgs) && data.parsedLogArgs.length > 0) {
-        message = data.parsedLogArgs.map((arg: unknown) => String(arg)).join(' | ');
+        message = data.parsedLogArgs.map((arg: unknown) =>
+          typeof arg === 'object' && arg !== null ? JSON.stringify(arg) : String(arg)
+        ).join(' | ');
       } else if (typeof data.allLogArgs === 'string') {
         message = data.allLogArgs.trim().slice(0, 500);
       } else {
