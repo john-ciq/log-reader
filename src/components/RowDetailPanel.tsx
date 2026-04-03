@@ -121,16 +121,23 @@ function saveSectionCollapsed(state: Record<string, boolean>): void {
   storage.saveDetailSectionCollapsed(state);
 }
 
-function CollapsibleSection({ label, grow, copyText, initialOpen, children }: { label: string; grow?: boolean; copyText?: string; initialOpen?: boolean; children: React.ReactNode }) {
+function CollapsibleSection({ label, grow, copyText, initialOpen, resetKey, showWrap, children }: { label: string; grow?: boolean; copyText?: string; initialOpen?: boolean; resetKey?: string; showWrap?: boolean; children: React.ReactNode | ((wrap: boolean) => React.ReactNode) }) {
   const key = label.toLowerCase();
   const [collapsed, setCollapsed] = useState(() => initialOpen ? false : (loadSectionCollapsed()[key] ?? false));
   const [copied, setCopied] = useState(false);
+  const [wrap, setWrap] = useState(false);
+
+  useEffect(() => {
+    if (initialOpen && resetKey !== undefined) setCollapsed(false);
+  }, [resetKey]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const toggle = () => setCollapsed(c => {
     const next = !c;
-    const state = loadSectionCollapsed();
-    state[key] = next;
-    saveSectionCollapsed(state);
+    if (!initialOpen) {
+      const state = loadSectionCollapsed();
+      state[key] = next;
+      saveSectionCollapsed(state);
+    }
     return next;
   });
 
@@ -148,14 +155,28 @@ function CollapsibleSection({ label, grow, copyText, initialOpen, children }: { 
       <button className="detail-section-toggle" onClick={toggle}>
         <span className="collapse-arrow">{collapsed ? '▶' : '▼'}</span>
         <span className="detail-field-label">{label}</span>
+        {showWrap && !collapsed && (
+          <label className="detail-wrap-label" onClick={e => e.stopPropagation()}>
+            <input type="checkbox" checked={wrap} onChange={e => setWrap(e.target.checked)} />
+            Wrap
+          </label>
+        )}
         {copyText && (
           <span className={`detail-copy-btn${copied ? ' detail-copy-btn--copied' : ''}`} onClick={handleCopy} title="Copy to clipboard">
             {copied ? '✓' : '⎘'}
           </span>
         )}
       </button>
-      {!collapsed && children}
+      {!collapsed && (typeof children === 'function' ? children(wrap) : children)}
     </div>
+  );
+}
+
+function ParsedSection({ entry }: { entry: LogEntry }) {
+  return (
+    <CollapsibleSection label="Parsed" grow copyText={tryFormatJson(entry.raw)} initialOpen resetKey={entry.id}>
+      <JsonTreeView key={entry.id} text={entry.raw} />
+    </CollapsibleSection>
   );
 }
 
@@ -255,23 +276,21 @@ function DetailBody({ entry, onClose, onPrev, onNext, onScrollToEntry, hasPrev, 
           </div>
         )}
 
+        <CollapsibleSection label="Message" grow showWrap copyText={tryFormatJson(entry.message)}>
+          {(wrap) => (
+            <pre className={`detail-message${!wrap && features.messageScrollable ? ' detail-message--scrollable' : ''}`}>{tryFormatJson(entry.raw)}</pre>
+          )}
+        </CollapsibleSection>
 
+        {features.showParsed && (<ParsedSection entry={entry} />)}
 
-        {/* <CollapsibleSection label="Message" copyText={tryFormatJson(entry.message)}>
-          <pre className={`detail-message${features.messageScrollable ? ' detail-message--scrollable' : ''}`}>{tryFormatJson(entry.message)}</pre>
-        </CollapsibleSection> */}
-
-        {/* {hasMetadata && (
+        {features.showMetadata && entry.metadata && (
           <CollapsibleSection label="Metadata" copyText={JSON.stringify(entry.metadata, null, 2)}>
             <pre className={`detail-message detail-monospace${features.messageScrollable ? ' detail-message--scrollable' : ''}`}>
               {JSON.stringify(entry.metadata, null, 2)}
             </pre>
           </CollapsibleSection>
-        )} */}
-
-        <CollapsibleSection label="Raw" grow copyText={tryFormatJson(entry.raw)} initialOpen={(() => { try { JSON.parse(entry.raw); return true; } catch { return false; } })()}>
-          <JsonTreeView key={entry.id} text={entry.raw} scrollable={features.messageScrollable} />
-        </CollapsibleSection>
+        )}
       </div>
     </>
   );

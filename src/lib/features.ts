@@ -1,6 +1,34 @@
 import { storage } from './local-storage';
 
-export type FeatureKey = 'autoSizeColumns' | 'advancedFilters' | 'deduplication' | 'savedPresets' | 'timeRange' | 'persistTimeRange' | 'importExportStorage' | 'scrollLogSources' | 'scrollLogFiles' | 'showOnlyMatches' | 'entryDetailSidebar' | 'filterComments' | 'supportBundle' | 'removeAllFilters' | 'autoScrollToEntry' | 'showSequenceColumn' | 'filterColors' | 'timestampSequence' | 'starredEntries' | 'entryComments' | 'closeTabOnFileRemove' | 'messageScrollable' | 'rawFileLineNumbers' | 'columnPicker' | 'filterMatchCounts' | 'expandJsonOnShowMore' | 'filterSplitPane' | 'resizableSidebar';
+export type FeatureKey = 'autoSizeColumns'
+  | 'advancedFilters'
+  | 'deduplication'
+  | 'savedPresets'
+  | 'timeRange'
+  | 'persistTimeRange'
+  | 'importExportStorage'
+  | 'scrollLogSources'
+  | 'scrollLogFiles'
+  | 'showOnlyMatches'
+  | 'entryDetailSidebar'
+  | 'filterComments'
+  | 'supportBundle'
+  | 'removeAllFilters'
+  | 'autoScrollToEntry'
+  | 'showSequenceColumn'
+  | 'filterColors'
+  | 'timestampSequence'
+  | 'starredEntries'
+  | 'entryComments'
+  | 'closeTabOnFileRemove'
+  | 'messageScrollable'
+  | 'rawFileLineNumbers'
+  | 'columnPicker'
+  | 'filterMatchCounts'
+  | 'expandJsonOnShowMore'
+  | 'filterSplitPane'
+  | 'showMetadata'
+  | 'showParsed';
 
 // The "visible" property allows us to hide features that are still in development or not
 // ready/intended for users, without removing their definitions from the code.
@@ -201,6 +229,20 @@ export const featureDefinitions: Record<FeatureKey, FeatureDefinition> = {
     description: 'Allow the left sidebar to be resized by dragging its right edge',
     visible: false,
     category: 'Filters',
+  },
+  showMetadata: {
+    name: 'Show Metadata',
+    defaultValue: false,
+    description: 'Show the metadata section in the entry detail panel',
+    visible: false,
+    category: 'Entry Detail',
+  },
+  showParsed: {
+    name: 'Show Parsed',
+    defaultValue: false,
+    description: 'Show the parsed section in the entry detail panel',
+    visible: false,
+    category: 'Entry Detail',
   },
 };
 
