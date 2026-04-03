@@ -2,6 +2,22 @@
 
 All notable changes to the Log Reader project will be documented in this file.
 
+## [1.1.3] - 2026-04-03
+
+### Added
+- **Import / Export shade** — import and export actions moved to a dedicated dropdown shade, toggled via the 📦 button in the tab bar (right-justified alongside the statistics button)
+- **Left sidebar split-pane resizer** — the filter sidebar can be resized by dragging, mirroring the right detail sidebar resizer (feature switch, off by default)
+- **`t` shortcut in entry detail** — toggles the detail panel between sidebar and overlay mode; button tooltip updated to show `(T)`
+- **`showMetadata` feature switch** — show/hide the Metadata section in entry detail (off by default, hidden from settings UI)
+- **`showParsed` feature switch** — show/hide the Parsed section in entry detail (off by default, hidden from settings UI)
+
+### Changed
+- **"Raw" renamed to "Parsed"** — the raw JSON section in entry detail is now labelled "Parsed" throughout (CSS, features, JSX)
+- **Parsed section is collapsible** — the Parsed section in entry detail can now be collapsed like other sections
+- **Message section fills remaining space** — the Message section grows to fill remaining vertical space in the entry detail panel
+- **Message section wrap toggle** — a "Wrap" checkbox in the Message section header controls text wrapping
+- **Import/export buttons styled as filter buttons** — buttons in the Import/Export shade use the same style as the "+ filter" button
+
 ## [1.1.2] - 2026-04-02
 
 ### Added
