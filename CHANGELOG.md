@@ -2,6 +2,22 @@
 
 All notable changes to the Log Reader project will be documented in this file.
 
+## [1.1.2] - 2026-04-02
+
+### Added
+- **Statistics panel as dropdown** — statistics panel is now a dropdown shade from the top of the log viewer, toggled via the 📊 button in the tab bar
+- **Interactive JSON tree in entry detail** — raw panel renders valid JSON as a collapsible tree with syntax coloring; nodes ≥ 500 characters start collapsed
+- **Raw panel auto-expands for JSON entries** — the Raw section in entry detail opens automatically when the content is valid JSON
+- **Scrollable Log Files panel** — Log Files section can be made scrollable with a max height, matching Log Sources behavior (feature switch, on by default)
+- **Click to collapse entry detail** — clicking an already-selected log entry closes the entry detail panel (feature switch, on by default)
+- **Expand JSON on Show More** — option to auto-expand inline JSON objects when "show more" is clicked in the log table (feature switch, off by default)
+- **Keyboard shortcuts dialog** — `Ctrl+?` or the ⌨ button in the header opens a reference of all keyboard shortcuts
+- **`Ctrl+S` shortcut** — opens the settings dialog from anywhere in the app
+- **finsembleJson inline object rendering** — JSON objects within `parsedLogArgs` are now serialized rather than shown as `[object Object]`
+
+### Changed
+- Settings (⚙) and keyboard shortcuts (⌨) buttons are right-justified in the header, with shortcuts immediately to the right of settings
+
 ## [1.1.1] - 2026-04-01
 
 ### Added

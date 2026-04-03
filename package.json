@@ -1,6 +1,6 @@
 {
   "name": "full-view",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "Full View - A web-based log file analyzer with flexible parsing, filtering, and export capabilities",
   "type": "module",
   "bin": {
