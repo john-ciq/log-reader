@@ -12,7 +12,7 @@ export default function LevelSelector({ levels, selected, onChange }: LevelSelec
 
   return (
     <div className={`level-selector${!collapsed ? ' selector--has-content' : ''}`}>
-      <h3 className="collapsible-heading" onClick={() => setCollapsed(c => { storage.savePanelCollapsed('levels', !c); return !c; })}>
+      <h4 className="collapsible-heading" onClick={() => setCollapsed(c => { storage.savePanelCollapsed('levels', !c); return !c; })}>
         <span className="collapse-arrow">{collapsed ? '▶' : '▼'}</span>
         Log Levels
         {levels.length > 0 && (
@@ -22,7 +22,7 @@ export default function LevelSelector({ levels, selected, onChange }: LevelSelec
             <button className="config-action-btn" onClick={e => { e.stopPropagation(); levels.forEach(l => onChange(l, false)); }}>None</button>
           </span>
         )}
-      </h3>
+      </h4>
       {!collapsed && (
         <>
           {levels.length === 0 && <p className="empty-message no-padding">No levels detected yet</p>}

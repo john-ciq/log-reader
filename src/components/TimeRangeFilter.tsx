@@ -24,7 +24,7 @@ export default function TimeRangeFilter({ value, onChange }: TimeRangeFilterProp
   return (
     <div className="time-range-filter">
       <div className="time-range-header">
-        <h4>⏱ Time Range</h4>
+        <h4>Time Range</h4>
         {hasAny && (
           <button className="time-range-clear" onClick={() => onChange(null)} title="Clear time range">✕</button>
         )}

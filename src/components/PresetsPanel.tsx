@@ -54,12 +54,13 @@ export default function PresetsPanel({ presets, onApply, onDelete, onSaveCurrent
   return (
     <div className="presets-panel">
       <div className="presets-header">
-        <h4>📁 Filter Presets</h4>
+        <h4>Filter Presets</h4>
         <div className="filter-config-actions">
           <input ref={importInputRef} type="file" accept=".json" style={{ display: 'none' }} onChange={handleImportFile} />
+          <button className="config-action-btn" onClick={() => setSaving(s => !s)} title="Save current configuration as preset">Save</button>
+          <span>&nbsp;</span>
           <button className="config-action-btn" onClick={handleExport}>⬇ Export</button>
           <button className="config-action-btn" onClick={() => importInputRef.current?.click()}>⬆ Import</button>
-          <button className="config-action-btn" onClick={() => setSaving(s => !s)} title="Save current configuration as preset">Save</button>
         </div>
       </div>
 

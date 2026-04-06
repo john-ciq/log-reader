@@ -37,7 +37,7 @@ export default function SourceSelector({ sources, selected, sourceCounts, onChan
 
   return (
     <div className={`source-selector${!collapsed ? ' selector--has-content' : ''}`}>
-      <h3 className="collapsible-heading" onClick={() => setCollapsed(c => { storage.savePanelCollapsed('sources', !c); return !c; })}>
+      <h4 className="collapsible-heading" onClick={() => setCollapsed(c => { storage.savePanelCollapsed('sources', !c); return !c; })}>
         <span className="collapse-arrow">{collapsed ? '▶' : '▼'}</span>
         Log Sources
         {sources.length > 0 && (
@@ -47,7 +47,7 @@ export default function SourceSelector({ sources, selected, sourceCounts, onChan
             <button className="config-action-btn" onClick={e => { e.stopPropagation(); sources.forEach(s => onChange(s, false)); }}>None</button>
           </span>
         )}
-      </h3>
+      </h4>
       {!collapsed && (
         <>
           {sources.length === 0 && <p className="empty-message no-padding">No sources detected yet</p>}

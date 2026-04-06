@@ -58,7 +58,6 @@ function App() {
   const [availableFiles, setAvailableFiles] = useState<string[]>([]);
   const [displayFiles, setDisplayFiles] = useState<Set<string>>(new Set());
 
-  const [filtersCollapsed, setFiltersCollapsed] = useState(() => storage.loadPanelCollapsed('filters'));
   const [sidebarCollapsed, setSidebarCollapsed] = useState(() => storage.loadPanelCollapsed('sidebar'));
   const [sidebarWidth, setSidebarWidth] = useState(380);
   const sidebarResizerDragging = useRef(false);
@@ -856,15 +855,14 @@ function App() {
             <>
               <FileUploader onUpload={handleFileUpload} onRawFiles={handleRawFiles} />
               <div className="sidebar-section">
-                <h3 className="collapsible-heading" onClick={() => setFiltersCollapsed(c => { storage.savePanelCollapsed('filters', !c); return !c; })}>
-                  <span className="collapse-arrow">{filtersCollapsed ? '▶' : '▼'}</span>
+                <h4 >
                   Filters & Search
                   <span className="filter-config-actions" onClick={e => e.stopPropagation()}>
                     <button className="config-action-btn" title="Export filters & search config" onClick={handleExportConfig}>⬇ Export</button>
                     <button className="config-action-btn" title="Import filters & search config" onClick={() => importConfigRef.current?.click()}>⬆ Import</button>
                     <input ref={importConfigRef} type="file" accept=".json" style={{ display: 'none' }} onChange={handleImportConfig} />
                   </span>
-                </h3>
+                </h4>
                 <LevelSelector
                   levels={availableLevels}
                   selected={displayLevels}
@@ -895,46 +893,42 @@ function App() {
                   }, {})}
                   onChange={handleSourceCheckbox}
                 />
-                {!filtersCollapsed && (
-                  <>
-                    <SearchBar
-                      query={searchQuery}
-                      onQueryChange={setSearchQuery}
-                      useRegex={useRegexSearch}
-                      onRegexChange={setUseRegexSearch}
-                      onConvertToFilter={handleConvertToFilter}
-                      inputRef={searchInputRef}
-                    />
-                    {features.timeRange && (
-                      <TimeRangeFilter value={timeRange} onChange={setTimeRange} />
-                    )}
-                    <FilterPanel
-                      filters={filters}
-                      onAddFilter={handleAddFilter}
-                      onUpdateFilter={handleUpdateFilter}
-                      onDeleteFilter={handleDeleteFilter}
-                      onRemoveAllFilters={handleRemoveAllFilters}
-                      onMoveFilter={handleMoveFilter}
-                      onDuplicateFilter={handleDuplicateFilter}
-                      onReorderFilter={handleReorderFilter}
-                      availableFiles={[...new Set(entries.map(e => e.filename).filter((f): f is string => Boolean(f)))]}
-                      showOnlyStarred={showOnlyStarred}
-                      onToggleShowOnlyStarred={() => setShowOnlyStarred(v => !v)}
-                      showOnlyCommented={showOnlyCommented}
-                      onToggleShowOnlyCommented={() => setShowOnlyCommented(v => !v)}
-                      filterMatchCounts={entries.length > 0 ? filterMatchCounts : undefined}
-                    />
-                    {features.savedPresets && (
-                      <PresetsPanel
-                        presets={presets}
-                        onApply={handleApplyPreset}
-                        onDelete={handleDeletePreset}
-                        onSaveCurrent={handleSavePreset}
-                        onUpdate={handleUpdatePreset}
-                        onImport={handleImportPresets}
-                      />
-                    )}
-                  </>
+                <SearchBar
+                  query={searchQuery}
+                  onQueryChange={setSearchQuery}
+                  useRegex={useRegexSearch}
+                  onRegexChange={setUseRegexSearch}
+                  onConvertToFilter={handleConvertToFilter}
+                  inputRef={searchInputRef}
+                />
+                {features.timeRange && (
+                  <TimeRangeFilter value={timeRange} onChange={setTimeRange} />
+                )}
+                <FilterPanel
+                  filters={filters}
+                  onAddFilter={handleAddFilter}
+                  onUpdateFilter={handleUpdateFilter}
+                  onDeleteFilter={handleDeleteFilter}
+                  onRemoveAllFilters={handleRemoveAllFilters}
+                  onMoveFilter={handleMoveFilter}
+                  onDuplicateFilter={handleDuplicateFilter}
+                  onReorderFilter={handleReorderFilter}
+                  availableFiles={[...new Set(entries.map(e => e.filename).filter((f): f is string => Boolean(f)))]}
+                  showOnlyStarred={showOnlyStarred}
+                  onToggleShowOnlyStarred={() => setShowOnlyStarred(v => !v)}
+                  showOnlyCommented={showOnlyCommented}
+                  onToggleShowOnlyCommented={() => setShowOnlyCommented(v => !v)}
+                  filterMatchCounts={entries.length > 0 ? filterMatchCounts : undefined}
+                />
+                {features.savedPresets && (
+                  <PresetsPanel
+                    presets={presets}
+                    onApply={handleApplyPreset}
+                    onDelete={handleDeletePreset}
+                    onSaveCurrent={handleSavePreset}
+                    onUpdate={handleUpdatePreset}
+                    onImport={handleImportPresets}
+                  />
                 )}
               </div>
               {/* {features.savedPresets && (

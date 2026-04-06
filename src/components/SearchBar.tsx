@@ -43,6 +43,9 @@ export default function SearchBar({
 
   return (
     <div className="search-bar">
+      <div className="match-and-highlight-header">
+        <h4>Match & Highlight</h4>
+      </div>
       <div className="search-input-group">
         <div className="search-input-wrap">
           <input

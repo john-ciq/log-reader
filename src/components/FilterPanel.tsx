@@ -67,13 +67,12 @@ export default function FilterPanel({
   return (
     <div className="filter-panel">
       <div className="filter-header">
-        <h4>
-          {features.removeAllFilters && filters.length > 0
-            ? <button className="remove-all-icon-btn" onClick={onRemoveAllFilters} title="Remove all filters">🗑️</button>
-            : '🔍'
-          } Filters
-        </h4>
+        <h4>Filters</h4>
         <div className="filter-header-right">
+          {features.removeAllFilters
+            ? <button className="star-filter-btn" onClick={onRemoveAllFilters} title="Remove all filters">🗑️</button>
+            : ''
+          }
           {features.starredEntries && (
             <button
               className={`star-filter-btn${showOnlyStarred ? ' active' : ''}`}

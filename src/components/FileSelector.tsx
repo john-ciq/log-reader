@@ -18,7 +18,7 @@ export default function FileSelector({ files, selected, onChange, onRemove, onOp
 
   return (
     <div className={`file-selector${!collapsed ? ' selector--has-content' : ''}`}>
-      <h3 className="collapsible-heading" onClick={() => setCollapsed(c => { storage.savePanelCollapsed('files', !c); return !c; })}>
+      <h4 className="collapsible-heading" onClick={() => setCollapsed(c => { storage.savePanelCollapsed('files', !c); return !c; })}>
         <span className="collapse-arrow">{collapsed ? '▶' : '▼'}</span>
         Log Files
         {files.length > 0 && (
@@ -28,7 +28,7 @@ export default function FileSelector({ files, selected, onChange, onRemove, onOp
             <button className="config-action-btn" onClick={e => { e.stopPropagation(); files.forEach(f => onChange(f, false)); }}>None</button>
           </span>
         )}
-      </h3>
+      </h4>
       {!collapsed && files.length === 0 && <p className="empty-message no-padding">No files loaded yet</p>}
       {!collapsed && files.length > 0 && (
         <div className={`files-list${features.scrollLogFiles ? ' files-list--scrollable' : ''}`}>
